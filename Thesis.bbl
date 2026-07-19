@@ -1,0 +1,300 @@
+\begin{thebibliography}{36}
+\providecommand{\biband}{和}
+\providecommand{\bibetal}{等}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{#1}
+\expandafter\ifx\csname urlstyle\endcsname\relax\else
+  \urlstyle{same}\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \DeclareUrlCommand\doi{\urlstyle{rm}}
+  \def\eprint#1#2{#2}
+\else
+  \def\doi#1{\href{https://doi.org/#1}{\nolinkurl{#1}}}
+  \let\eprint\href
+\fi
+
+\bibitem[Agrawal {\bibetal}(2024)Agrawal, Kedia, Panwar, Mohan, Kwatra,
+  Gulavani, Tumanov, and Ramjee]{agrawal2024sarathiServe}
+Agrawal~A, Kedia~N, Panwar~A, et~al.
+\newblock Taming throughput-latency tradeoff in {LLM} inference with
+  sarathi-serve [C/OL]//\allowbreak
+18th USENIX Symposium on Operating Systems Design and Implementation.
+\newblock 2024: 117-134.
+\newblock \url{https://www.usenix.org/conference/osdi24/presentation/agrawal}.
+
+\bibitem[Bian {\bibetal}(2025)Bian et~al.]{bian2025tokencake}
+Bian~Z, et~al.
+\newblock Tokencake: A {KV}-cache-centric serving framework for {LLM}-based
+  multi-agent applications [EB/OL].
+\newblock 2025.
+\newblock \url{https://arxiv.org/abs/2510.18586}.
+
+\bibitem[Chen {\bibetal}(2018)Chen, Moreau, Jiang, Zheng, Yan, Shen, Cowan,
+  Wang, Hu, Ceze, Guestrin, and Krishnamurthy]{chen2018tvm}
+Chen~T, Moreau~T, Jiang~Z, et~al.
+\newblock {TVM}: An automated end-to-end optimizing compiler for deep learning
+  [C/OL]//\allowbreak
+13th USENIX Symposium on Operating Systems Design and Implementation.
+\newblock 2018: 578-594.
+\newblock \url{https://www.usenix.org/conference/osdi18/presentation/chen}.
+
+\bibitem[Cheng {\bibetal}(2025)Cheng, Zhang, Zhou, Ji, Jiang, Zhao, Xiao, Ye,
+  Huang, Lai, Jin, Hou, Wu, Dong, Yip, Wang, Yang, Miao, Chen, and
+  Jia]{cheng2025mpk}
+Cheng~X, Zhang~Z, Zhou~Y, et~al.
+\newblock {MPK}: A compiler and runtime for mega-kernelizing tensor programs
+  [EB/OL].
+\newblock 2025.
+\newblock \url{https://arxiv.org/abs/2512.22219}.
+
+\bibitem[Dao(2023)]{dao2023flashattention2}
+Dao~T.
+\newblock Flashattention-2: Faster attention with better parallelism and work
+  partitioning [EB/OL].
+\newblock 2023.
+\newblock \url{https://arxiv.org/abs/2307.08691}.
+
+\bibitem[Dao {\bibetal}(2022)Dao, Fu, Ermon, Rudra, and
+  R{\'e}]{dao2022flashattention}
+Dao~T, Fu~D~Y, Ermon~S, et~al.
+\newblock Flashattention: Fast and memory-efficient exact attention with
+  {IO}-awareness [EB/OL].
+\newblock 2022.
+\newblock \url{https://arxiv.org/abs/2205.14135}.
+
+\bibitem[Dong {\bibetal}(2026)Dong et~al.]{dong2026adamk}
+Dong~W, et~al.
+\newblock Ada-mk: Adaptive megakernel optimization via automated {DAG}-based
+  search for {LLM} inference [EB/OL].
+\newblock 2026.
+\newblock \url{https://arxiv.org/abs/2605.11581}.
+
+\bibitem[Hao {\bibetal}(2026)Hao, Li, Luo, Qian, Wang, Zhao, Feng, Cui, and
+  Xue]{hao2026dacos}
+Hao~Z, Li~G, Luo~F, et~al.
+\newblock {DACOS}: Dependency-aware cross-kernel overlapping for optimizing
+  short-sequence workloads in {LLM} applications [Z].
+\newblock 2026.
+
+\bibitem[He {\bibetal}(2026)He, Jiang, Zhao, Xu, Yoneki, Cui, and
+  Fu]{he2026ampd}
+He~W, Jiang~Y, Zhao~P, et~al.
+\newblock Efficient multi-round {LLM} inference over disaggregated serving
+  [EB/OL].
+\newblock 2026.
+\newblock \url{https://arxiv.org/abs/2602.14516}.
+
+\bibitem[Jin {\bibetal}(2026)Jin, Hou, Wang, Lai, Chen, Ye, Cai, Dong, Cheng,
+  Zhang, Zhao, Huang, Yang, Jiang, Oliaro, Ji, Miao, Grover, Mowry, Jia, and
+  Chen]{eventTensor2026}
+Jin~H, Hou~B, Wang~G, et~al.
+\newblock Event tensor: A unified abstraction for compiling dynamic megakernel
+  [EB/OL].
+\newblock 2026.
+\newblock \url{https://arxiv.org/abs/2604.13327}.
+
+\bibitem[Kwon {\bibetal}(2023)Kwon, Li, Zhuang, Sheng, Zheng, Yu, Gonzalez,
+  Zhang, and Stoica]{kwon2023vllm}
+Kwon~W, Li~Z, Zhuang~S, et~al.
+\newblock Efficient memory management for large language model serving with
+  {PagedAttention} [C/OL]//\allowbreak
+Proceedings of the 29th Symposium on Operating Systems Principles.
+\newblock 2023: 611-626.
+\newblock DOI: \doi{10.1145/3600006.3613165}.
+
+\bibitem[Li {\bibetal}(2024{\natexlab{a}})Li, Jiang, Gadepally, and
+  Tiwari]{li2024llmServingSurvey}
+Li~B, Jiang~Y, Gadepally~V, et~al.
+\newblock {LLM} inference serving: Survey of recent advances and opportunities
+  [EB/OL].
+\newblock 2024.
+\newblock \url{https://arxiv.org/abs/2407.12391}.
+
+\bibitem[Li {\bibetal}(2024{\natexlab{b}})Li, Xu, Huang, Chen, Li, Liu, Lian,
+  Pan, Ding, Zhou, Wang, and Dai]{li2024hardwarePerspective}
+Li~J, Xu~J, Huang~S, et~al.
+\newblock Large language model inference acceleration: A comprehensive hardware
+  perspective [EB/OL].
+\newblock 2024.
+\newblock \url{https://arxiv.org/abs/2410.04466}.
+
+\bibitem[Luo {\bibetal}(2026)Luo et~al.]{luo2026agentix}
+Luo~F, et~al.
+\newblock Agentix: An efficient serving engine for {LLM} agents as general
+  programs [EB/OL].
+\newblock 2026.
+\newblock \url{https://www.usenix.org/conference/nsdi26/presentation/luo}.
+
+\bibitem[Luo {\bibetal}(2025)Luo, Liu, Zhou, Fang, Huang, Feng, Zhang, Sun,
+  Zheng, Leng, and Guo]{luo2025clusterfusion}
+Luo~X, Liu~Z, Zhou~Y, et~al.
+\newblock Clusterfusion: Expanding operator fusion scope for {LLM} inference
+  via cluster-level collective primitive [EB/OL].
+\newblock 2025.
+\newblock \url{https://arxiv.org/abs/2508.18850}.
+
+\bibitem[Niu {\bibetal}(2021)Niu, Guan, Wang, Agrawal, and
+  Ren]{niu2021dnnfusion}
+Niu~W, Guan~J, Wang~Y, et~al.
+\newblock {DNNFusion}: Accelerating deep neural networks execution with
+  advanced operator fusion [C/OL]//\allowbreak
+Proceedings of the 42nd ACM SIGPLAN International Conference on Programming
+  Language Design and Implementation.
+\newblock 2021: 883-898.
+\newblock DOI: \doi{10.1145/3453483.3454083}.
+
+\bibitem[Nrusimha {\bibetal}(2025)Nrusimha, Brandon, Mishra, Shen, Panda,
+  Ragan-Kelley, and Kim]{nrusimha2025flashformer}
+Nrusimha~A, Brandon~W, Mishra~M, et~al.
+\newblock Flashformer: Whole-model kernels for efficient low-batch inference
+  [EB/OL].
+\newblock 2025.
+\newblock \url{https://arxiv.org/abs/2505.22758}.
+
+\bibitem[{NVIDIA}(2026{\natexlab{a}})]{nvidia2026cudaGraphs}
+{NVIDIA}.
+\newblock {CUDA} programming guide: {CUDA} graphs [EB/OL].
+\newblock 2026\allowbreak[2026-06-30].
+\newblock
+  \url{https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#cuda-graphs}.
+
+\bibitem[{NVIDIA}(2026{\natexlab{b}})]{nvidia2026cutlassGemmApi}
+{NVIDIA}.
+\newblock {CUTLASS} 3.0 {GEMM} {API} [EB/OL].
+\newblock 2026\allowbreak[2026-06-30].
+\newblock
+  \url{https://docs.nvidia.com/cutlass/latest/media/docs/cpp/gemm_api_3x.html}.
+
+\bibitem[{NVIDIA}(2026{\natexlab{c}})]{nvidia2026pdl}
+{NVIDIA}.
+\newblock {CUDA} programming guide: Programmatic dependent launch [EB/OL].
+\newblock 2026\allowbreak[2026-06-30].
+\newblock
+  \url{https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/programmatic-dependent-launch.html}.
+
+\bibitem[{NVIDIA}(2026{\natexlab{d}})]{nvidia2026tensorrtLayerFusion}
+{NVIDIA}.
+\newblock {NVIDIA TensorRT} documentation: Layer fusion catalog [EB/OL].
+\newblock 2026\allowbreak[2026-06-30].
+\newblock
+  \url{https://docs.nvidia.com/deeplearning/tensorrt/latest/performance/fusion-catalog.html}.
+
+\bibitem[Pan {\bibetal}(2025)Pan and Li]{pan2025llmInferenceSurvey}
+Pan~J, Li~G.
+\newblock A survey of {LLM} inference systems [EB/OL].
+\newblock 2025.
+\newblock \url{https://arxiv.org/abs/2506.21901}.
+
+\bibitem[Patel {\bibetal}(2024)Patel, Choukse, Zhang, Shah, Goiri, Maleki, and
+  Bianchini]{patel2024splitwise}
+Patel~P, Choukse~E, Zhang~C, et~al.
+\newblock Splitwise: Efficient generative {LLM} inference using phase splitting
+  [C/OL]//\allowbreak
+51st {ACM/IEEE} Annual International Symposium on Computer Architecture.
+\newblock {IEEE}, 2024: 118-132.
+\newblock \url{https://doi.org/10.1109/ISCA59077.2024.00019}.
+
+\bibitem[{PyTorch Contributors}(2026{\natexlab{a}})]{pytorch2026cudaGraphs}
+{PyTorch Contributors}.
+\newblock {CUDA} semantics: {CUDA} graphs [EB/OL].
+\newblock 2026\allowbreak[2026-06-30].
+\newblock
+  \url{https://docs.pytorch.org/docs/stable/notes/cuda.html#cuda-graphs}.
+
+\bibitem[{PyTorch Contributors}(2026{\natexlab{b}})]{pytorch2026torchCompiler}
+{PyTorch Contributors}.
+\newblock torch.compiler [EB/OL].
+\newblock 2026\allowbreak[2026-06-30].
+\newblock
+  \url{https://docs.pytorch.org/docs/stable/user_guide/torch_compiler/torch.compiler.html}.
+
+\bibitem[Qin {\bibetal}(2025)Qin et~al.]{qin2025mooncake}
+Qin~Z, et~al.
+\newblock Mooncake: A {KVCache}-centric disaggregated architecture for {LLM}
+  serving [C/OL]//\allowbreak
+23rd USENIX Conference on File and Storage Technologies.
+\newblock 2025.
+\newblock \url{https://www.usenix.org/conference/fast25/presentation/qin}.
+
+\bibitem[Shah {\bibetal}(2024)Shah, Bikshandi, Zhang, Thakkar, Ramani, and
+  Dao]{shah2024flashattention3}
+Shah~J, Bikshandi~G, Zhang~Y, et~al.
+\newblock Flashattention-3: Fast and accurate attention with asynchrony and
+  low-precision [EB/OL].
+\newblock 2024.
+\newblock \url{https://arxiv.org/abs/2407.08608}.
+
+\bibitem[Shi {\bibetal}(2023)Shi, Yang, Xue, Ma, Xia, Miao, Guo, Yang, and
+  Zhou]{shi2023welder}
+Shi~Y, Yang~Z, Xue~J, et~al.
+\newblock Welder: Scheduling deep learning memory access via tile-graph
+  [C/OL]//\allowbreak
+17th USENIX Symposium on Operating Systems Design and Implementation.
+\newblock 2023: 701-718.
+\newblock \url{https://www.usenix.org/conference/osdi23/presentation/shi}.
+
+\bibitem[Sui {\bibetal}(2026)Sui, Zhao, Ma, He, Wang, Li, Xu, Chen, and
+  Yang]{sui2026paste}
+Sui~Y, Zhao~H, Ma~R, et~al.
+\newblock Parallelizing tool execution and {LLM} generation for low-latency
+  agent serving [EB/OL].
+\newblock 2026.
+\newblock \url{https://arxiv.org/abs/2603.18897}.
+
+\bibitem[Tillet {\bibetal}(2019)Tillet, Kung, and Cox]{tillet2019triton}
+Tillet~P, Kung~H~T, Cox~D~D.
+\newblock Triton: An intermediate language and compiler for tiled neural
+  network computations [C/OL]//\allowbreak
+Proceedings of the 3rd ACM SIGPLAN International Workshop on Machine Learning
+  and Programming Languages.
+\newblock 2019: 10-19.
+\newblock \url{https://doi.org/10.1145/3315508.3329973}.
+
+\bibitem[Vellaisamy {\bibetal}(2025)Vellaisamy, Labonte, Chakraborty, Turner,
+  Sury, and Shen]{vellaisamy2025coupledArch}
+Vellaisamy~P, Labonte~T, Chakraborty~S, et~al.
+\newblock Characterizing and optimizing {LLM} inference workloads on {CPU-GPU}
+  coupled architectures [EB/OL].
+\newblock 2025.
+\newblock \url{https://arxiv.org/abs/2504.11750}.
+
+\bibitem[Vellaisamy {\bibetal}(2026)Vellaisamy, Tripathi, Natarajan, Thenarasu,
+  Blanton, and Shen]{vellaisamy2026taxbreak}
+Vellaisamy~P, Tripathi~S, Natarajan~V, et~al.
+\newblock Taxbreak: Unmasking the hidden costs of {LLM} inference through
+  overhead decomposition [EB/OL].
+\newblock 2026.
+\newblock \url{https://arxiv.org/abs/2603.12465}.
+
+\bibitem[{vLLM Contributors}(2026)]{vllm2026cudaGraphs}
+{vLLM Contributors}.
+\newblock vllm design document: {CUDA} graphs [EB/OL].
+\newblock 2026\allowbreak[2026-06-30].
+\newblock \url{https://docs.vllm.ai/en/v0.14.0/design/cuda_graphs/}.
+
+\bibitem[Ye {\bibetal}(2025)Ye et~al.]{ye2025flashinfer}
+Ye~Z, et~al.
+\newblock Flashinfer: Efficient and customizable attention engine for {LLM}
+  inference serving [EB/OL].
+\newblock 2025.
+\newblock \url{https://arxiv.org/abs/2501.01005}.
+
+\bibitem[Yu {\bibetal}(2022)Yu, Jeong, Kim, Kim, and Chun]{yu2022orca}
+Yu~G~I, Jeong~J~S, Kim~G~W, et~al.
+\newblock Orca: A distributed serving system for transformer-based generative
+  models [C/OL]//\allowbreak
+16th USENIX Symposium on Operating Systems Design and Implementation.
+\newblock 2022: 521-538.
+\newblock \url{https://www.usenix.org/conference/osdi22/presentation/yu}.
+
+\bibitem[Zhong {\bibetal}(2024)Zhong, Liu, Chen, Hu, Zhu, Liu, Jin, and
+  Zhang]{zhong2024distserve}
+Zhong~Y, Liu~S, Chen~J, et~al.
+\newblock Distserve: Disaggregating prefill and decoding for goodput-optimized
+  large language model serving [C/OL]//\allowbreak
+18th USENIX Symposium on Operating Systems Design and Implementation.
+\newblock 2024: 193-210.
+\newblock
+  \url{https://www.usenix.org/conference/osdi24/presentation/zhong-yinmin}.
+
+\end{thebibliography}

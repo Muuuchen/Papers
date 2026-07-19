@@ -1,0 +1,26 @@
+\contentsline {section}{\numberline {一}选题的背景及意义}{1}{section.1}%
+\contentsline {subsection}{\numberline {1.1}选题背景}{1}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}选题意义}{4}{subsection.1.2}%
+\contentsline {section}{\numberline {二}国内外本学科领域的发展现状与趋势}{5}{section.2}%
+\contentsline {subsection}{\numberline {2.1}LLM 推理服务与资源管理}{5}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}深度学习编译与算子融合}{6}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}大范围融合与设备侧整体执行}{7}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}图重放、多流并行与跨 Kernel 重叠}{8}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}现有工作小结}{9}{subsection.2.5}%
+\contentsline {section}{\numberline {三}课题主要研究内容与预期目标}{10}{section.3}%
+\contentsline {subsection}{\numberline {3.1}总体目标}{10}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}拟解决的关键问题}{11}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}主要研究内容}{11}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}预期创新点}{12}{subsection.3.4}%
+\contentsline {section}{\numberline {四}拟采用的研究方法、技术路线、实验方案及可行性分析}{13}{section.4}%
+\contentsline {subsection}{\numberline {4.1}总体研究方法}{13}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}边界表示与分析方法}{13}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}选择性算子融合方法}{13}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}依赖感知跨 Kernel 边界的 DACOS 方法}{14}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}协同决策与运行时}{15}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}实验方案}{15}{subsection.4.6}%
+\contentsline {subsection}{\numberline {4.7}可行性分析}{17}{subsection.4.7}%
+\contentsline {section}{\numberline {五}已有科研基础与所需科研条件}{17}{section.5}%
+\contentsline {subsection}{\numberline {5.1}已有科研基础}{17}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}所需科研条件}{18}{subsection.5.2}%
+\contentsline {section}{\numberline {六}研究工作计划与进度安排}{18}{section.6}%
