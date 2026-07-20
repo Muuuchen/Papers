@@ -1,101 +1,140 @@
 \relax 
 \bibstyle{Biblio/gbt7714-author-year}
-\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
 \providecommand*\HyPL@Entry[1]{}
 \HyPL@Entry{0<</S/r>>}
-\citation{li2024llmServingSurvey,pan2025llmInferenceSurvey,li2024hardwarePerspective}
-\citation{agrawal2024sarathiServe}
-\citation{zhong2024distserve,patel2024splitwise}
-\citation{luo2026agentix,sui2026paste,he2026ampd,bian2025tokencake}
+\citation{dao2022flashattention,chen2018tvm,niu2021dnnfusion,shi2023welder}
+\citation{nrusimha2025flashformer,megaqwen2026,hazy2025nobubbles,hazyMegakernels2025,cheng2025mpk,eventTensor2026}
 \HyPL@Entry{3<</S/D>>}
 \@writefile{toc}{\contentsline {section}{\numberline {一}选题的背景及意义}{1}{section.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}选题背景}{1}{subsection.1.1}\protected@file@percent }
-\citation{nrusimha2025flashformer,vellaisamy2025coupledArch}
-\citation{vellaisamy2026taxbreak}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}研究背景}{1}{subsection.1.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces 普通多 kernel 执行与任务图式 \mbox  {Megakernel}。物理 grid 边界提供全局完成顺序；\mbox  {Megakernel} 使用设备端事件表达相同逻辑依赖，并在依赖允许时形成细粒度流水。\relax }}{2}{figure.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:megakernel-principle}{{1}{2}{普通多 kernel 执行与任务图式 \mbox {Megakernel}。物理 grid 边界提供全局完成顺序；\mbox {Megakernel} 使用设备端事件表达相同逻辑依赖，并在依赖允许时形成细粒度流水。\relax }{figure.caption.2}{}}
+\citation{nvidia2026pdl,nvidia2026cutlassDependentLaunch}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Hazy \texttt  {PartialAttention}$\rightarrow $\texttt  {O\_ProjResidual} 的 SM--时间执行结构。Early-Inside 中，queues 8--131 在 32 个 query heads 全量就绪前进入 consumer 路径，形成 pre-ready residence interval；Serial-Split 由 producer grid completion 统一放行 consumer grid。两种方案保持 task code、queue mapping、task/noop slots 和 instruction bytes 一致。橙色区间对应后续 admission-gated 对照与设备端时间戳所分解的关键阶段。\relax }}{3}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:hazy-boundary}{{2}{3}{Hazy \texttt {PartialAttention}$\rightarrow $\texttt {O\_ProjResidual} 的 SM--时间执行结构。Early-Inside 中，queues 8--131 在 32 个 query heads 全量就绪前进入 consumer 路径，形成 pre-ready residence interval；Serial-Split 由 producer grid completion 统一放行 consumer grid。两种方案保持 task code、queue mapping、task/noop slots 和 instruction bytes 一致。橙色区间对应后续 admission-gated 对照与设备端时间戳所分解的关键阶段。\relax }{figure.caption.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Hazy 同一计算图上相邻边的物理分区结果\relax }}{4}{table.caption.4}\protected@file@percent }
+\newlabel{tab:hazy-adjacent-edges}{{1}{4}{Hazy 同一计算图上相邻边的物理分区结果\relax }{table.caption.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}选题意义}{4}{subsection.1.2}\protected@file@percent }
+\citation{nvidia2026pdl,nvidia2026cutlassDependentLaunch}
 \citation{chen2018tvm,niu2021dnnfusion,shi2023welder}
 \citation{dao2022flashattention,dao2023flashattention2,shah2024flashattention3}
-\citation{nvidia2026cudaGraphs,nvidia2026pdl}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}选题意义}{4}{subsection.1.2}\protected@file@percent }
-\citation{yu2022orca}
-\citation{kwon2023vllm}
-\citation{agrawal2024sarathiServe}
-\citation{zhong2024distserve,patel2024splitwise}
-\citation{qin2025mooncake}
-\citation{luo2026agentix,sui2026paste,he2026ampd,bian2025tokencake}
-\citation{chen2018tvm}
-\citation{tillet2019triton}
-\citation{pytorch2026torchCompiler}
-\@writefile{toc}{\contentsline {section}{\numberline {二}国内外本学科领域的发展现状与趋势}{5}{section.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}LLM 推理服务与资源管理}{5}{subsection.2.1}\protected@file@percent }
-\citation{nvidia2026tensorrtLayerFusion,nvidia2026cutlassGemmApi}
-\citation{niu2021dnnfusion}
-\citation{shi2023welder}
-\citation{dao2022flashattention,dao2023flashattention2,shah2024flashattention3}
-\citation{ye2025flashinfer}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}深度学习编译与算子融合}{6}{subsection.2.2}\protected@file@percent }
+\citation{hu2024korch}
 \citation{luo2025clusterfusion}
+\@writefile{toc}{\contentsline {section}{\numberline {二}国内外本学科领域的发展现状与趋势}{5}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}从图级融合到 kernel orchestration}{5}{subsection.2.1}\protected@file@percent }
 \citation{nrusimha2025flashformer}
+\citation{megaqwen2026,megaqwenResults2026}
+\citation{hazy2025nobubbles,hazyMegakernels2025}
 \citation{cheng2025mpk}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Whole-model 与 persistent Megakernel}{6}{subsection.2.2}\protected@file@percent }
 \citation{eventTensor2026}
-\citation{eventTensor2026,dong2026adamk}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}大范围融合与设备侧整体执行}{7}{subsection.2.3}\protected@file@percent }
-\citation{nvidia2026cudaGraphs,pytorch2026cudaGraphs,vllm2026cudaGraphs}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}图重放、多流并行与跨 Kernel 重叠}{8}{subsection.2.4}\protected@file@percent }
+\citation{dong2026adamk}
+\citation{jaber2026automegakernel}
+\citation{deepgemm2026,deepgemmPr360}
+\citation{deepgemmPr357}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}动态 task/event 与自动执行计划生成}{7}{subsection.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}逻辑 Megakernel 的多 grid 物理映射}{7}{subsection.2.4}\protected@file@percent }
+\citation{nvidia2026cudaGraphs}
 \citation{nvidia2026pdl}
-\citation{hao2026dacos}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}现有工作小结}{9}{subsection.2.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {三}课题主要研究内容与预期目标}{10}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}总体目标}{10}{subsection.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}拟解决的关键问题}{11}{subsection.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}主要研究内容}{11}{subsection.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}预期创新点}{12}{subsection.3.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {四}拟采用的研究方法、技术路线、实验方案及可行性分析}{13}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}总体研究方法}{13}{subsection.4.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}边界表示与分析方法}{13}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}选择性算子融合方法}{13}{subsection.4.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}依赖感知跨 Kernel 边界的 DACOS 方法}{14}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}协同决策与运行时}{15}{subsection.4.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}实验方案}{15}{subsection.4.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}可行性分析}{17}{subsection.4.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {五}已有科研基础与所需科研条件}{17}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}已有科研基础}{17}{subsection.5.1}\protected@file@percent }
-\bibdata{Biblio/ref}
-\bibcite{agrawal2024sarathiServe}{{1}{2024}{{Agrawal {等}}}{{Agrawal, Kedia, Panwar, Mohan, Kwatra, Gulavani, Tumanov, and Ramjee}}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}所需科研条件}{18}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {六}研究工作计划与进度安排}{18}{section.6}\protected@file@percent }
-\bibcite{bian2025tokencake}{{2}{2025}{{Bian {等}}}{{Bian et~al.}}}
-\bibcite{chen2018tvm}{{3}{2018}{{Chen {等}}}{{Chen, Moreau, Jiang, Zheng, Yan, Shen, Cowan, Wang, Hu, Ceze, Guestrin, and Krishnamurthy}}}
-\bibcite{cheng2025mpk}{{4}{2025}{{Cheng {等}}}{{Cheng, Zhang, Zhou, Ji, Jiang, Zhao, Xiao, Ye, Huang, Lai, Jin, Hou, Wu, Dong, Yip, Wang, Yang, Miao, Chen, and Jia}}}
-\bibcite{dao2023flashattention2}{{5}{2023}{{Dao}}{{}}}
-\bibcite{dao2022flashattention}{{6}{2022}{{Dao {等}}}{{Dao, Fu, Ermon, Rudra, and R{\'e}}}}
-\bibcite{dong2026adamk}{{7}{2026}{{Dong {等}}}{{Dong et~al.}}}
-\bibcite{hao2026dacos}{{8}{2026}{{Hao {等}}}{{Hao, Li, Luo, Qian, Wang, Zhao, Feng, Cui, and Xue}}}
-\bibcite{he2026ampd}{{9}{2026}{{He {等}}}{{He, Jiang, Zhao, Xu, Yoneki, Cui, and Fu}}}
-\bibcite{eventTensor2026}{{10}{2026}{{Jin {等}}}{{Jin, Hou, Wang, Lai, Chen, Ye, Cai, Dong, Cheng, Zhang, Zhao, Huang, Yang, Jiang, Oliaro, Ji, Miao, Grover, Mowry, Jia, and Chen}}}
-\bibcite{kwon2023vllm}{{11}{2023}{{Kwon {等}}}{{Kwon, Li, Zhuang, Sheng, Zheng, Yu, Gonzalez, Zhang, and Stoica}}}
-\bibcite{li2024llmServingSurvey}{{12}{2024{a}}{{Li {等}}}{{Li, Jiang, Gadepally, and Tiwari}}}
-\bibcite{li2024hardwarePerspective}{{13}{2024{b}}{{Li {等}}}{{Li, Xu, Huang, Chen, Li, Liu, Lian, Pan, Ding, Zhou, Wang, and Dai}}}
-\bibcite{luo2026agentix}{{14}{2026}{{Luo {等}}}{{Luo et~al.}}}
+\citation{nvidia2026cutlassDependentLaunch,nvidia2026cutlassExample63}
+\citation{muuuchen2026pdlExp}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}CUDA Graph 与 Programmatic Dependent Launch}{8}{subsection.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}现状归纳与研究机会}{9}{subsection.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {三}课题主要研究内容、预期目标}{9}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}问题定义与总体目标}{9}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:purpose}{{3.1}{9}{问题定义与总体目标}{subsection.3.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces 同一算子阶段切口的四种执行方案\relax }}{10}{table.caption.5}\protected@file@percent }
+\newlabel{tab:four-execution-plans}{{2}{10}{同一算子阶段切口的四种执行方案\relax }{table.caption.5}{}}
+\newlabel{eq:three-causal-contrasts}{{1}{10}{问题定义与总体目标}{equation.3.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces 同一算子阶段切口的四种执行计划。$\mitPi _E$ 允许 consumer 提前进入，$\mitPi _G$ 在最小依赖满足后投放 consumer，$\mitPi _S$ 以 grid completion 承载依赖，$\mitPi _P$ 在保留物理边界的同时提前执行合法独立前缀。三组相邻差值依次识别 task admission、物理阶段切换和 PDL 跨边界重叠。\relax }}{11}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:four-execution-plans}{{3}{11}{同一算子阶段切口的四种执行计划。$\Pi _E$ 允许 consumer 提前进入，$\Pi _G$ 在最小依赖满足后投放 consumer，$\Pi _S$ 以 grid completion 承载依赖，$\Pi _P$ 在保留物理边界的同时提前执行合法独立前缀。三组相邻差值依次识别 task admission、物理阶段切换和 PDL 跨边界重叠。\relax }{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}研究问题}{11}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}可证伪研究假设}{12}{subsection.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}主要研究内容}{13}{subsection.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}预期目标、创新点与成果}{14}{subsection.3.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.1}预期目标}{14}{subsubsection.3.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.2}预期创新点}{14}{subsubsection.3.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.3}预期成果}{15}{subsubsection.3.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {四}拟采用的研究方法、技术路线、实验方案及其可行性分析}{15}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}问题建模与分析对象}{15}{subsection.4.1}\protected@file@percent }
+\newlabel{eq:split-balance}{{2}{15}{问题建模与分析对象}{equation.4.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}四路因果对照与关键路径定位}{16}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Controller-level admission gate}{16}{subsubsection.4.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}跨阶段全局时间戳}{16}{subsubsection.4.2.2}\protected@file@percent }
+\newlabel{eq:milestones}{{3}{16}{跨阶段全局时间戳}{equation.4.3}{}}
+\newlabel{eq:pdl-milestones}{{4}{17}{跨阶段全局时间戳}{equation.4.4}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}SM 调度与指令级解释}{17}{subsubsection.4.2.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}边界特征与依赖实现层级选择}{18}{subsection.4.3}\protected@file@percent }
+\newlabel{eq:readiness-fraction}{{5}{18}{边界特征与依赖实现层级选择}{equation.4.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}PDL 跨边界变换与收益模型}{18}{subsection.4.4}\protected@file@percent }
+\newlabel{eq:pdl-legality}{{6}{18}{PDL 跨边界变换与收益模型}{equation.4.6}{}}
+\newlabel{eq:pdl-breakeven}{{7}{19}{PDL 跨边界变换与收益模型}{equation.4.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces 本课题的技术路线：以算子阶段切口为分析对象，通过四路主动干预定位 crossover 机制，并在选定物理边界上优化 PDL 独立前缀。\relax }}{19}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:technical-route}{{4}{19}{本课题的技术路线：以算子阶段切口为分析对象，通过四路主动干预定位 crossover 机制，并在选定物理边界上优化 PDL 独立前缀。\relax }{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}实验方案}{19}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.5.1}实验层次与真实计算图}{19}{subsubsection.4.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.5.2}受控机制子图}{20}{subsubsection.4.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.5.3}严格 A/B 与统计方法}{20}{subsubsection.4.5.3}\protected@file@percent }
+\citation{hazyMegakernels2025}
+\citation{inferenceOptimization2025llama05b}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.5.4}对照与消融}{21}{subsubsection.4.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}可行性分析与风险控制}{21}{subsection.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {五}已有科研基础与所需的科研条件}{22}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}真实 Megakernel 的实验基础}{22}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}SM、SASS 与关键路径分析基础}{22}{subsection.5.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces H800 先导实验的控制条件与直接结论\relax }}{23}{table.caption.8}\protected@file@percent }
+\newlabel{tab:preliminary-evidence}{{3}{23}{H800 先导实验的控制条件与直接结论\relax }{table.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces H800 上的物理边界实测结果。(a) 蓝色小点与细误差线表示各独立进程的 paired median 和进程内 paired-bootstrap 95\% 区间，菱形与粗短线表示进程间中位数和 min--max 范围；正值表示 Serial-Split 更快。橙色三角为 120K Nsight Systems 单独测得的可见 inter-grid gap。(b) 同一 32K workload 上四条相邻边的进程级 paired median；绿色区域对应 split 更快，红色区域对应 inside 更快，空心点表示该边当前包含一个独立进程。\relax }}{24}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:context-split-gain}{{5}{24}{H800 上的物理边界实测结果。(a) 蓝色小点与细误差线表示各独立进程的 paired median 和进程内 paired-bootstrap 95\% 区间，菱形与粗短线表示进程间中位数和 min--max 范围；正值表示 Serial-Split 更快。橙色三角为 120K Nsight Systems 单独测得的可见 inter-grid gap。(b) 同一 32K workload 上四条相邻边的进程级 paired median；绿色区域对应 split 更快，红色区域对应 inside 更快，空心点表示该边当前包含一个独立进程。\relax }{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}PDL 与跨代码库实现基础}{24}{subsection.5.3}\protected@file@percent }
+\citation{megaqwen2026,deepgemm2026}
+\citation{cheng2025mpk}
+\citation{nvidia2026cutlassDependentLaunch,muuuchen2026pdlExp}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Hazy 中心边上 Serial-Split 与 Split+PDL 的 Nsight Systems 时间结构（32K，matched binary，20 对 AB/BA）。左图将每种方案的 producer completion 对齐为零，斜线区表示 dependent grid 在 producer 完成前的驻留，其中包含 dependency wait 与合法独立工作；右图放大 producer completion 后的关键路径尾部。PDL 将 suffix tail 中位数从 $9.088\ensuremath {\,\mitmu \mathrm {s}}$ 降至 $5.008\ensuremath {\,\mitmu \mathrm {s}}$，完整 GPU envelope 的 paired-median 变化为 $-2.687\ensuremath {\,\mitmu \mathrm {s}}$。\relax }}{25}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:pdl-nsys-timeline}{{6}{25}{Hazy 中心边上 Serial-Split 与 Split+PDL 的 Nsight Systems 时间结构（32K，matched binary，20 对 AB/BA）。左图将每种方案的 producer completion 对齐为零，斜线区表示 dependent grid 在 producer 完成前的驻留，其中包含 dependency wait 与合法独立工作；右图放大 producer completion 后的关键路径尾部。PDL 将 suffix tail 中位数从 $9.088\microsecond $ 降至 $5.008\microsecond $，完整 GPU envelope 的 paired-median 变化为 $-2.687\microsecond $。\relax }{figure.caption.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}软硬件与实验条件}{26}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {六}研究工作计划与进度安排}{26}{section.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces 研究进度安排与阶段成果\relax }}{27}{table.caption.11}\protected@file@percent }
+\newlabel{tab:schedule}{{4}{27}{研究进度安排与阶段成果\relax }{table.caption.11}{}}
+\bibcite{chen2018tvm}{{1}{2018}{{Chen {等}}}{{Chen, Moreau, Jiang, Zheng, Yan, Shen, Cowan, Wang, Hu, Ceze, Guestrin, and Krishnamurthy}}}
+\bibcite{cheng2025mpk}{{2}{2026}{{Cheng {等}}}{{Cheng, Zhang, Zhou, Ji, Jiang, Zhao, Xiao, Ye, Huang, Lai, Jin, Hou, Wu, Dong, Yip, Ye, Wang, Yang, Miao, Chen, and Jia}}}
+\bibcite{dao2023flashattention2}{{3}{2024}{{Dao}}{{}}}
+\bibcite{dao2022flashattention}{{4}{2022}{{Dao {等}}}{{Dao, Fu, Ermon, Rudra, and R{\'e}}}}
+\bibcite{deepgemm2026}{{5}{2026}{{DeepSeek-AI}}{{}}}
+\bibcite{dong2026adamk}{{6}{2026}{{Dong {等}}}{{Dong et~al.}}}
+\bibcite{hazy2025nobubbles}{{7}{2025{a}}{{Hazy Research}}{{}}}
+\bibcite{hazyMegakernels2025}{{8}{2025{b}}{{Hazy Research}}{{}}}
+\bibcite{hu2024korch}{{9}{2024}{{Hu {等}}}{{Hu, Venkatram, Biswas, Marimuthu, Hou, Oliaro, Wang, Zheng, Miao, Zhai, and Jia}}}
+\bibcite{megaqwen2026}{{10}{2026{a}}{{Infatoshi}}{{}}}
+\bibcite{megaqwenResults2026}{{11}{2026{b}}{{Infatoshi}}{{}}}
+\bibcite{inferenceOptimization2025llama05b}{{12}{2025}{{inference-optimization}}{{}}}
+\bibcite{jaber2026automegakernel}{{13}{2026}{{Jaber {等}}}{{Jaber and Jaber}}}
+\bibcite{eventTensor2026}{{14}{2026}{{Jin {等}}}{{Jin, Hou, Wang, Lai, Chen, Ye, Cai, Dong, Cheng, Zhang, Zhao, Huang, Yang, Jiang, Oliaro, Ji, Miao, Grover, Mowry, Jia, and Chen}}}
 \bibcite{luo2025clusterfusion}{{15}{2025}{{Luo {等}}}{{Luo, Liu, Zhou, Fang, Huang, Feng, Zhang, Sun, Zheng, Leng, and Guo}}}
-\bibcite{niu2021dnnfusion}{{16}{2021}{{Niu {等}}}{{Niu, Guan, Wang, Agrawal, and Ren}}}
-\bibcite{nrusimha2025flashformer}{{17}{2025}{{Nrusimha {等}}}{{Nrusimha, Brandon, Mishra, Shen, Panda, Ragan-Kelley, and Kim}}}
-\bibcite{nvidia2026cudaGraphs}{{18}{2026{a}}{{NVIDIA}}{{}}}
-\bibcite{nvidia2026cutlassGemmApi}{{19}{2026{b}}{{NVIDIA}}{{}}}
-\bibcite{nvidia2026pdl}{{20}{2026{c}}{{NVIDIA}}{{}}}
-\bibcite{nvidia2026tensorrtLayerFusion}{{21}{2026{d}}{{NVIDIA}}{{}}}
-\bibcite{pan2025llmInferenceSurvey}{{22}{2025}{{Pan {等}}}{{Pan and Li}}}
-\bibcite{patel2024splitwise}{{23}{2024}{{Patel {等}}}{{Patel, Choukse, Zhang, Shah, Goiri, Maleki, and Bianchini}}}
-\bibcite{pytorch2026cudaGraphs}{{24}{2026{a}}{{PyTorch Contributors}}{{}}}
-\bibcite{pytorch2026torchCompiler}{{25}{2026{b}}{{PyTorch Contributors}}{{}}}
-\bibcite{qin2025mooncake}{{26}{2025}{{Qin {等}}}{{Qin et~al.}}}
-\bibcite{shah2024flashattention3}{{27}{2024}{{Shah {等}}}{{Shah, Bikshandi, Zhang, Thakkar, Ramani, and Dao}}}
-\bibcite{shi2023welder}{{28}{2023}{{Shi {等}}}{{Shi, Yang, Xue, Ma, Xia, Miao, Guo, Yang, and Zhou}}}
-\bibcite{sui2026paste}{{29}{2026}{{Sui {等}}}{{Sui, Zhao, Ma, He, Wang, Li, Xu, Chen, and Yang}}}
-\bibcite{tillet2019triton}{{30}{2019}{{Tillet {等}}}{{Tillet, Kung, and Cox}}}
-\bibcite{vellaisamy2025coupledArch}{{31}{2025}{{Vellaisamy {等}}}{{Vellaisamy, Labonte, Chakraborty, Turner, Sury, and Shen}}}
-\bibcite{vellaisamy2026taxbreak}{{32}{2026}{{Vellaisamy {等}}}{{Vellaisamy, Tripathi, Natarajan, Thenarasu, Blanton, and Shen}}}
-\bibcite{vllm2026cudaGraphs}{{33}{2026}{{vLLM Contributors}}{{}}}
-\bibcite{ye2025flashinfer}{{34}{2025}{{Ye {等}}}{{Ye et~al.}}}
-\bibcite{yu2022orca}{{35}{2022}{{Yu {等}}}{{Yu, Jeong, Kim, Kim, and Chun}}}
-\bibcite{zhong2024distserve}{{36}{2024}{{Zhong {等}}}{{Zhong, Liu, Chen, Hu, Zhu, Liu, Jin, and Zhang}}}
-\gdef \@abspage@last{24}
+\bibcite{deepgemmPr360}{{16}{2026}{{mpdfdfl}}{{}}}
+\bibcite{muuuchen2026pdlExp}{{17}{2026}{{Muuuchen}}{{}}}
+\bibcite{niu2021dnnfusion}{{18}{2021}{{Niu {等}}}{{Niu, Guan, Wang, Agrawal, and Ren}}}
+\bibcite{nrusimha2025flashformer}{{19}{2025}{{Nrusimha {等}}}{{Nrusimha, Brandon, Mishra, Shen, Panda, Ragan-Kelley, and Kim}}}
+\bibcite{nvidia2026cudaGraphs}{{20}{2026{a}}{{NVIDIA}}{{}}}
+\bibcite{nvidia2026cutlassDependentLaunch}{{21}{2026{b}}{{NVIDIA}}{{}}}
+\bibcite{nvidia2026cutlassExample63}{{22}{2026{c}}{{NVIDIA}}{{}}}
+\bibcite{nvidia2026pdl}{{23}{2026{d}}{{NVIDIA}}{{}}}
+\bibcite{deepgemmPr357}{{24}{2026}{{RayWang96}}{{}}}
+\bibcite{shah2024flashattention3}{{25}{2024}{{Shah {等}}}{{Shah, Bikshandi, Zhang, Thakkar, Ramani, and Dao}}}
+\bibcite{shi2023welder}{{26}{2023}{{Shi {等}}}{{Shi, Yang, Xue, Ma, Xia, Miao, Guo, Yang, and Zhou}}}
+\gdef \@abspage@last{33}

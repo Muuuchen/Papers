@@ -1,0 +1,97 @@
+\subsection{研究背景}
+大语言模型 (Large Language Model,LLM) 已从离线批量生成，转变为支撑对话、检索增强、代码补全与智能体等交互式服务的核心组件。这类服务对单次响应时延高度敏感：一次请求首先并行处理输入序列以产生首个 token (prefill), 随后依据已缓存的 Key-Value Cache (KV Cache) 逐 token 解码 (decode)。与追求峰值吞吐的训练范式不同，交互式推理的大量计算落在单次计算量很小的区间 —— 小 batch 的 decode、短增量的 prefill, 以及智能体在工具调用前后需要快速返回的阶段。在这个阶段暴露出两个重要的问题，首先，低 batch 推理处于与训练截然不同的约束下，其主要瓶颈并非算力，而是在全局内存和片上内存频繁搬运带来的内存带宽成本；其次，为每层 Transformer 启动多个独立内核所引入的内核启动开销也可能上升为瓶颈。尤其在低时延约束的场景中，这些近乎固定的开销无法被充分的计算所摊薄，会在端到端时延中占据不可忽视的比例。而解决这两类问题的主要做法是算子融合和启动开销消除。
+
+
+
+
+大语言模型推理将一个 Transformer 层映射为归一化、线性变换、位置编码、Attention、激活函数和残差连接等 GPU 计算阶段。预填充阶段通过较大的 token 维度形成并行性；解码阶段每轮仅产生少量新 token，且后一轮依赖前一轮生成的 KV Cache。随着 batch size 和单步计算规模下降，kernel 启动、跨 kernel 同步、中间张量物化和设备侧调度在关键路径中的占比上升。FlashAttention 通过重新组织 Attention 的数据流减少 HBM 访问，TVM、DNNFusion 和 Welder 等编译系统通过算子融合扩大片上数据复用范围，这些工作共同表明：低时延推理的性能取决于算子内部实现与算子之间执行边界的协同设计\cite{dao2022flashattention,chen2018tvm,niu2021dnnfusion,shi2023welder}。
+
+近期研究进一步将融合范围从局部算子扩展到 Transformer 层乃至完整解码主体。FlashFormer 将 whole-model kernel 用于低 batch 推理，MegaQwen 将 Qwen3-0.6B 的主要解码计算组织在 cooperative kernel 内，Hazy Research Megakernels 和 MPK 将多个算子编译为设备端任务图，Event Tensor 则扩展了动态 shape 与动态任务调度\cite{nrusimha2025flashformer,megaqwen2026,hazy2025nobubbles,hazyMegakernels2025,cheng2025mpk,eventTensor2026}。这类执行方式统称为 Megakernel：CPU 只发起一次或少量物理 CUDA launch，一组 persistent 或 cooperative workers 在 GPU 内部连续执行多个算子任务，并通过 queue、event、counter 或 grid-wide synchronization 表达跨算子依赖。
+
+图~\ref{fig:megakernel-principle} 给出普通多 kernel 执行与任务图式 Megakernel 的差异。普通执行使用 kernel completion 表达相邻阶段之间的全局顺序；Megakernel 将该顺序下沉到设备端，使不同 SM 能够沿任务图独立推进。当后继算子只依赖前驱的一部分输出时，设备端事件可以把完整的 grid barrier 细化为 per-tile、per-head 或 per-column 的流水交接。该机制同时减少 launch 并扩大跨算子重叠，是 Megakernel 获得低时延收益的核心来源。
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{0.96\textwidth}{!}{%
+  \begin{tikzpicture}[
+      font=\small,
+      stage/.style={draw,rounded corners=2pt,minimum width=2.7cm,minimum height=0.82cm,align=center,fill=blue!7},
+      worker/.style={draw,rounded corners=2pt,minimum width=2.7cm,minimum height=0.82cm,align=center,fill=green!9},
+      boundary/.style={draw,dashed,minimum width=0.12cm,minimum height=1.05cm,fill=orange!18},
+      flow/.style={->,thick,>=stealth}
+    ]
+    \node[font=\bfseries,anchor=east] at (-0.82,1.7) {普通多 kernel 执行};
+    \node[stage] (k1) at (1.0,1.7) {Kernel $A$};
+    \node[boundary] (b1) at (3.0,1.7) {};
+    \node[stage] (k2) at (5.0,1.7) {Kernel $B$};
+    \node[boundary] (b2) at (7.0,1.7) {};
+    \node[stage] (k3) at (9.0,1.7) {Kernel $C$};
+    \draw[flow] (k1) -- (b1); \draw[flow] (b1) -- (k2);
+    \draw[flow] (k2) -- (b2); \draw[flow] (b2) -- (k3);
+    \node[align=center,text=orange!70!black] at (3.0,0.92) {grid\\completion};
+    \node[align=center,text=orange!70!black] at (7.0,0.92) {grid\\completion};
+
+    \node[font=\bfseries,anchor=east] at (-0.82,-0.45) {任务图式 Megakernel};
+    \node[worker] (m1) at (1.0,-0.45) {Task $A$};
+    \node[worker] (m2) at (5.0,-0.45) {Task $B$};
+    \node[worker] (m3) at (9.0,-0.45) {Task $C$};
+    \draw[flow] (m1) -- node[above]{device event} (m2);
+    \draw[flow] (m2) -- node[above]{device event} (m3);
+    \draw[rounded corners=4pt,thick,green!45!black]
+      (-0.65,-1.20) rectangle (10.65,0.30);
+    \node[anchor=west,text=green!45!black] at (-0.50,-1.52)
+      {一次 persistent/cooperative grid 内由 SM workers 推进任务};
+  \end{tikzpicture}}
+  \caption{普通多 kernel 执行与任务图式 \mbox{Megakernel}。物理 grid 边界提供全局完成顺序；\mbox{Megakernel} 使用设备端事件表达相同逻辑依赖，并在依赖允许时形成细粒度流水。}
+  \label{fig:megakernel-principle}
+\end{figure}
+
+Megakernel 消除物理边界后，跨算子依赖仍需一个可执行的实现。设备端调度器需要决定后继任务何时进入、由谁判断全局 ready、等待中的 SM 如何让出执行资源、ready 状态如何传播，以及前驱写入何时对后继可见。细粒度依赖能够用这些软件协议换取真实的 dependent computation overlap；全量依赖则呈现不同结构：后继的主要计算共享同一个 all-or-nothing ready 条件，在最后一块前驱输出到达以前，后继仅能执行独立准备或等待。
+
+这一差异产生了本课题的核心研究机会。设计算图中相邻算子阶段之间形成一个依赖切口。当后继可以按 tile 或 head 消费前驱的局部输出时，同一 grid 内的事件同步保留了细粒度流水；当后继的主要任务都等待前驱的全量结果时，SM-local task admission 与 global readiness 之间出现粒度差异。物理 grid completion 恰好以全局粒度表达后一类依赖，并同时结束前驱阶段的 persistent execution state。此时，减少一次 launch 与减少一次 single-grid 软件交接成为两个方向相反的性能项，最优实现由依赖拓扑、投放时机、阶段长度、数据局部性和边界成本共同决定。
+
+前期实验选取 Hazy Research Megakernels 的真实算子阶段切口作为研究对象。该切口由 \texttt{PartialAttention} 阶段指向 \texttt{O\_ProjResidual} 阶段。该配置由 8 个 PartialAttention tasks 产生 32 个 query heads；每个 O-projection task 计算 16 个输出行，同时读取完整的 $\texttt{attn\_out}[2048]$。因此，128 个 O-projection tasks 都等待同一个值为 32 的全局 ready counter。Hazy VM 依据运行时 SMID 选择 worker queue：queues 0--7 执行长 K/V scan，queues 8--131 在相邻 slot 中进入 O-projection。131,072-token context（下文简称 131K）的逐 SM 诊断记录显示，124 个候选 queues 在三次重复中的 $372/372$ 次观测均在全量 ready 前进入依赖等待；原始路径中 128 个 O tasks 的 $384/384$ 次 first TMA 观测发生在 ready 之前。
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.98\textwidth]{Img/paper_figures/fig_hazy_boundary_mechanism.pdf}
+  \caption{Hazy \texttt{PartialAttention}$\rightarrow$\texttt{O\_ProjResidual} 的 SM--时间执行结构。Early-Inside 中，queues 8--131 在 32 个 query heads 全量就绪前进入 consumer 路径，形成 pre-ready residence interval；Serial-Split 由 producer grid completion 统一放行 consumer grid。两种方案保持 task code、queue mapping、task/noop slots 和 instruction bytes 一致。橙色区间对应后续 admission-gated 对照与设备端时间戳所分解的关键阶段。}
+  \label{fig:hazy-boundary}
+\end{figure}
+
+在保持 task 实现、SM queue 映射、输入输出和 33,792 个 instruction bytes 一致的条件下，将这条边实现为两个同 stream 的物理 grid，在 131K context 上稳定节省 $45.42$--$46.64\microsecond$，对应 $1.409\%$--$1.443\%$；120K 配套 Nsight Systems 时间线中的可见 inter-kernel gap 中位数为 $1.056\microsecond$。同一计算图的三个相邻边呈现相反方向。表~\ref{tab:hazy-adjacent-edges} 将实测方向与边界结构并列给出。这组正负样本将物理边界从抽象设想转化为可重复测量的执行计划选择。
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \caption{Hazy 同一计算图上相邻边的物理分区结果}
+  \label{tab:hazy-adjacent-edges}
+  \begin{tabularx}{\textwidth}{p{0.20\textwidth}p{0.27\textwidth}p{0.17\textwidth}X}
+    \toprule
+    相邻算子边 & readiness 与 producer 特征 & Workload 与独立单元 & 物理分区结果 \\
+    \midrule
+    PartialAttention $\rightarrow$ O-projection
+      & 32 heads 全量就绪；producer 随 context 增长；128 个 consumer 共享同一 full-ready 条件
+      & 131K；3 个进程，各 100 对
+      & 131K 节省 $45.42$--$46.64\microsecond$（$1.409\%$--$1.443\%$） \\
+    QKV/RoPE $\rightarrow$ PartialAttention
+      & K/V head 与四个 Q heads 局部就绪；grid 内可按 head 开始扫描历史 KV
+      & 32K；2 个进程，各 200 对
+      & 32K 增加 $46.77$--$47.10\microsecond$（$5.460\%$--$5.488\%$） \\
+    O-projection $\rightarrow$ UpGate
+      & producer 约 $8\microsecond$；当前 Python/pybind 提交路径暴露边界 gap
+      & 32K；2 个进程，各 200 对
+      & 增加 $49.18$--$51.33\microsecond$（$53.993\%$--$55.966\%$） \\
+    UpGate $\rightarrow$ DownProj
+      & 4 个 reduction-column counters 支持按列推进
+      & 32K；1 个进程，200 对
+      & 增加 $30.06\microsecond$（$31.078\%$） \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+进一步的因子实验构造了 first-TMA 时序与 polling backoff 的 $2\times2$ 对照，backoff 分别取 $1\,$ns 和 $1024\,$ns。两个 H800、三个独立进程、四个实验 cell 共 12 个 paired median 中，split 收益保持在 $44.832$--$47.776\microsecond$。first TMA 被移动到 ready 后，polling load 也显著下降，split 差距仍然存在。这两个干预分别排除了 ready 前 weight TMA 和高频 polling load 数量作为 $45$--$47\microsecond$ 差距的单一主因。下一阶段优先检验 task admission 与跨阶段交接：损失可能出现在 producer 最后 ready 之前，也可能出现在 ready 后的 controller、instruction ring、semaphore、barrier 与 grid drain 阶段，两部分可同时进入关键路径。
+
+Hopper 的 Programmatic Dependent Launch（PDL）为选定物理边界提供了第二个机会。PDL 允许同一 stream 中的后继 grid 在前驱满足 programmatic completion 条件后取得调度资格；后继可以先执行地址准备、descriptor 设置和独立权重预取，并在首次读取前驱输出前完成依赖同步\cite{nvidia2026pdl,nvidia2026cutlassDependentLaunch}。前期实验在一张物理 H800 上使用修改后的匹配 binary，对同一 Hazy 正边比较 ordinary split 与 split+PDL，测得 PDL 进一步节省 $2.4$--$3.8\microsecond$。因此，本课题形成一条连续的优化路径：首先选择依赖最合适的实现层级，再利用 PDL 压缩已选物理边界的交接成本。
+
+基于上述观察，本课题研究\textbf{依赖感知的 Megakernel 物理分区与 PDL 跨边界优化}。核心对象是一个已经生成的 Megakernel task graph 及其相邻依赖边；核心决策是在同一 grid 内的细粒度事件、投放前的内部 readiness gate 与跨 grid completion 之间选择依赖实现，并在物理边界上联合优化 PDL trigger 和 consumer 独立前缀。该问题连接了图级融合、设备端调度和硬件依赖执行三个层次，为低时延 LLM 推理提供了新的执行计划空间。

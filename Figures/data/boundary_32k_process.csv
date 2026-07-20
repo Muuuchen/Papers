@@ -1,0 +1,9 @@
+edge,display_edge,process,pairs,split_minus_inside_us,readiness,source
+partial_o,PartialAttn -> OProj,1,200,-7.264,all 32 heads,experiments/hazy_exact_boundary/SLOT_EXACT_AUDIT.json
+partial_o,PartialAttn -> OProj,2,200,-7.568,all 32 heads,experiments/hazy_exact_boundary/SLOT_EXACT_AUDIT.json
+partial_o,PartialAttn -> OProj,3,200,-7.504,all 32 heads,experiments/hazy_exact_boundary/SLOT_EXACT_AUDIT.json
+qkv_partial,QKV/RoPE -> PartialAttn,1,200,47.1040010452,per head,experiments/hazy_second_edge_search/BOUNDARY_SEARCH_AUDIT.json
+qkv_partial,QKV/RoPE -> PartialAttn,2,200,46.7680096626,per head,experiments/hazy_second_edge_search/BOUNDARY_SEARCH_AUDIT.json
+oproj_upgate,OProj -> UpGate,1,200,49.1840019822,short producer,experiments/hazy_second_edge_search/BOUNDARY_SEARCH_AUDIT.json
+oproj_upgate,OProj -> UpGate,2,200,51.3279996812,short producer,experiments/hazy_second_edge_search/BOUNDARY_SEARCH_AUDIT.json
+upgate_down,UpGate -> DownProj,1,200,30.0640016794,per column,experiments/hazy_second_edge_search/BOUNDARY_SEARCH_AUDIT.json

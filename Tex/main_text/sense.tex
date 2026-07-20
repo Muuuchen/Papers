@@ -1,0 +1,9 @@
+\subsection{选题意义}
+
+本课题首先具有执行模型层面的研究意义。Megakernel 将 kernel launch 从主机侧移除后，跨算子依赖由设备端软件协议承载。依赖 ready 粒度、task admission 粒度与物理执行粒度共同决定协议成本和跨算子流水收益。将三者放入同一个分析框架，可以解释同一计算图中相邻边为何出现不同的最优实现，并把 Megakernel 的性能分析从“融合范围”推进到“依赖应由哪一级机制实现”。
+
+其次，本课题为编译器提供了新的物理映射决策。现有融合系统通常围绕中间数据复用、launch 消除和资源约束生成融合区域；任务图式 Megakernel 进一步引入了 worker queue、task admission、全局 counter 和持久化 grid 生命周期。物理分区把这些运行时状态纳入图分区目标，使编译器可以在保持逻辑 task graph 的同时，为不同依赖选择细粒度 event、内部 global gate 或 grid completion。该抽象能够统一表示保留流水、推迟后继投放和隔离阶段状态三种执行效果。
+
+再次，本课题拓展了 PDL 的应用位置。PDL 现有示例主要围绕已经存在的 producer--consumer kernels，研究 trigger 与独立权重预取\cite{nvidia2026pdl,nvidia2026cutlassDependentLaunch}。物理分区将“边界选择”和“边界交接”连接起来：前一阶段确定 grid completion 是否与依赖拓扑匹配，后一阶段从 consumer 中提取合法独立前缀，并搜索 trigger、预取量和存储层级。由此得到的优化空间同时包含 single-grid 软件同步成本、物理边界成本和跨边界重叠收益。
+
+最后，本课题具有直接的工程价值。低 batch decode 的单步时延会沿 token 序列累积，几十微秒的局部关键路径差值能够影响 TPOT 与交互响应。H800 上的前期结果已经给出一条稳定的真实正边和三条同图负边，为边界选择提供了可复现实验基础。后续将把边界接入 decoder layer 和完整 decode step，并在第二类真实计算图上验证特征迁移，从而形成可嵌入 Megakernel 编译器或推理运行时的执行计划选择方法。

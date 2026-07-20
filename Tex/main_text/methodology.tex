@@ -1,0 +1,165 @@
+\subsection{问题建模与分析对象}
+
+本课题以已经生成的 Megakernel task graph 为输入，并沿用第~\ref{sec:purpose} 节对算子阶段切口 $b=(V_A,V_B,E_b)$ 的定义。$V_A$ 与 $V_B$ 是切口两侧的 task 集合，$E_b$ 是跨越切口的全部依赖。实验保持逻辑 task graph、算子实现、数值精度和 task 到执行队列的映射不变，仅改变切口 $b$ 的依赖实现层级。表~\ref{tab:four-execution-plans} 定义的 $\Pi_E$、$\Pi_G$、$\Pi_S$ 和 $\Pi_P$ 构成统一对照；相应实测延迟记为 $T_E$、$T_G$、$T_S$ 和 $T_P$。分析直接采用式~\eqref{eq:three-causal-contrasts} 的三个差值。
+
+$T_G-T_E$ 识别 single-grid 内 task admission 时序的影响；$T_S-T_G$ 是用物理 grid completion 替代 readiness-matched internal gate 后的净残差；$T_P-T_S$ 识别固定物理边界上 PDL 的净影响。Hazy 前期实验已经测得中心边界满足 $T_S-T_E<0$。前三路对照将该合量精确分解为 admission 与物理边界两部分；第四路在既有 split 上继续测量 PDL 增量。
+
+原始 single-grid 与物理分区之间满足精确恒等式
+\begin{equation}
+  T_S-T_E
+  =\underbrace{(T_G-T_E)}_{\Delta_{\mathrm{admission}}}
+  +\underbrace{(T_S-T_G)}_{\Delta_{\mathrm{physical}}}.
+  \label{eq:split-balance}
+\end{equation}
+$\Delta_{\mathrm{admission}}$ 由同一 grid 内的 gate 干预直接测得。$\Delta_{\mathrm{physical}}$ 保留设备 dispatch、GPU gap、suffix 初始化、consumer 执行、cache/locality、资源状态和 grid 生命周期的共同净效应。后续实验按照预先固定的干预顺序逐项改变 gap、materialization、资源包络和 grid 生命周期，并同时报告交互项；由此避免把同一 consumer/cache 变化重复记入多个加和项。物理分区的充要判据为 $\Delta_{\mathrm{admission}}+\Delta_{\mathrm{physical}}<0$；PDL 进一步改善完整计划的判据为 $T_P-T_S<0$。
+
+\subsection{四路因果对照与关键路径定位}
+
+\subsubsection{Controller-level admission gate}
+
+\gatedinside\ 是识别 admission 作用的核心干预。一般情况下，controller 在每个 consumer 的最小输入依赖满足后发布该 task；具有 tile/head 级依赖的边按相应局部 ready 条件释放。在 Hazy 中心边上，每个 O-projection task 都读取完整的 32-head Attention 输出，因此 gate 使用 32 heads 全量 ready 条件。controller 在创建 consumer page、semaphore 并向 instruction ring 发布 O-projection task 以前执行该检查，使 queues 8--131 在 producer-ready 前继续原有 prefix/noop 路径，而不创建 consumer 执行状态。consumer task、queue 目标、instruction bytes、TMA pipeline、数学运算以及整个 grid 的 launch 配置均与 \earlyinside\ 保持一致。
+
+这一对照把“同一 grid”与“提前投放”两个因素分离。若 $T_G<T_E$，差值由 readiness 前后的 admission 时序改变产生。若 $T_S<T_G$，该结果首先识别出物理边界相对 internal gate 的净收益；设备 dispatch、suffix 初始化、consumer 执行、cache/locality、资源状态和 grid 生命周期的贡献再由全局时间戳及逐项干预分解。两个差值可以同时出现，且在同一匹配构建中满足 $(T_G-T_E)+(T_S-T_G)=T_S-T_E$。
+
+\subsubsection{跨阶段全局时间戳}
+
+每个方案使用 \texttt{\%globaltimer} 在统一 GPU 时间域记录共同的 task 事件：producer 首个 task 开始、最后一个输出 store、每个 consumer 的最小依赖 ready、internal admission、首次依赖读取、最后一个 producer task 完成和最后一个 consumer task 完成。对关键路径 consumer $k$ 定义
+\begin{equation}
+\begin{aligned}
+  R      &= t_{\mathrm{ready},k}-t_{A\mathrm{start}},\\
+  H      &= t_{\mathrm{dep},k}-t_{\mathrm{ready},k},\\
+  C_k    &= t_{B\mathrm{done},k}-t_{\mathrm{dep},k},\\
+  D_{A,\mathrm{stage}} &= t_{A\mathrm{done}}-t_{\mathrm{ready,last}}.
+\end{aligned}
+  \label{eq:milestones}
+\end{equation}
+其中 $t_{\mathrm{ready},k}$ 是 consumer $k$ 的 readiness-matched 时刻；Hazy 中心边的所有 $t_{\mathrm{ready},k}$ 均等于 32 heads 全量 ready。$R$ 表示到达逻辑 ready 的 producer 路径，$H$ 表示 ready 后到首次依赖读取的交接，$C_k$ 表示 consumer $k$ 的 dependent computation，$D_{A,\mathrm{stage}}$ 表示最后一次逻辑 ready 后仍留在 producer 阶段的 task 尾部。
+
+serial split 与 PDL 额外记录 programmatic trigger、consumer grid start、dependency wait 进入与返回、producer grid exit 和 consumer grid exit，并定义
+\begin{equation}
+\begin{aligned}
+  P_{\mathrm{ind}} &= t_{\mathrm{wait\ enter}}-t_{B\mathrm{start}},\\
+  W_{\mathrm{dep}} &= t_{\mathrm{wait\ return}}-t_{\mathrm{wait\ enter}},\\
+  O_{\mathrm{grid}} &= \max\!\left(0,t_{A\mathrm{grid\ exit}}-t_{B\mathrm{grid\ start}}\right),\\
+  D_{B,\mathrm{post}} &= t_{B\mathrm{grid\ exit}}-t_{A\mathrm{grid\ exit}}.
+\end{aligned}
+  \label{eq:pdl-milestones}
+\end{equation}
+$P_{\mathrm{ind}}$、$W_{\mathrm{dep}}$、$O_{\mathrm{grid}}$ 和 $D_{B,\mathrm{post}}$ 分别刻画 PDL 的独立前缀、显式等待、grid 驻留重叠和 producer 退出后的 consumer 尾部。single-grid 计划记录 $t_{A\mathrm{done}}$ 与 whole-grid exit；其语义与 producer grid exit 分开报告。PDL 下多个区间在时间轴上重叠，因此完整 envelope 由每个样本的起止端点直接计算，并同时报告 producer duration 与关键路径变化。instrumented binary 用于事件排序和阶段分解，最终时延由无 instrumentation 的匹配构建测量。
+
+\subsubsection{SM 调度与指令级解释}
+
+Nsight Systems 用于测量完整 envelope、两个 grids 的实际起止时刻、可见 gap 以及 PDL overlap；Nsight Compute 用于分析单个 kernel 的 SM 和指令行为。重点指标包括 active/eligible warps、issue slot 使用、barrier 与 memory dependency stall、L1/L2 sectors、DRAM bytes、TMA 请求、寄存器、shared memory 和 achieved occupancy。SASS 审计用于确认 polling loop、\texttt{griddepcontrol}、TMA 位点与 consumer 首次依赖 load 的静态顺序。
+
+机制结论由“源码依赖事实、动态时间顺序、主动干预、关键路径变化”四层证据共同给出。以 polling 为例，backoff 处理改变轮询 load 数量，admission gate 改变 consumer 是否被发布，二者分别检验 memory transaction 数量和 task admission 位置。NCU replay 得到的 kernel duration 和 counter 用于解释硬件行为；端到端差值统一使用无 profiler 的成对计时和包含 grid gap 的 Nsys envelope。
+
+\subsection{边界特征与依赖实现层级选择}
+
+本课题为每个相邻算子阶段切口构建 feature card，特征分为四组。第一组来自编译期静态分析，包括 producer/consumer 读写集合、ready counter 拓扑、consumer 在 full-ready 前可执行的依赖工作比例、task fan-in/fan-out、跨边中间张量大小、数据驻留层级以及两个阶段的寄存器和 shared-memory envelope。第二组来自原始计划的低开销 trace，包括 producer window、早到 worker 数、ready 到首次依赖读取的 handoff 和阶段尾部。第三组来自主动干预，包括 admission delay、producer length、consumer fanout、局部 readiness 粒度和 locality materialization；物理边界成本由 C++/CUDA Graph 提交路径校准以及候选 split 的实测 GPU gap 给出。第四组 profiler 特征用于解释最终选择，并与选择器训练和评测数据分离。
+
+对切口 $b$ 定义 full-ready 前可利用工作比例
+\begin{equation}
+  \phi_b=\frac{\text{consumer 在 producer full-ready 前可完成的依赖计算量}}
+                   {\text{consumer 总依赖计算量}}.
+  \label{eq:readiness-fraction}
+\end{equation}
+$\phi_b$ 接近 1 表示局部 tile/head readiness 能形成充分流水；$\phi_b=0$ 表示 dependent computation 具有全量、全或无的就绪条件。$\phi_b$ 与 producer window $P_b$、提前投放 fanout $Q_b$、跨边局部性 $L_b$、资源 envelope 差异 $U_b$ 和真实边界成本 $C_b$ 共同决定执行方案。选择器首先以可解释的分段模型预测式~\eqref{eq:three-causal-contrasts} 的符号和量级，再由少量硬件测量校准靠近 crossover 的候选。
+
+样本按算子边和计算图划分训练、校准与 held-out 集。边界收益、NCU 诊断量和人工处理后的结果变量只进入模型评估，静态特征与低开销基线 trace 构成部署时输入。该划分使边界判断对应实际编译与运行时可获得的信息。
+
+\subsection{PDL 跨边界变换与收益模型}
+
+物理分区确定后，consumer 阶段 $V_B$ 被划分为独立前缀 $B^{\mathrm{ind}}$ 和依赖主体 $B^{\mathrm{dep}}$。独立前缀的合法性条件为
+\begin{equation}
+\begin{aligned}
+  R(B^{\mathrm{ind}})\cap W(V_A)&=\varnothing,\\
+  W(B^{\mathrm{ind}})\cap\bigl(R(V_A)\cup W(V_A)\bigr)&=\varnothing.
+\end{aligned}
+  \label{eq:pdl-legality}
+\end{equation}
+其中读写集合包含指针 alias 的传递闭包；提前写入的数据位于 consumer-private 存储或与 producer 读写集合互斥的区域。consumer 的 dependency wait 支配 $B^{\mathrm{dep}}$ 中每一次对 $V_A$ 输出的读取；producer 的全部 CTAs 分别显式 trigger，或在退出时完成隐式 programmatic completion；内存可见性由 consumer wait 建立。独立前缀优先容纳地址计算、descriptor 设置、指令解析和 immutable weight staging。
+
+PDL 配置表示为 $\langle q,p,h\rangle$：$q$ 为 producer trigger 阶段，$p$ 为 consumer 预取量，$h$ 为寄存器、shared memory 或 cache 等目标层级。其净差值写为
+\begin{equation}
+  \Delta_{\mathrm{PDL}}
+  =I_{\mathrm{trigger}}+I_{\mathrm{wait}}+I_{\mathrm{competition}}
+  -H_{\mathrm{prefix}},
+  \label{eq:pdl-breakeven}
+\end{equation}
+$H_{\mathrm{prefix}}$ 表示被隐藏的 consumer 独立前缀与普通边界 gap，$I_{\mathrm{competition}}$ 表示提前 consumer 与 producer 共驻引起的资源干扰。对 $q,p,h$ 的扫描同时报告 producer duration、consumer post-ready tail、实际 overlap 和完整 envelope，从而选取满足 $\Delta_{\mathrm{PDL}}<0$ 的配置。
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{0.98\textwidth}{!}{%
+  \begin{tikzpicture}[
+      font=\small,
+      box/.style={draw,rounded corners=2pt,minimum width=2.8cm,minimum height=0.9cm,align=center,fill=blue!7},
+      test/.style={draw,rounded corners=2pt,minimum width=2.8cm,minimum height=0.9cm,align=center,fill=orange!10},
+      resultbox/.style={draw,rounded corners=2pt,minimum width=2.8cm,minimum height=0.9cm,align=center,fill=green!10},
+      flow/.style={->,thick,>=stealth}
+    ]
+    \node[box] (graph) at (0,0) {Megakernel task graph\\依赖与资源分析};
+    \node[box] (feature) at (3.8,0) {边界 feature card\\readiness/窗口/局部性};
+    \node[test] (four) at (7.6,0) {四路因果对照\\$\Pi_E/\Pi_G/\Pi_S/\Pi_P$};
+    \node[test] (clock) at (11.4,0) {全局时间戳与 profiler\\关键路径分解};
+    \node[resultbox] (model) at (7.6,-2.0) {边界 crossover 模型\\held-out 验证};
+    \node[resultbox] (pdl) at (11.4,-2.0) {PDL trigger/prefetch\\跨边界执行方案};
+    \draw[flow] (graph) -- (feature);
+    \draw[flow] (feature) -- (four);
+    \draw[flow] (four) -- (clock);
+    \draw[flow] (clock) -- (pdl);
+    \draw[flow] (clock) -- (model);
+    \draw[flow] (model) -- (pdl);
+  \end{tikzpicture}}
+  \caption{本课题的技术路线：以算子阶段切口为分析对象，通过四路主动干预定位 crossover 机制，并在选定物理边界上优化 PDL 独立前缀。}
+  \label{fig:technical-route}
+\end{figure}
+
+\subsection{实验方案}
+
+\subsubsection{实验层次与真实计算图}
+
+实验按照“算子边、decoder layer、decode step、短生成”四个层次展开。Hazy Research Megakernels 的 layer-0 isolated operator region 作为完整四路因果实验的主载体，中心边界覆盖长 KV context 下的 PartialAttention 与 O-projection；同图相邻负边用于验证选择方向。第二类真实计算图从 MegaQwen、Mirage MPK/Event Tensor 或 DeepGEMM MegaMoE 中选择可在 H800 上保持原始算法和调度语义的候选。第二图分别实现原始 inside、该架构能够表达的最强 readiness-matched internal gate、serial split 与 split+PDL，并记录其与 $\Pi_E$--$\Pi_P$ 的语义对应关系。每个真实图先冻结 commit、checkpoint、shape、task 实现和基线 schedule，再生成匹配的边界方案。
+
+Workload 扫描 batch、context/KV length、producer task 数和 consumer fanout。Hazy 主实验覆盖 batch 1 与 4K--131K context，并在边界 crossover 附近加密采样。若切口 $b$ 在一次 decode 测量中动态出现 $N_b$ 次，则 layer/decode 实验报告局部差值传递到 TPOT 的保留率
+\begin{equation}
+  \rho=\frac{T_{\mathrm{decode,base}}-T_{\mathrm{decode,opt}}}
+             {\sum_{j=1}^{N_b}\left(T^{(j)}_{\mathrm{edge,base}}-T^{(j)}_{\mathrm{edge,opt}}\right)},
+\end{equation}
+重复边形状相同时，分母可写为 $N_b\Delta T_{\mathrm{edge}}$。实验同时测量连续 token 生成中的 P50、P90 和 P99；P99 使用至少 $10^4$ 个稳态样本并报告样本数。
+
+\subsubsection{受控机制子图}
+
+受控子图用于独立操纵真实系统中彼此耦合的因素。第一组保持 single-grid，构造
+\[
+  \text{global/chunk readiness}
+  \times \text{short/long producer}
+  \times \text{early/gated admission}
+\]
+的 $2\times2\times2$ 实验，检验全量就绪、producer window 与 task admission 的交互。第二组在已经选定的物理边界上构造
+\[
+  \text{serial/PDL}\times\text{trigger phase}\times\text{prefetch amount},
+\]
+测量 PDL 的 break-even。两个实验分别回答内部依赖实现和外部边界交接，结果再由真实计算图验证。
+
+\subsubsection{严格 A/B 与统计方法}
+
+边界 A/B 固定 producer/consumer task code、输入、输出、dtype、SM queue 映射、真实 task/noop slot、instruction bytes、dependent computation 顺序和数值运算顺序。inside instruction tensor 等于 prefix 与 suffix tensor 的逐字节拼接；serial 与 PDL 调用同一 producer/consumer device symbols，合法独立前缀的跨 grid 时序和 launch attribute 构成 PDL 的处理变量。每个构建保存源码、二进制、SASS、checkpoint 和 trace 的 hash。
+
+正确性依次检查 barrier/counter、关键中间张量、最终 hidden state 和独立 PyTorch reference。运算顺序固定的路径使用逐位比较；原算法含原子归约顺序变化的路径使用预先定义的 BF16/FP32 误差界。压力测试随机交错各执行方案，以覆盖 PDL trigger、wait 和多轮复用。
+
+性能实验以“物理 GPU--日期--独立进程”作为分层统计单位。每个进程完成 warmup 后执行随机 AB/BA 或多方案随机排列，进程内重复首先汇总为 paired median delta；推断阶段按 GPU、日期和进程分层重采样，给出 95\% 置信区间，并逐一报告独立单元的方向、绝对微秒差、相对变化和 paired win rate。进程内 bootstrap 仅刻画该进程的重复测量噪声。A/A 随机标签、cache eviction 和 GPU timeline gap-inclusive 对照用于量化计时噪声、缓存状态与 host submission 的影响。
+
+\subsubsection{对照与消融}
+
+核心对照包括原始 \earlyinside、\gatedinside、\serialsplit、\pdlsplit，以及最终执行计划的 CUDA Graph 重放。消融依次改变 readiness 粒度、producer window、consumer fanout、first-TMA 时序、polling backoff、cross-edge materialization、PDL trigger、prefetch amount 和 storage level。每项源码干预同时应用于 inside 与 serial control，并报告差分中的差分
+\[
+  \bigl(T'_S-T'_E\bigr)-\bigl(T_S-T_E\bigr),
+\]
+从而分离代码处理的固定开销与该因素对 split gain 的交互效应。
+
+\subsection{可行性分析与风险控制}
+
+本课题的中心 A/B 已在两张 H800 上打通 task 生成、CUDA 构建、真实 checkpoint、成对计时、Nsight Systems、Nsight Compute 和 SASS 审计链路。Hazy 边界具备一个稳定正样本和三个方向相反的同图样本；一张物理 H800 上的修改后匹配 device binary 已在同一正边形成 serial/PDL 对照。上述基础支持对式~\eqref{eq:three-causal-contrasts} 进行后续分解。
+
+主要实验风险对应三项控制。第一，instrumentation 可能扰动 SM 调度；动态时序和最终时延分别由 instrumented 与无 instrumentation 构建承担，并比较资源/SASS 变化。第二，host submission 可能放大短 producer 的分区成本；C++ launch path、CUDA Graph 与 Nsys GPU gap 将区分软件提交和设备边界。第三，边界样本数量决定选择模型的复杂度；早期采用可解释分段模型，特征和阈值在 held-out 图测试前冻结，跨图数据增长后再扩展搜索空间。上述安排使每个阶段都能输出独立可检验的机制结论和系统结果。

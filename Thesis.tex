@@ -21,7 +21,7 @@
 %---------------------------------------------------------------------------%
 %->> Document settings
 %---------------------------------------------------------------------------%
-\usepackage[authoryear,list,xhf]{Style/artratex}% document settings
+\usepackage[authoryear,xhf,tikz,table]{Style/artratex}% document settings
 %- usage: \usepackage[option1,option2,...,optionN]{artratex}
 %- Multiple optional arguments:
 %- [bibtex|biber]% set bibliography processor and package
@@ -41,6 +41,18 @@
 %- [math]% enable some extra math packages
 %- [xlink]% disable link colors
 \usepackage{Style/artracom}% user defined commands
+%---------------------------------------------------------------------------%
+%->> Project-wide notation
+%---------------------------------------------------------------------------%
+\newcommand{\earlyinside}{\textsc{Early-Inside}}
+\newcommand{\gatedinside}{\textsc{Admission-Gated Inside}}
+\newcommand{\serialsplit}{\textsc{Serial-Split}}
+\newcommand{\pdlsplit}{\textsc{Split+PDL}}
+\newcommand{\microsecond}{\ensuremath{\,\mu\mathrm{s}}}
+\newcommand{\TE}{\ensuremath{T_{\mathrm{E}}}}
+\newcommand{\TG}{\ensuremath{T_{\mathrm{G}}}}
+\newcommand{\TS}{\ensuremath{T_{\mathrm{S}}}}
+\newcommand{\TP}{\ensuremath{T_{\mathrm{P}}}}
 %---------------------------------------------------------------------------%
 %->> Document inclusion
 %---------------------------------------------------------------------------%
@@ -68,10 +80,12 @@
 %-> Backmatter: bibliography, glossary, index
 %-
 \artxifstreq{\artxbib}{bibtex}{% enable bibtex
-    \bibliography{Biblio/ref}% bibliography
+    % The checked-in BBL is generated from Biblio/ref.bib with the template's
+    % gbt7714-author-year style.  Direct input keeps the document buildable in
+    % engines whose bundled BibTeX is incompatible with this legacy BST.
+    \input{Thesis.bbl}% bibliography
 }{%
     \printbibliography% bibliography
 }
 \end{document}
 %---------------------------------------------------------------------------%
-

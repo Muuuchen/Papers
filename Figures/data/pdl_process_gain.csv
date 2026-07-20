@@ -1,0 +1,7 @@
+context_tokens,context_label,process,pairs,serial_minus_pdl_us,source
+32768,32K,1,200,2.784,experiments/hazy_exact_boundary_pdl/AUDIT_SUMMARY.json
+32768,32K,2,200,2.720,experiments/hazy_exact_boundary_pdl/AUDIT_SUMMARY.json
+32768,32K,3,200,3.040,experiments/hazy_exact_boundary_pdl/AUDIT_SUMMARY.json
+131072,131K,1,100,2.832,experiments/hazy_exact_boundary_pdl/AUDIT_SUMMARY.json
+131072,131K,2,100,2.416,experiments/hazy_exact_boundary_pdl/AUDIT_SUMMARY.json
+131072,131K,3,100,3.792,experiments/hazy_exact_boundary_pdl/AUDIT_SUMMARY.json

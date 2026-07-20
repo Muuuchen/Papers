@@ -1,13 +1,14 @@
 %---------------------------------------------------------------------------%
-%- Bibliography for UCAS proposal: short-sequence fusion-first DACOS
+%- Bibliography for UCAS proposal: Megakernel physical partitioning and PDL
 %---------------------------------------------------------------------------%
 
 @misc{nvidia2026pdl,
-  title        = {{CUDA} Programming Guide: Programmatic Dependent Launch},
+  title        = {{CUDA} Programming Guide 13.3: Programmatic Dependent Launch and Synchronization},
   author       = {{NVIDIA}},
   year         = {2026},
-  url          = {https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/programmatic-dependent-launch.html},
-  urldate      = {2026-06-30}
+  note         = {CUDA Programming Guide, Section 4.20},
+  url          = {https://docs.nvidia.com/cuda/cuda-programming-guide/},
+  urldate      = {2026-07-20}
 }
 
 @misc{hao2026dacos,
@@ -106,31 +107,34 @@
   url          = {https://arxiv.org/abs/2510.18586}
 }
 
-@misc{dao2022flashattention,
+@inproceedings{dao2022flashattention,
   title        = {FlashAttention: Fast and Memory-Efficient Exact Attention with {IO}-Awareness},
   author       = {Dao, Tri and Fu, Daniel Y. and Ermon, Stefano and Rudra, Atri and R{\'e}, Christopher},
-  year         = {2022},
-  eprint       = {2205.14135},
-  archivePrefix = {arXiv},
-  url          = {https://arxiv.org/abs/2205.14135}
+  booktitle    = {Advances in Neural Information Processing Systems},
+  editor       = {Koyejo, S. and Mohamed, S. and Agarwal, A. and Belgrave, D. and Cho, K. and Oh, A.},
+  volume       = {35},
+  pages        = {16344--16359},
+  publisher    = {Curran Associates, Inc.},
+  year         = {2022}
 }
 
-@misc{dao2023flashattention2,
+@inproceedings{dao2023flashattention2,
   title        = {FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning},
   author       = {Dao, Tri},
-  year         = {2023},
-  eprint       = {2307.08691},
-  archivePrefix = {arXiv},
-  url          = {https://arxiv.org/abs/2307.08691}
+  booktitle    = {The Twelfth International Conference on Learning Representations},
+  year         = {2024}
 }
 
-@misc{shah2024flashattention3,
+@inproceedings{shah2024flashattention3,
   title        = {FlashAttention-3: Fast and Accurate Attention with Asynchrony and Low-precision},
   author       = {Shah, Jay and Bikshandi, Ganesh and Zhang, Ying and Thakkar, Vijay and Ramani, Pradeep and Dao, Tri},
+  booktitle    = {Advances in Neural Information Processing Systems},
+  editor       = {Globerson, A. and Mackey, L. and Belgrave, D. and Fan, A. and Paquet, U. and Tomczak, J. and Zhang, C.},
+  volume       = {37},
+  pages        = {68658--68685},
+  publisher    = {Curran Associates, Inc.},
   year         = {2024},
-  eprint       = {2407.08608},
-  archivePrefix = {arXiv},
-  url          = {https://arxiv.org/abs/2407.08608}
+  doi          = {10.52202/079017-2193}
 }
 
 @misc{ye2025flashinfer,
@@ -187,11 +191,11 @@
 }
 
 @misc{nvidia2026cudaGraphs,
-  title        = {{CUDA} Programming Guide: {CUDA} Graphs},
+  title        = {{CUDA} Programming Guide 13.3: {CUDA} Graphs},
   author       = {{NVIDIA}},
   year         = {2026},
-  url          = {https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#cuda-graphs},
-  urldate      = {2026-06-30}
+  url          = {https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/cuda-graphs.html},
+  urldate      = {2026-07-20}
 }
 
 @misc{pytorch2026cudaGraphs,
@@ -227,34 +231,41 @@
   url          = {https://arxiv.org/abs/2505.22758}
 }
 
-@misc{luo2025clusterfusion,
+@inproceedings{luo2025clusterfusion,
   title         = {ClusterFusion: Expanding Operator Fusion Scope for {LLM} Inference via Cluster-Level Collective Primitive},
   author        = {Luo, Xinhao and Liu, Zihan and Zhou, Yangjie and Fang, Shihan and Huang, Ziyu and Feng, Yu and Zhang, Chen and Sun, Shixuan and Zheng, Zhenzhe and Leng, Jingwen and Guo, Minyi},
-  year          = {2025},
-  eprint        = {2508.18850},
-  archivePrefix = {arXiv},
-  url           = {https://arxiv.org/abs/2508.18850},
-  note          = {Accepted at NeurIPS 2025}
+  booktitle     = {Advances in Neural Information Processing Systems},
+  editor        = {Belgrave, D. and Zhang, C. and Lin, H. and Pascanu, R. and Koniusz, P. and Ghassemi, M. and Chen, N.},
+  volume        = {38},
+  publisher     = {Curran Associates, Inc.},
+  year          = {2025}
 }
 
-@misc{cheng2025mpk,
+@inproceedings{cheng2025mpk,
   title        = {{MPK}: A Compiler and Runtime for Mega-Kernelizing Tensor Programs},
-  author       = {Cheng, Xinhao and Zhang, Zhihao and Zhou, Yu and Ji, Jianan and Jiang, Jinchen and Zhao, Zepeng and Xiao, Ziruo and Ye, Zihao and Huang, Yingyi and Lai, Ruihang and Jin, Hongyi and Hou, Bohan and Wu, Mengdi and Dong, Yixin and Yip, Anthony and Wang, Songting and Yang, Wenqin and Miao, Xupeng and Chen, Tianqi and Jia, Zhihao},
-  year         = {2025},
-  eprint       = {2512.22219},
-  archivePrefix = {arXiv},
-  url          = {https://arxiv.org/abs/2512.22219},
-  note         = {arXiv v2 revised 2026-06-10}
+  author       = {Cheng, Xinhao and Zhang, Zhihao and Zhou, Yu and Ji, Jianan and Jiang, Jinchen and Zhao, Zepeng and Xiao, Ziruo and Ye, Zihao and Huang, Yingyi and Lai, Ruihang and Jin, Hongyi and Hou, Bohan and Wu, Mengdi and Dong, Yixin and Yip, Anthony and Ye, Zihao and Wang, Songting and Yang, Wenqin and Miao, Xupeng and Chen, Tianqi and Jia, Zhihao},
+  booktitle    = {20th USENIX Symposium on Operating Systems Design and Implementation ({OSDI} 26)},
+  year         = {2026},
+  month        = jul,
+  pages        = {1909--1926},
+  isbn         = {978-1-939133-55-7},
+  address      = {Seattle, WA},
+  publisher    = {{USENIX} Association},
+  url          = {https://www.usenix.org/conference/osdi26/presentation/cheng}
 }
 
-@misc{eventTensor2026,
+@inproceedings{eventTensor2026,
   title        = {Event Tensor: A Unified Abstraction for Compiling Dynamic Megakernel},
   author       = {Jin, Hongyi and Hou, Bohan and Wang, Guanjie and Lai, Ruihang and Chen, Jinqi and Ye, Zihao and Cai, Yaxing and Dong, Yixin and Cheng, Xinhao and Zhang, Zhihao and Zhao, Yilong and Huang, Yingyi and Yang, Lijie and Jiang, Jinchen and Oliaro, Gabriele and Ji, Jianan and Miao, Xupeng and Grover, Vinod and Mowry, Todd C. and Jia, Zhihao and Chen, Tianqi},
+  booktitle    = {Proceedings of Machine Learning and Systems},
+  volume       = {8},
+  address      = {Bellevue, WA, USA},
   year         = {2026},
   eprint       = {2604.13327},
   archivePrefix = {arXiv},
-  url          = {https://arxiv.org/abs/2604.13327},
-  note         = {Accepted at MLSys 2026}
+  url          = {https://openreview.net/forum?id=PJqFhAbUHa},
+  urldate      = {2026-07-20},
+  note         = {Ninth Conference on Machine Learning and Systems ({MLSys} 2026)}
 }
 
 @misc{dong2026adamk,
@@ -346,4 +357,146 @@
   eprint        = {2504.11750},
   archivePrefix = {arXiv},
   url           = {https://arxiv.org/abs/2504.11750}
+}
+
+%---------------------------------------------------------------------------%
+%- Kernel orchestration and Megakernel artifacts used by this proposal
+%---------------------------------------------------------------------------%
+
+@inproceedings{hu2024korch,
+  title        = {Optimal Kernel Orchestration for Tensor Programs with {Korch}},
+  author       = {Hu, Muyan and Venkatram, Ashwin and Biswas, Shreyashri and Marimuthu, Balamurugan and Hou, Bohan and Oliaro, Gabriele and Wang, Haojie and Zheng, Liyan and Miao, Xupeng and Zhai, Jidong and Jia, Zhihao},
+  booktitle    = {Proceedings of the 29th ACM International Conference on Architectural Support for Programming Languages and Operating Systems, Volume 3},
+  pages        = {755--769},
+  year         = {2024},
+  publisher    = {{ACM}},
+  doi          = {10.1145/3620666.3651383},
+  url          = {https://doi.org/10.1145/3620666.3651383}
+}
+
+@misc{megaqwen2026,
+  title        = {{MegaQwen}: Custom {CUDA} Megakernel for {Qwen3-0.6B} Inference},
+  author       = {{Infatoshi}},
+  year         = {2026},
+  note         = {Source code, fixed commit 0bc1fdedb82744481373000c5c7d3c58795c7a3a},
+  url          = {https://github.com/Infatoshi/MegaQwen/tree/0bc1fdedb82744481373000c5c7d3c58795c7a3a},
+  urldate      = {2026-07-20}
+}
+
+@misc{megaqwenResults2026,
+  title        = {{MegaQwen} Experiment Results},
+  author       = {{Infatoshi}},
+  year         = {2026},
+  note         = {experiments/RESULTS.md at fixed commit 0bc1fdedb82744481373000c5c7d3c58795c7a3a},
+  url          = {https://github.com/Infatoshi/MegaQwen},
+  urldate      = {2026-07-20}
+}
+
+@misc{hazyMegakernels2025,
+  title        = {Megakernels: Low-Latency {LLM} Inference with Device-Side Task Graphs},
+  author       = {{Hazy Research}},
+  year         = {2025},
+  note         = {Source code, fixed commit 7309cec801537b61fea3b50d7dfe454a6cde578e},
+  url          = {https://github.com/HazyResearch/Megakernels/tree/7309cec801537b61fea3b50d7dfe454a6cde578e},
+  urldate      = {2026-07-20}
+}
+
+@misc{inferenceOptimization2025llama05b,
+  title        = {{Llama-3.2-0.5B-Instruct} Checkpoint and Model Configuration},
+  author       = {{inference-optimization}},
+  year         = {2025},
+  note         = {Fixed revision 733a5438954476af2dccdcbdb0091572f4dbb3a6},
+  url          = {https://huggingface.co/inference-optimization/Llama-3.2-0.5B-Instruct},
+  urldate      = {2026-07-20}
+}
+
+@misc{mirage2026mpkArtifact,
+  title        = {{MPK} {OSDI}'26 Artifact},
+  author       = {{Mirage Project}},
+  year         = {2026},
+  note         = {Frozen artifact commit 8b981a44959727b9a31873cd78cf8cd80ab97e65},
+  doi          = {10.5281/zenodo.20563064},
+  url          = {https://github.com/mirage-project/mirage/tree/8b981a44959727b9a31873cd78cf8cd80ab97e65},
+  urldate      = {2026-07-20}
+}
+
+@misc{mirage2026mpkSplit,
+  title        = {{MPK} Worker--Scheduler Physical Split Commit and Performance Record},
+  author       = {{Mirage Project}},
+  year         = {2026},
+  note         = {Fixed commit 7fed92ef4429367ade11db922aca8c43dec0ad71},
+  url          = {https://github.com/mirage-project/mirage/commit/7fed92ef4429367ade11db922aca8c43dec0ad71},
+  urldate      = {2026-07-20}
+}
+
+@misc{deepgemm2026,
+  title        = {{DeepGEMM}: Clean and Efficient {FP8} {GEMM} Kernels},
+  author       = {{DeepSeek-AI}},
+  year         = {2026},
+  note         = {Source code, fixed commit 559d79fb6994a58b8a15b4b93bf13ccc16edf247},
+  url          = {https://github.com/deepseek-ai/DeepGEMM/tree/559d79fb6994a58b8a15b4b93bf13ccc16edf247},
+  urldate      = {2026-07-20}
+}
+
+@misc{deepgemmPr357,
+  title        = {Draft: Add Green-Context Split-Kernel {MegaMoE} Features},
+  author       = {{RayWang96}},
+  year         = {2026},
+  note         = {GitHub pull request \#357, open and unmerged at access date; fixed head commit bb837421bd9480224107f4de60cecdca99f05e01},
+  url          = {https://github.com/deepseek-ai/DeepGEMM/commit/bb837421bd9480224107f4de60cecdca99f05e01},
+  urldate      = {2026-07-20}
+}
+
+@misc{deepgemmPr360,
+  title        = {Add {SM90} {MegaMoE} by Cooperative},
+  author       = {{mpdfdfl}},
+  year         = {2026},
+  note         = {GitHub pull request \#360, open and unmerged at access date; fixed head commit f98330768857d65025ca457bf2e9ca168f5fd2c5},
+  url          = {https://github.com/deepseek-ai/DeepGEMM/commit/f98330768857d65025ca457bf2e9ca168f5fd2c5},
+  urldate      = {2026-07-20}
+}
+
+@misc{nvidia2026cutlassDependentLaunch,
+  title        = {{CUTLASS} 4.5.1 Documentation: Dependent Kernel Launches},
+  author       = {{NVIDIA}},
+  year         = {2026},
+  url          = {https://docs.nvidia.com/cutlass/4.5.1/media/docs/cpp/dependent_kernel_launch.html},
+  urldate      = {2026-07-20}
+}
+
+@misc{nvidia2026cutlassExample63,
+  title        = {{CUTLASS} Example 63: Hopper {GEMM} with {L2} Weight Prefetch},
+  author       = {{NVIDIA}},
+  year         = {2026},
+  note         = {Example 63 at fixed commit b995f933179c22d3fe0d871c3a53d11e4681950f},
+  url          = {https://github.com/NVIDIA/cutlass},
+  urldate      = {2026-07-20}
+}
+
+@misc{nvidia2026cudaProgrammingModel,
+  title        = {{CUDA} Programming Guide 13.3: Programming Model and Asynchronous Execution},
+  author       = {{NVIDIA}},
+  year         = {2026},
+  url          = {https://docs.nvidia.com/cuda/cuda-programming-guide/01-introduction/programming-model.html},
+  urldate      = {2026-07-20}
+}
+
+@misc{muuuchen2026pdlExp,
+  title        = {{pdl\_exp}: Programmatic Dependent Launch Experiments},
+  author       = {{Muuuchen}},
+  year         = {2026},
+  note         = {Source code, fixed commit 252d629011bc29e62307691609f9bdfeaada8337},
+  url          = {https://github.com/Muuuchen/pdl_exp/tree/252d629011bc29e62307691609f9bdfeaada8337},
+  urldate      = {2026-07-20}
+}
+
+@misc{jaber2026automegakernel,
+  title         = {{AutoMegaKernel}: A Statically-Checked Agent Harness for Self-Retargeting Megakernel Synthesis},
+  author        = {Jaber, Jaber and Jaber, Osama},
+  year          = {2026},
+  eprint        = {2606.09682},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  doi           = {10.48550/arXiv.2606.09682},
+  url           = {https://arxiv.org/abs/2606.09682}
 }
