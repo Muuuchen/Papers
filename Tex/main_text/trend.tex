@@ -1,19 +1,18 @@
-\subsection{从图级融合到 kernel orchestration}
+\subsection{从图级融合到编译期 kernel 划分}
 
-GPU 算子融合的优化单位经历了从算子节点到 tile 与 primitive 的持续细化。TVM 在张量表达和计算图层执行算子融合与跨算子优化，DNNFusion 根据算子关系和数据流属性生成融合计划，Welder 进一步以 tile graph 描述生产者与消费者之间的数据复用，从而联合调度算子内与算子间访存\cite{chen2018tvm,niu2021dnnfusion,shi2023welder}。FlashAttention 则从算法层重排 Attention 的分块与归约，使中间 attention matrix 保持在片上存储层级，展示了数据流重构与 kernel 边界设计的协同收益\cite{dao2022flashattention,dao2023flashattention2,shah2024flashattention3}。
+GPU 算子融合的优化单位经历了从算子节点到 tile 与更细计算片段的持续细化。TVM 在张量表达和计算图层执行算子融合与跨算子优化，DNNFusion 根据算子关系和数据流属性生成融合计划，Welder 进一步以 tile graph 描述生产者与消费者之间的数据复用，从而联合调度算子内与算子间访存\cite{chen2018tvm,niu2021dnnfusion,shi2023welder}。FlashAttention 则从算法层重排 Attention 的分块与归约，使中间 attention matrix 保持在片上存储层级，展示了数据流重构与 kernel 边界设计的协同收益\cite{dao2022flashattention,dao2023flashattention2,shah2024flashattention3}。
 
-Korch 将该方向推进到 kernel orchestration。其方法先把张量算子拆成基础代数 primitives，再用二元线性规划选择覆盖整个 primitive graph 的 kernel 集合；优化器由此能够在算子内部切分计算，并跨越原始算子边界重新组合 kernel\cite{hu2024korch}。ClusterFusion 使用 cluster-level collective primitive 扩大协作范围，使跨 thread block 的数据交换与同步进入融合搜索空间\cite{luo2025clusterfusion}。这些系统共同建立了一个基本结论：逻辑计算图到 GPU kernel 的映射是一个组合优化问题，收益同时取决于 launch 数量、中间数据物化、片上复用、同步和资源占用。
+直观地说，这一阶段要回答的是：一段逻辑计算应被编译成几个 GPU kernel、每个 kernel 覆盖哪些计算片段。Korch 把高层算子拆成更细的代数原语，再用优化方法决定如何把这些原语切分、拼装为最终 kernel 集合，从而允许在原始算子边界之内切开、也允许跨越边界重组\cite{hu2024korch}。ClusterFusion 则把协作范围扩大到 cluster 级集合通信原语，使跨 thread block 的数据交换与同步也进入融合搜索空间\cite{luo2025clusterfusion}。这些工作共同说明：逻辑计算图到 GPU kernel 的映射是一个组合优化问题，收益同时取决于 launch 数量、中间数据物化、片上复用、同步和资源占用。
 
-上述方法主要在代码生成阶段决定融合区域和 kernel 组成。Megakernel 将同一问题继续推进到设备端执行阶段：多个算子已经进入同一逻辑任务图之后，依赖由何种运行时机制承载、任务以何种粒度投放、逻辑任务图映射为几个物理 grid，成为新的物理执行计划变量。
+上述方法主要在代码生成阶段决定“切成几个 kernel、每个装什么”。Megakernel 把问题继续推进到设备端执行：多个算子已经进入同一逻辑任务图之后，依赖由何种运行时机制承载、任务以何种粒度投放、逻辑任务图映射为几个物理 grid，成为新的物理执行计划变量。
 
-\subsection{Whole-model 与 persistent Megakernel}
+\subsection{Persistent Megakernel}
 
-Whole-model kernel 以固定 cooperative grid 执行一层或多层 Transformer 阶段。FlashFormer 面向低 batch 推理，把 whole-model 数据流映射到单个 kernel，并通过跨阶段流水缓解权重搬运与计算之间的空隙\cite{nrusimha2025flashformer}。MegaQwen 的固定提交
-\texttt{0bc1fded} 将 Qwen3-0.6B 的 RMSNorm、QKV projection、RoPE、Attention、O projection 和 MLP 等主要 decode 计算组织在 cooperative CUDA 路径中；其公开结果同时记录了 context length 增长时吞吐下降，以及大量 \texttt{grid.sync()} 对短序列时延的影响\cite{megaqwen2026,megaqwenResults2026}。这类静态方案在编译期确定工作分工和同步位置，执行时以 grid-wide barrier 推进固定阶段序列。
+现有 Megakernel 实现大体沿两条路径展开。FlashFormer 这类 whole-model kernel 以固定 cooperative grid 执行一层或多层 Transformer 阶段：面向低 batch 推理，把整模型前向数据流映射到单个 kernel，并通过跨阶段流水缓解权重搬运与计算之间的空隙\cite{nrusimha2025flashformer}；DeepGEMM 的 MegaMoE 则面向专家路由场景，在 SM90 上把 dispatch、专家侧 GEMM、SwiGLU 与 combine 等阶段组织进同一 cooperative kernel，由 grid 内协作完成跨阶段数据交接与同步推进\cite{deepgemm2026,deepgemmPr360}。二者工作分工与同步位置多在编译期确定，执行时依靠 grid-wide 协作推进固定阶段序列，launch 与中间物化开销低，但同步粒度相对较粗。
 
-Persistent Megakernel 使用常驻 workers 执行设备端 task graph。Hazy Research Megakernels 将算子任务编译为各 SM 的指令队列。worker 根据 event、counter 和 barrier 推进跨算子依赖\cite{hazy2025nobubbles,hazyMegakernels2025}。MPK 在 OSDI'26 中提出 SM-level graph 表示，将张量程序降低为细粒度 tasks，并由去中心化的设备内运行时在 persistent megakernel 中调度；论文报告的端到端时延改进最高达到 $1.7\times$\cite{cheng2025mpk}。与 cooperative whole-model kernel 相比，task-graph runtime 能够在依赖允许时让不同 SM 独立推进，从而把整 grid 同步细化为 task 或 tile 级事件。
+另一条路径采用常驻 workers 执行设备端 task graph。Hazy Research Megakernels 将算子任务编译为各 SM 的指令队列，worker 根据 event、counter 和 barrier 推进跨算子依赖\cite{hazy2025nobubbles,hazyMegakernels2025}；MPK 进一步提出 SM-level graph 表示，将张量程序降低为细粒度 tasks，并由去中心化的设备内运行时在 persistent megakernel 中调度，论文报告端到端时延改进最高达到 $1.7\times$\cite{cheng2025mpk}。与静态 cooperative 方案相比，task-graph runtime 能够在依赖允许时让不同 SM 独立推进，从而把整 grid 同步细化为 task 或 tile 级事件。
 
-这两类实现采用不同的调度结构，却承担相同的系统职责：一次物理 grid 需要在多个阶段间维持任务发现、ready 判断、数据可见性和 worker 前向进展。其关键收益来自消除 launch 与中间物化，并把局部 readiness 转化为跨算子流水；其关键成本来自设备端调度、软件同步和不同阶段共享同一 persistent execution state。
+上述实现调度结构不同，却承担相近的系统职责：一次物理 grid 需要在多个阶段间维持任务发现、ready 判断、数据可见性和 worker 前向进展。其关键收益来自消除 launch 与中间物化，并尽可能把局部 readiness 转化为跨算子流水；其关键成本来自设备端调度、软件同步和不同阶段共享同一执行状态。
 
 \subsection{动态 task/event 与自动执行计划生成}
 
@@ -21,29 +20,17 @@ Persistent Megakernel 使用常驻 workers 执行设备端 task graph。Hazy Res
 
 自动化工具也开始进入 Megakernel 代码生成。AutoMegaKernel 以 schedule IR validator 检查 agent 生成计划的 race、deadlock 和资源约束，并从统一代码生成面向多代 NVIDIA GPU 的 persistent cooperative kernel\cite{jaber2026automegakernel}。这一进展使执行计划搜索具备更大的候选空间，也提高了对可验证依赖表示和可复现实验接口的要求。对物理分区而言，边界决策需要与 task schedule 一同进入候选计划，并通过依赖合法性检查后再进行性能选择。
 
-\subsection{逻辑 Megakernel 的多 grid 物理映射}
-
-逻辑 task graph 与物理 grid 属于两个连续的执行计划层次。MPK 的 SM-level graph 和 Event Tensor 的依赖表示在逻辑层描述 task 及其 readiness；物理层再决定哪些相邻算子阶段共享 persistent grid 的执行状态。DeepGEMM MegaMoE 给出了算子图内部多 grid 映射的直接工程信号。open PR~\#360 的固定 head branch 实现了 SM90 cooperative MegaMoE，并把 dispatch、两层 GEMM、SwiGLU 与 combine 等阶段组织在一个 cooperative kernel 内；该 PR 的后续计划明确引用 green-context split 方案\cite{deepgemm2026,deepgemmPr360}。draft PR~\#357 的固定 head branch 将同一 MegaMoE 数据流分成
-\texttt{dispatch+L1+SwiGLU}、\texttt{L2+combine} 和 \texttt{combine-reduce} 三个 focused kernels，前两个 kernel 使用 CUDA Green Contexts 占据互斥 SM partitions，并通过 HBM arrival masks 形成流水，整个路径由一个 CUDA Graph 重放\cite{deepgemmPr357}。该 PR 在 B200 上报告 32 个配置与 fused 输出逐位一致；8 ranks、8192 tokens、intermediate size 2048 的时间从 $2307.8\,\mu\mathrm{s}$ 降至 $2046.7\,\mu\mathrm{s}$，而多个中小 token 配置呈现 split 较慢的方向。其处理变量同时包含物理分区、focused-kernel 实现、Green Context 资源配额和 arrival-mask 流水，因此这些数据刻画复合多 grid 计划的 workload-dependent crossover；本课题的 Hazy slot-exact A/B 承担物理边界的单变量因果识别。
-
-MegaMoE 的结果揭示了同一算子图中复合物理计划的 crossover：资源配额、producer--consumer overlap、focused kernel 与 grid 交接共同作用，其净收益随 token 数与中间维度改变。逻辑融合范围可以保持稳定，算子依赖的物理实现则在 single grid 与 multiple grids 之间选择。
 
 \subsection{CUDA Graph 与 Programmatic Dependent Launch}
 
-CUDA Graph 把 kernel、memcpy 与同步节点预先实例化为可重复执行的 DAG，从而摊销逐 kernel 的主机提交成本；默认 dependency edge 在上游节点完成后放行下游节点\cite{nvidia2026cudaGraphs}。这一机制降低了多 grid 计划的 host-side cost，并保留每个 grid 独立的资源配置和完成语义。DeepGEMM PR~\#357 使用单次 CUDA Graph replay 组织三个 focused kernels，展示了图重放与物理分区的直接组合。
+CUDA Graph 把 kernel、memcpy 与同步节点预先实例化为可重复执行的 DAG，从而摊销逐 kernel 的主机提交成本；默认 dependency edge 在上游节点完成后放行下游节点\cite{nvidia2026cudaGraphs}。这一机制降低了多 grid 计划的 host-side cost，并保留每个 grid 独立的资源配置和完成语义，因而常作为物理分区之后的提交与重放载体。
 
 Hopper 及后续架构提供 Programmatic Dependent Launch（PDL）。当 producer 的全部 blocks 分别显式触发 programmatic completion，或在退出时完成隐式触发后，consumer grid 获得提前调度机会；consumer 先执行不读取 producer 输出的独立前缀，并在 dependent read 前调用 \texttt{cudaGridDependencySynchronize()}。驱动对实际并发采用机会式调度，执行计划的正确性由同步语义独立保证\cite{nvidia2026pdl}。CUDA Graph 也可以用 programmatic edge data 表达同一依赖。
 
-CUTLASS 将 PDL 集成到 GEMM launch API，并在 Example~63 中把 consumer GEMM 的独立权重预取放到 dependency synchronization 之前，使权重访问与 producer 尾部执行重叠\cite{nvidia2026cutlassDependentLaunch,nvidia2026cutlassExample63}。本课题前期公开代码 \texttt{pdl\_exp} 在固定提交上完成了接口、构建路径以及 trigger/prefetch 参数化方式的校准；device-side PDL 指令与真实 overlap 由 CUTLASS Example~63 和 Hazy direct-PDL 实验确认\cite{muuuchen2026pdlExp}。因此，PDL 为物理边界增加了一个连续可调的交接空间：producer trigger 决定 consumer 最早投放点，consumer independent prefix 决定可隐藏工作量，资源竞争决定实际 overlap 的净收益。
+CUTLASS 将 PDL 接入 GEMM launch API，其示例主要展示：在已经分立的 producer--consumer GEMM 上，把 consumer 的独立权重预取放到 dependency synchronization 之前，从而使权重访问与 producer 尾部重叠\cite{nvidia2026cutlassDependentLaunch,nvidia2026cutlassExample63}。这一用法证明了 PDL 交接接口的可行性，但决策空间仍较窄——物理边界事先给定，可重叠工作也基本限定为固定模式的权重预取。本课题面向 Megakernel 任务图，把依赖分析、边界选择与 PDL 配置放进同一框架：先判断一条边应保留在同一 grid 内，还是映射为跨 grid 完成语义；再为选定物理边界决定 producer trigger 时机、可提前执行的独立前缀形态，以及预取量与存储层级。
 
 \subsection{现状归纳与研究机会}
 
-现有研究已经形成三个相互衔接的优化层次。图级融合与 kernel orchestration 选择逻辑计算区域及其 primitive 组合；Megakernel compiler/runtime 选择 task 粒度、事件表示和设备端调度；CUDA Graph 与 PDL 优化多个物理 grid 的提交和交接。公开 artifact 进一步说明，同一个逻辑 Megakernel 可以映射为一个或多个物理 grid，而且两种映射的相对性能随依赖和 workload 改变。
+现有研究已经形成三个相互衔接的优化层次。图级融合与编译期 kernel 划分决定逻辑计算被切成哪些 kernel；Megakernel 编译器与运行时选择 task 粒度、事件表示和设备端调度；CUDA Graph 与 PDL 优化多个物理 grid 的提交和交接。三个层次分别成熟，却尚未被系统地贯通：逻辑上已经融合的任务图，仍然缺少一套依据依赖形态选择物理执行方式的方法；PDL 虽已证明可在既定边界上重叠独立工作，却尚未与“该不该划边界、何时放行后继、以何种机制调度”一并纳入同一决策过程。
 
-由此得到本课题的研究变量。对逻辑 task graph 中的相邻算子阶段切口 $b=(V_A,V_B,E_b)$，定义依赖实现
-\[
-  \pi(b)\in\{\Pi_E,\Pi_G,\Pi_S,\Pi_P\}.
-\]
-细粒度 event 保留 tile/head 级流水；global gate 在同一 persistent grid 内把每个 consumer 的 admission 对齐到其最小依赖 readiness，Hazy 中心边对应全量 readiness；grid completion 同时提供全局完成、内存可见和阶段生命周期切换；PDL 则把 consumer 的合法独立前缀前移到 producer 尾部。边界选择的净效应由消除的软件交接和阶段干扰、损失的细粒度流水、新增的 grid 边界成本以及 PDL 可隐藏工作量共同构成。
-
-这一执行计划空间给出明确的研究机会：从依赖 fan-in/readiness、producer 与 consumer 时长、task admission 时序、worker 驻留、阶段资源包络和独立前缀中提取特征，为每个相邻算子阶段切口选择 $\pi(b)$；随后在选定物理边界上联合搜索 PDL trigger、prefetch volume 与 memory level。该问题把逻辑融合、物理分区和跨边界重叠连接为一条完整优化链，并以同图正负边、内部 gate 对照和 split+PDL 对照提供可验证的实验结构。
+由此形成若干明确的研究机会。第一，建立明确的抽象层次并基于此进行依赖分析，明确计算图中每条相邻算子边的处理范式——例如保留同一 grid 内的细粒度事件同步或映射为跨 grid 的完成语义——并在此候选集合上搜索覆盖全图的边处理方案，使局部边的选择能够组成全局更优的执行计划。第二，对已被判定为跨 grid 的边，可进一步以 PDL 为硬件基础，构建依赖感知的跨边界重叠方案：把 Megakernel 侧的就绪与投放约束、与 CUDA Graph / PDL 侧的触发时机和独立前缀衔接起来，使跨 grid 交接不再停留在既定边界上的固定预取示例，而能够依据依赖形态选择细粒度可重叠工作与放行时机。第三，基于上述抽象建立面向任意计算图的完整框架：从任务拆解、依赖刻画到执行计划生成与运行时落地，并在真实解码负载上检验端到端收益。

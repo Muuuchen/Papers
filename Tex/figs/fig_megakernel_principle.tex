@@ -1,0 +1,327 @@
+\usetikzlibrary{arrows.meta}
+\begin{figure}[htbp]
+  \centering
+  % shift={(...)} 使用坐标系单位；勿用 xshift=..cm，否则面板间距会被放大约 1/x 倍。
+  \makebox[\textwidth][c]{%
+  \resizebox{1.12\textwidth}{!}{%
+  \begin{tikzpicture}[
+      x=0.82cm,
+      y=0.60cm,
+      font=\scriptsize,
+      panel/.style={
+        draw=black!28,
+        rounded corners=1.5pt,
+        line width=0.35pt
+      },
+      lane/.style={
+        draw=black!14,
+        line width=0.3pt
+      },
+      lanelabel/.style={
+        anchor=east,
+        font=\fontsize{5}{6}\selectfont,
+        text=black!72,
+        align=right
+      },
+      ctrl/.style={
+        draw=violet!55!black,
+        fill=violet!10,
+        rounded corners=1pt,
+        line width=0.45pt
+      },
+      taskA/.style={
+        draw=blue!65!black,
+        fill=blue!14,
+        rounded corners=0.8pt,
+        line width=0.45pt
+      },
+      taskB/.style={
+        draw=orange!80!black,
+        fill=orange!18,
+        rounded corners=0.8pt,
+        line width=0.45pt
+      },
+      taskC/.style={
+        draw=teal!65!black,
+        fill=teal!15,
+        rounded corners=0.8pt,
+        line width=0.45pt
+      },
+      launchbox/.style={
+        draw=black!70,
+        fill=black!7,
+        rounded corners=0.7pt,
+        line width=0.4pt
+      },
+      boundary/.style={
+        draw=black!55,
+        densely dashed,
+        line width=0.45pt
+      },
+      dispatch/.style={
+        -{Latex[length=1.3mm]},
+        draw=violet!70!black,
+        densely dotted,
+        line width=0.5pt
+      },
+      dep/.style={
+        -{Latex[length=1.3mm]},
+        draw=blue!70!black,
+        line width=0.55pt
+      },
+      spill/.style={
+        {Latex[length=1.2mm]}-{Latex[length=1.2mm]},
+        draw=red!65!black,
+        line width=0.55pt
+      },
+      wait/.style={
+        draw=black!30,
+        fill=black!5,
+        densely dashed,
+        rounded corners=0.7pt,
+        line width=0.35pt
+      },
+      memory/.style={
+        draw=black!45,
+        fill=black!6,
+        rounded corners=0.8pt,
+        line width=0.4pt
+      }
+    ]
+
+    % ======================================================================
+    % (a) Separate physical kernels
+    % ======================================================================
+    \begin{scope}[shift={(0,0)}]
+      \draw[panel] (0.05,0.10) rectangle (7.05,7.20);
+
+      \node[font=\small\bfseries] at (3.60,6.82)
+        {(a) 多 kernel};
+
+      \foreach \yy in {5.90,5.05,4.05,3.35,2.65} {
+        \draw[lane] (1.70,\yy) -- (6.85,\yy);
+      }
+
+      \node[lanelabel] at (1.58,5.90) {Host};
+      \node[lanelabel] at (1.58,5.05) {Grid ctrl.};
+      \node[lanelabel] at (1.58,4.05) {SM 0};
+      \node[lanelabel] at (1.58,3.35) {SM 1};
+      \node[lanelabel] at (1.58,2.65) {SM $n$};
+      \node[lanelabel] at (1.58,1.55) {HBM};
+
+      \draw[launchbox] (1.75,5.69) rectangle (2.22,6.11);
+      \node[font=\tiny] at (1.985,5.90) {$L_A$};
+      \draw[launchbox] (3.20,5.69) rectangle (3.67,6.11);
+      \node[font=\tiny] at (3.435,5.90) {$L_B$};
+      \draw[launchbox] (4.75,5.69) rectangle (5.22,6.11);
+      \node[font=\tiny] at (4.985,5.90) {$L_C$};
+
+      \draw[ctrl] (1.85,4.84) rectangle (3.05,5.26);
+      \node[font=\tiny] at (2.45,5.05) {grid $A$};
+      \draw[ctrl] (3.35,4.84) rectangle (4.60,5.26);
+      \node[font=\tiny] at (3.975,5.05) {grid $B$};
+      \draw[ctrl] (4.90,4.84) rectangle (6.40,5.26);
+      \node[font=\tiny] at (5.65,5.05) {grid $C$};
+
+      \foreach \yy in {4.05,3.35,2.65} {
+        \draw[taskA] (1.85,\yy-0.21) rectangle (3.05,\yy+0.21);
+        \node[font=\tiny] at (2.45,\yy) {$A$};
+        \draw[taskB] (3.35,\yy-0.21) rectangle (4.60,\yy+0.21);
+        \node[font=\tiny] at (3.975,\yy) {$B$};
+        \draw[taskC] (4.90,\yy-0.21) rectangle (6.40,\yy+0.21);
+        \node[font=\tiny] at (5.65,\yy) {$C$};
+      }
+
+      \draw[boundary] (3.20,2.35) -- (3.20,5.40);
+      \draw[boundary] (4.75,2.35) -- (4.75,5.40);
+      \node[font=\fontsize{4.5}{5}\selectfont,fill=white,inner sep=0.5pt,text=black!65]
+        at (3.20,4.52) {grid 完成};
+
+      \draw[memory] (1.70,1.33) rectangle (6.85,1.77);
+      \node[font=\fontsize{5}{6}\selectfont,text=black!70] at (4.275,1.55)
+        {输入 / 中间结果 / 输出};
+
+      \draw[spill] (3.20,1.79) -- node[right,font=\tiny] {$I_A$} (3.20,2.42);
+      \draw[spill] (4.75,1.79) -- node[right,font=\tiny] {$I_B$} (4.75,2.42);
+
+      \draw[-{Latex[length=1.5mm]},black!65]
+        (1.70,0.82) -- (6.80,0.82)
+        node[above left,inner sep=1pt,font=\tiny] {time};
+      \node[font=\fontsize{5}{6}\selectfont\bfseries,text=black!72] at (4.275,0.38)
+        {3 launches $\cdot$ 2 次全局 grid 边界};
+    \end{scope}
+
+    % ======================================================================
+    % (b) Conventional compile-time operator fusion
+    % ======================================================================
+    \begin{scope}[shift={(7.18,0)}]
+      \draw[panel] (0.05,0.10) rectangle (7.05,7.20);
+
+      \node[font=\small\bfseries] at (3.60,6.82)
+        {(b) 传统算子融合};
+
+      \foreach \yy in {5.90,5.05,4.05,3.35,2.65} {
+        \draw[lane] (1.70,\yy) -- (6.85,\yy);
+      }
+
+      \node[lanelabel] at (1.58,5.90) {Host};
+      \node[lanelabel] at (1.58,5.05) {Grid ctrl.};
+      \node[lanelabel] at (1.58,4.05) {SM 0};
+      \node[lanelabel] at (1.58,3.35) {SM 1};
+      \node[lanelabel] at (1.58,2.65) {SM $n$};
+      \node[lanelabel] at (1.58,1.55) {HBM};
+
+      \draw[launchbox] (1.75,5.69) rectangle (2.65,6.11);
+      \node[font=\tiny] at (2.20,5.90) {$L_{A+B}$};
+      \draw[launchbox] (4.65,5.69) rectangle (5.12,6.11);
+      \node[font=\tiny] at (4.885,5.90) {$L_C$};
+
+      \draw[ctrl] (1.85,4.84) rectangle (4.45,5.26);
+      \node[font=\tiny] at (3.15,5.05) {grid $F_{A+B}$};
+      \draw[ctrl] (4.80,4.84) rectangle (6.40,5.26);
+      \node[font=\tiny] at (5.60,5.05) {grid $C$};
+
+      \foreach \yy in {4.05,3.35,2.65} {
+        \draw[taskA] (1.85,\yy-0.21) rectangle (2.85,\yy+0.21);
+        \node[font=\tiny] at (2.35,\yy) {$A$};
+        \draw[taskB] (2.85,\yy-0.21) rectangle (4.45,\yy+0.21);
+        \node[font=\tiny] at (3.65,\yy) {$B$};
+        \draw[taskC] (4.80,\yy-0.21) rectangle (6.40,\yy+0.21);
+        \node[font=\tiny] at (5.60,\yy) {$C$};
+      }
+
+      \draw[boundary] (4.625,2.35) -- (4.625,5.40);
+
+      \draw[memory] (1.70,1.33) rectangle (6.85,1.77);
+      \node[font=\fontsize{5}{6}\selectfont,text=black!70] at (4.275,1.55)
+        {输入 / 融合输出 / 最终输出};
+
+      \draw[spill] (4.625,1.79)
+        -- node[right,font=\tiny] {$I_{A+B}$} (4.625,2.42);
+
+      \draw[-{Latex[length=1.5mm]},black!65]
+        (1.70,0.82) -- (6.80,0.82)
+        node[above left,inner sep=1pt,font=\tiny] {time};
+      \node[font=\fontsize{5}{6}\selectfont\bfseries,text=black!72] at (4.275,0.38)
+        {2 launches $\cdot$ grid 内静态融合};
+    \end{scope}
+
+    % ======================================================================
+    % (c) Persistent megakernel with an on-device scheduler
+    % ======================================================================
+    \begin{scope}[shift={(14.36,0)}]
+      \draw[panel] (0.05,0.10) rectangle (7.05,7.20);
+
+      \node[font=\small\bfseries] at (3.60,6.82)
+        {(c) Persistent Megakernel};
+
+      \foreach \yy in {5.90,5.05,4.05,3.35,2.65} {
+        \draw[lane] (1.70,\yy) -- (6.85,\yy);
+      }
+
+      \node[lanelabel] at (1.58,5.90) {Host};
+      \node[lanelabel] at (1.58,5.05) {Sched. SM};
+      \node[lanelabel] at (1.58,4.05) {SM 0};
+      \node[lanelabel] at (1.58,3.35) {SM 1};
+      \node[lanelabel] at (1.58,2.65) {SM $n$};
+      \node[lanelabel] at (1.58,1.55) {HBM};
+
+      \draw[launchbox] (1.75,5.69) rectangle (2.33,6.11);
+      \node[font=\tiny] at (2.04,5.90) {$L_M$};
+
+      \draw[
+        draw=teal!55!black,
+        densely dashed,
+        rounded corners=1.2pt,
+        line width=0.55pt
+      ] (1.78,2.32) rectangle (6.45,5.34);
+
+      \node[
+        font=\fontsize{5}{6}\selectfont\bfseries,
+        fill=white,
+        inner sep=0.5pt,
+        text=teal!55!black
+      ] at (5.45,5.48) {persistent grid};
+
+      \draw[ctrl] (1.90,4.83) rectangle (6.30,5.27);
+      \node[font=\fontsize{5}{6}\selectfont] at (4.10,5.05)
+        {ready queue / events / counters};
+
+      % Worker SM 0
+      \draw[taskA] (1.95,3.84) rectangle (2.68,4.26);
+      \node[font=\tiny] at (2.315,4.05) {$A_0$};
+      \draw[taskB] (2.83,3.84) rectangle (3.58,4.26);
+      \node[font=\tiny] at (3.205,4.05) {$B_0$};
+      \draw[wait] (3.65,3.84) rectangle (4.85,4.26);
+      \node[font=\tiny,text=black!50] at (4.25,4.05) {wait};
+      \draw[taskC] (4.92,3.84) rectangle (5.72,4.26);
+      \node[font=\tiny] at (5.32,4.05) {$C_0$};
+
+      % Worker SM 1
+      \draw[taskA] (2.10,3.14) rectangle (2.85,3.56);
+      \node[font=\tiny] at (2.475,3.35) {$A_1$};
+      \draw[taskB] (3.00,3.14) rectangle (3.75,3.56);
+      \node[font=\tiny] at (3.375,3.35) {$B_1$};
+      \draw[wait] (3.82,3.14) rectangle (4.98,3.56);
+      \node[font=\tiny,text=black!50] at (4.40,3.35) {wait};
+      \draw[taskC] (5.05,3.14) rectangle (5.85,3.56);
+      \node[font=\tiny] at (5.45,3.35) {$C_1$};
+
+      % Worker SM n
+      \draw[taskA] (2.30,2.44) rectangle (3.10,2.86);
+      \node[font=\tiny] at (2.70,2.65) {$A_n$};
+      \draw[taskB] (3.25,2.44) rectangle (4.30,2.86);
+      \node[font=\tiny] at (3.775,2.65) {$B_n$};
+      \draw[wait] (4.37,2.44) rectangle (5.10,2.86);
+      \node[font=\tiny,text=black!50] at (4.735,2.65) {wait};
+      \draw[taskC] (5.17,2.44) rectangle (6.00,2.86);
+      \node[font=\tiny] at (5.585,2.65) {$C_n$};
+
+      \draw[dep] (2.68,4.31) -- (2.83,4.31);
+      \node[
+        font=\fontsize{4.5}{5}\selectfont,
+        anchor=south,
+        text=blue!70!black
+      ] at (2.75,4.36) {tile ready};
+
+      \draw[dispatch] (2.85,4.82) -- (2.85,4.30);
+      \draw[dispatch] (5.15,4.82) -- (5.15,3.60);
+
+      \draw[
+        draw=red!65!black,
+        densely dashed,
+        line width=0.55pt
+      ] (4.70,2.32) -- (4.70,4.70);
+      \node[
+        font=\fontsize{4.5}{5}\selectfont,
+        anchor=south east,
+        fill=white,
+        inner sep=0.5pt,
+        text=red!65!black
+      ] at (4.62,4.36) {all ready};
+
+      \draw[memory] (1.70,1.33) rectangle (6.85,1.77);
+      \node[font=\fontsize{5}{6}\selectfont,text=black!70] at (4.275,1.55)
+        {模型状态 / KV / 输出};
+
+      \draw[-{Latex[length=1.2mm]},draw=black!55]
+        (2.20,1.78) -- (2.20,2.30);
+      \draw[-{Latex[length=1.2mm]},draw=black!55]
+        (6.05,2.30) -- (6.05,1.78);
+
+      \draw[-{Latex[length=1.5mm]},black!65]
+        (1.70,0.82) -- (6.80,0.82)
+        node[above left,inner sep=1pt,font=\tiny] {time};
+      \node[font=\fontsize{5}{6}\selectfont\bfseries,text=black!72] at (4.275,0.38)
+        {1 launch $\cdot$ 设备端任务依赖};
+    \end{scope}
+  \end{tikzpicture}%
+  }}%
+  \caption{同一条 $A\!\rightarrow\!B\!\rightarrow\!C$ 算子链的三种执行映射。
+  (a)~多 kernel 以物理 grid completion 排序阶段，并在边界处物化中间结果；
+  (b)~传统融合消去 $A$--$B$ 物理边界，但 worker 仍执行静态融合程序，且 $C$ 前仍保留物理边界；
+  (c)~persistent Megakernel 仅 launch 一次，由设备端调度维护 queue/event/counter，worker 拉取 tile 任务：
+  tile-ready 允许 $B_0$ 与 $A$ 尾部重叠，而 $C$ 前的 all-ready 则表现为内部 readiness gate。
+  Megakernel 中间结果是否落 HBM 取决于具体实现，图中不作约定。}
+  \label{fig:megakernel-principle}
+\end{figure}

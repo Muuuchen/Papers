@@ -1,4 +1,4 @@
-研究工作按照“机制闭环、边界规律、跨边界优化、真实路径验证、执行计划选择”的顺序推进。阶段安排与可验收成果如下。
+研究工作按主要研究内容推进：依赖关系建模、PDL 跨边界重叠、全图边处理搜索，以及框架实现与端到端验证。阶段安排与可验收成果如下。
 
 \begin{table}[htbp]
   \centering
@@ -10,23 +10,23 @@
     时间 & 主要工作 & 阶段成果 \\
     \midrule
     2026.07--2026.08
-      & 在 Hazy controller 发布 consumer instruction 前实现 full-ready admission gate；加入同步 \texttt{\%globaltimer} 里程碑；完成 $\Pi_E$、$\Pi_G$、$\Pi_S$ 三路 matched A/B
-      & producer-ready、post-ready handoff 和 grid drain 的关键路径分解 \\
+      & 完成算子图到 task graph 的 lowering；实现相邻算子边的依赖抽象与合法候选空间；在真实计算图上校验依赖还原
+      & 依赖分析 IR、候选生成接口与依赖报告 \\
     2026.09--2026.10
-      & 扫描 readiness 粒度、producer window、consumer fanout、cross-edge locality；完成 single-grid $2\times2\times2$ 受控子图
-      & 边界 crossover 的因果曲线与第一版 feature card \\
+      & 实现依赖感知的 PDL 跨边界变换；识别重叠工作并确定发起时机与执行形态；相对 grid completion 完成边级重叠验证
+      & PDL 变换原型、合法性检查与边级重叠结果 \\
     2026.11--2026.12
-      & 将中心边界接入 decoder layer 与 decode step；建立 C++/CUDA Graph launch 路径；测量连续 token 和短生成
-      & 局部收益保留率、TPOT/P90/P99 及 host-gap 分解 \\
+      & 实现边处理与 grid 分组的联合搜索及成本估计；在 decoder layer 上比较固定方案、逐边贪心与全图搜索
+      & 全图计划搜索器及 decoder-layer 时延结果 \\
     2027.01--2027.02
-      & 联合搜索 PDL trigger、独立前缀、预取量和存储层级；测量资源竞争与前向进展；扩展到第二真实 Megakernel 图
-      & PDL break-even 模型、跨图正负样本和完整正确性结果 \\
+      & 贯通计划生成、CUDA 代码生成与运行时执行；接入完整 decode step 与连续 token 生成，完成正确性通路
+      & 可运行框架原型与端到端正确性结果 \\
     2027.03--2027.04
-      & 冻结边界静态/trace 特征与分段成本模型；在 held-out 边和 held-out 计算图上评测；完成主要消融
-      & 依赖实现层级选择方法、预测准确率和硬件测量开销 \\
+      & 在真实推理 workload 上完成精度与性能测试；扫描 batch、context 与模型 shape，并做依赖/PDL/搜索消融
+      & 跨图时延、TPOT/P90/P99、搜索开销与消融结果 \\
     2027.05--2027.06
-      & 整理系统原型、实验 artifact、图表与论文；完成开源复现说明和学位论文撰写
-      & 可复现实验包、论文投稿稿件和学位论文 \\
+      & 完善系统原型与复现材料，完成论文撰写
+      & 依赖感知融合框架、可复现实验包、投稿稿件和学位论文 \\
     \bottomrule
   \end{tabularx}
 \end{table}

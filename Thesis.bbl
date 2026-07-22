@@ -1,4 +1,4 @@
-\begin{thebibliography}{26}
+\begin{thebibliography}{28}
 \providecommand{\biband}{和}
 \providecommand{\bibetal}{等}
 \providecommand{\natexlab}[1]{#1}
@@ -12,6 +12,15 @@
   \def\doi#1{\href{https://doi.org/#1}{\nolinkurl{#1}}}
   \let\eprint\href
 \fi
+
+\bibitem[Agrawal {\bibetal}(2024)Agrawal, Kedia, Panwar, Mohan, Kwatra,
+  Gulavani, Tumanov, and Ramjee]{agrawal2024sarathiServe}
+Agrawal~A, Kedia~N, Panwar~A, et~al.
+\newblock Taming throughput-latency tradeoff in {LLM} inference with
+  sarathi-serve [C/OL]//\allowbreak
+18th USENIX Symposium on Operating Systems Design and Implementation.
+\newblock 2024: 117-134.
+\newblock \url{https://www.usenix.org/conference/osdi24/presentation/agrawal}.
 
 \bibitem[Chen {\bibetal}(2018)Chen, Moreau, Jiang, Zheng, Yan, Shen, Cowan,
   Wang, Hu, Ceze, Guestrin, and Krishnamurthy]{chen2018tvm}
@@ -49,12 +58,19 @@ Koyejo~S, Mohamed~S, Agarwal~A, et~al.
 \newblock Advances in Neural Information Processing Systems: volume~35.
 \newblock Curran Associates, Inc., 2022: 16344-16359.
 
-\bibitem[{DeepSeek-AI}(2026)]{deepgemm2026}
+\bibitem[{DeepSeek-AI}(2026{\natexlab{a}})]{deepgemm2026}
 {DeepSeek-AI}.
 \newblock {DeepGEMM}: Clean and efficient {FP8} {GEMM} kernels [EB/OL].
 \newblock 2026\allowbreak[2026-07-20].
 \newblock
   \url{https://github.com/deepseek-ai/DeepGEMM/tree/559d79fb6994a58b8a15b4b93bf13ccc16edf247}.
+
+\bibitem[{DeepSeek-AI}(2026{\natexlab{b}})]{deepgemmPr360}
+{DeepSeek-AI}.
+\newblock {SM90} cooperative {MegaMoE} implementation in {DeepGEMM} [EB/OL].
+\newblock 2026\allowbreak[2026-07-20].
+\newblock
+  \url{https://github.com/deepseek-ai/DeepGEMM/commit/f98330768857d65025ca457bf2e9ca168f5fd2c5}.
 
 \bibitem[Dong {\bibetal}(2026)Dong et~al.]{dong2026adamk}
 Dong~W, et~al.
@@ -62,6 +78,13 @@ Dong~W, et~al.
   search for {LLM} inference [EB/OL].
 \newblock 2026.
 \newblock \url{https://arxiv.org/abs/2605.11581}.
+
+\bibitem[Hao {\bibetal}(2026)Hao, Li, Luo, Qian, Wang, Zhao, Feng, Cui, and
+  Xue]{hao2026dacos}
+Hao~Z, Li~G, Luo~F, et~al.
+\newblock {DACOS}: Dependency-aware cross-kernel overlapping for optimizing
+  short-sequence workloads in {LLM} applications [Z].
+\newblock 2026.
 
 \bibitem[{Hazy Research}(2025{\natexlab{a}})]{hazy2025nobubbles}
 {Hazy Research}.
@@ -88,27 +111,6 @@ Proceedings of the 29th ACM International Conference on Architectural Support
 \newblock {ACM}, 2024: 755-769.
 \newblock \url{https://doi.org/10.1145/3620666.3651383}.
 
-\bibitem[{Infatoshi}(2026{\natexlab{a}})]{megaqwen2026}
-{Infatoshi}.
-\newblock {MegaQwen}: Custom {CUDA} megakernel for {Qwen3-0.6B} inference
-  [EB/OL].
-\newblock 2026\allowbreak[2026-07-20].
-\newblock
-  \url{https://github.com/Infatoshi/MegaQwen/tree/0bc1fdedb82744481373000c5c7d3c58795c7a3a}.
-
-\bibitem[{Infatoshi}(2026{\natexlab{b}})]{megaqwenResults2026}
-{Infatoshi}.
-\newblock {MegaQwen} experiment results [EB/OL].
-\newblock 2026\allowbreak[2026-07-20].
-\newblock \url{https://github.com/Infatoshi/MegaQwen}.
-
-\bibitem[{inference-optimization}(2025)]{inferenceOptimization2025llama05b}
-{inference-optimization}.
-\newblock {Llama-3.2-0.5B-Instruct} checkpoint and model configuration [EB/OL].
-\newblock 2025\allowbreak[2026-07-20].
-\newblock
-  \url{https://huggingface.co/inference-optimization/Llama-3.2-0.5B-Instruct}.
-
 \bibitem[Jaber {\bibetal}(2026)Jaber and Jaber]{jaber2026automegakernel}
 Jaber~J, Jaber~O.
 \newblock {AutoMegaKernel}: A statically-checked agent harness for
@@ -127,6 +129,22 @@ Proceedings of Machine Learning and Systems: volume~8.
 \newblock Bellevue, WA, USA, 2026\allowbreak[2026-07-20].
 \newblock \url{https://openreview.net/forum?id=PJqFhAbUHa}.
 
+\bibitem[Kwon {\bibetal}(2023)Kwon, Li, Zhuang, Sheng, Zheng, Yu, Gonzalez,
+  Zhang, and Stoica]{kwon2023vllm}
+Kwon~W, Li~Z, Zhuang~S, et~al.
+\newblock Efficient memory management for large language model serving with
+  {PagedAttention} [C/OL]//\allowbreak
+Proceedings of the 29th Symposium on Operating Systems Principles.
+\newblock 2023: 611-626.
+\newblock DOI: \doi{10.1145/3600006.3613165}.
+
+\bibitem[Luo {\bibetal}(2026)Luo et~al.]{luo2026agentix}
+Luo~F, et~al.
+\newblock Agentix: An efficient serving engine for {LLM} agents as general
+  programs [EB/OL].
+\newblock 2026.
+\newblock \url{https://www.usenix.org/conference/nsdi26/presentation/luo}.
+
 \bibitem[Luo {\bibetal}(2025)Luo, Liu, Zhou, Fang, Huang, Feng, Zhang, Sun,
   Zheng, Leng, and Guo]{luo2025clusterfusion}
 Luo~X, Liu~Z, Zhou~Y, et~al.
@@ -135,20 +153,6 @@ Luo~X, Liu~Z, Zhou~Y, et~al.
 Belgrave~D, Zhang~C, Lin~H, et~al.
 \newblock Advances in Neural Information Processing Systems: volume~38.
 \newblock Curran Associates, Inc., 2025.
-
-\bibitem[{mpdfdfl}(2026)]{deepgemmPr360}
-{mpdfdfl}.
-\newblock Add {SM90} {MegaMoE} by cooperative [EB/OL].
-\newblock 2026\allowbreak[2026-07-20].
-\newblock
-  \url{https://github.com/deepseek-ai/DeepGEMM/commit/f98330768857d65025ca457bf2e9ca168f5fd2c5}.
-
-\bibitem[{Muuuchen}(2026)]{muuuchen2026pdlExp}
-{Muuuchen}.
-\newblock {pdl\_exp}: Programmatic dependent launch experiments [EB/OL].
-\newblock 2026\allowbreak[2026-07-20].
-\newblock
-  \url{https://github.com/Muuuchen/pdl_exp/tree/252d629011bc29e62307691609f9bdfeaada8337}.
 
 \bibitem[Niu {\bibetal}(2021)Niu, Guan, Wang, Agrawal, and
   Ren]{niu2021dnnfusion}
@@ -196,13 +200,6 @@ Nrusimha~A, Brandon~W, Mishra~M, et~al.
 \newblock 2026\allowbreak[2026-07-20].
 \newblock \url{https://docs.nvidia.com/cuda/cuda-programming-guide/}.
 
-\bibitem[{RayWang96}(2026)]{deepgemmPr357}
-{RayWang96}.
-\newblock Draft: Add green-context split-kernel {MegaMoE} features [EB/OL].
-\newblock 2026\allowbreak[2026-07-20].
-\newblock
-  \url{https://github.com/deepseek-ai/DeepGEMM/commit/bb837421bd9480224107f4de60cecdca99f05e01}.
-
 \bibitem[Shah {\bibetal}(2024)Shah, Bikshandi, Zhang, Thakkar, Ramani, and
   Dao]{shah2024flashattention3}
 Shah~J, Bikshandi~G, Zhang~Y, et~al.
@@ -221,5 +218,31 @@ Shi~Y, Yang~Z, Xue~J, et~al.
 17th USENIX Symposium on Operating Systems Design and Implementation.
 \newblock 2023: 701-718.
 \newblock \url{https://www.usenix.org/conference/osdi23/presentation/shi}.
+
+\bibitem[Vellaisamy {\bibetal}(2026)Vellaisamy, Tripathi, Natarajan, Thenarasu,
+  Blanton, and Shen]{vellaisamy2026taxbreak}
+Vellaisamy~P, Tripathi~S, Natarajan~V, et~al.
+\newblock Taxbreak: Unmasking the hidden costs of {LLM} inference through
+  overhead decomposition [EB/OL].
+\newblock 2026.
+\newblock \url{https://arxiv.org/abs/2603.12465}.
+
+\bibitem[Yu {\bibetal}(2022)Yu, Jeong, Kim, Kim, and Chun]{yu2022orca}
+Yu~G~I, Jeong~J~S, Kim~G~W, et~al.
+\newblock Orca: A distributed serving system for transformer-based generative
+  models [C/OL]//\allowbreak
+16th USENIX Symposium on Operating Systems Design and Implementation.
+\newblock 2022: 521-538.
+\newblock \url{https://www.usenix.org/conference/osdi22/presentation/yu}.
+
+\bibitem[Zhong {\bibetal}(2024)Zhong, Liu, Chen, Hu, Zhu, Liu, Jin, and
+  Zhang]{zhong2024distserve}
+Zhong~Y, Liu~S, Chen~J, et~al.
+\newblock Distserve: Disaggregating prefill and decoding for goodput-optimized
+  large language model serving [C/OL]//\allowbreak
+18th USENIX Symposium on Operating Systems Design and Implementation.
+\newblock 2024: 193-210.
+\newblock
+  \url{https://www.usenix.org/conference/osdi24/presentation/zhong-yinmin}.
 
 \end{thebibliography}

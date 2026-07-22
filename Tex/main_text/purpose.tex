@@ -1,114 +1,86 @@
 \subsection{问题定义与总体目标}
 \label{sec:purpose}
 
-设已经生成的 Megakernel 任务图为 $G=(V,E)$，其中节点表示保持数值语义和 tile 实现不变的 GPU task。候选算子边界表示为 task graph 上的相邻阶段 cut
-\[
-  b=(V_A,V_B,E_b),\qquad
-  E_b=\{(u,v)\in E\mid u\in V_A,\ v\in V_B\},
-\]
-其中 $V_A$ 和 $V_B$ 分别为 producer 与 consumer 算子阶段的 task 集合，$E_b$ 为跨越该 cut 的数据依赖。对给定 workload $x$，本课题研究边界 $b$ 的\textbf{依赖实现层级}：同一逻辑任务图可以由单个 persistent grid 内的软件事件承载，也可以由 CUDA grid completion 承载；选定物理边界后，还可以利用 PDL 将后继 grid 的合法独立前缀与前驱尾部重叠。表~\ref{tab:four-execution-plans} 定义四种执行计划，图~\ref{fig:four-execution-plans} 给出相应时间结构。
+本课题面向低时延 LLM 推理，旨在构建\textbf{依赖感知的 Megakernel 推理融合框架与系统}。输入是任意计算图；框架首先通过依赖分析与任务拆解，为图中每条相邻算子边选择合适的执行方式，并生成可落地的端到端执行计划。核心问题因此包含前后衔接的两层决策：其一，依据 task / tile 级依赖形态，明确各边融合方案并在全图上搜索最优边处理方案；其二，对跨 grid 边进一步以 PDL 组织依赖感知的跨边界重叠。
 
-\begin{table}[htbp]
-  \centering
-  \caption{同一算子阶段切口的四种执行方案}
-  \label{tab:four-execution-plans}
-  \small
-  \begin{tabularx}{\textwidth}{c p{0.22\textwidth} X}
-    \toprule
-    记号 & 执行方案 & 依赖实现与可识别作用 \\
-    \midrule
-    $\Pi_E$ & \earlyinside & $V_A$ 与 $V_B$ 位于同一 grid，沿用原 Megakernel 调度器；consumer tasks 可以在其最小依赖 ready 前进入 worker queue。 \\
-    $\Pi_G$ & \gatedinside & $V_A$ 与 $V_B$ 仍位于同一 grid；controller 在每个 consumer 的最小依赖满足后签发相应 task。中心边的最小条件为 32 heads 全量 ready。 \\
-    $\Pi_S$ & \serialsplit & 在 $b$ 上形成两个同 stream 的物理 grids，以 producer grid completion 完成全局 ready、数据可见和后继放行。 \\
-    $\Pi_P$ & \pdlsplit & 保留 $\Pi_S$ 的物理边界，并通过 PDL 提前调度 consumer grid；dependency wait 前执行地址生成、descriptor 设置和独立数据预取。 \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
+形式化地，设输入计算图为 $G=(O,E)$，其中 $O$ 为算子集合，$E$ 为算子间数据依赖。框架将每个算子 $o\in O$ 拆解为可调度的 task 集合 $\mathcal{T}(o)$；对相邻算子边 $e=(o_p,o_c)$，进一步得到从生产者 task 到消费者 task 的依赖关系。该关系刻画消费者需要等待哪些生产者 task、依赖按 task/tile 粒度局部就绪还是全量就绪，以及消费者在读取依赖数据前是否存在可独立执行的工作。
 
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=0.98\textwidth]{Img/paper_figures/fig_execution_plans.pdf}
-  \caption{同一算子阶段切口的四种执行计划。$\Pi_E$ 允许 consumer 提前进入，$\Pi_G$ 在最小依赖满足后投放 consumer，$\Pi_S$ 以 grid completion 承载依赖，$\Pi_P$ 在保留物理边界的同时提前执行合法独立前缀。三组相邻差值依次识别 task admission、物理阶段切换和 PDL 跨边界重叠。}
-  \label{fig:four-execution-plans}
-\end{figure}
+对每条边 $e$，框架生成调度候选集合 $\mathcal{M}(e)$，并将边处理方案表示为 $\pi(e)=\langle m_e,\theta_e\rangle$，其中 $m_e\in\mathcal{M}(e)$ 为处理范式，$\theta_e$ 为相应的同步、投放或 PDL 参数。本课题重点研究表~\ref{tab:edge-scheduling-modes} 中四类候选。前两类将边保留在同一 grid 内，分别利用局部就绪或全量就绪推进消费者；后两类将边映射为物理 grid 边界，并进一步决定是否使用 PDL。全图执行计划记为 $\Pi=\{\pi(e)\mid e\in E\}$。边的选择并非彼此独立：一条边是否跨 grid 会改变相邻算子的 grid 分组、资源状态和其它边的可重叠窗口，因此需要在全图上联合求解。
 
-四种计划构成三组相互衔接的因果对比。$\Pi_E$ 与 $\Pi_G$ 的差值刻画 task admission 时序对 single-grid 关键路径的影响；$\Pi_G$ 与 $\Pi_S$ 的差值是物理边界的净残差，其中包含 dispatch、suffix 初始化、consumer 执行时间、cache/locality、阶段资源状态和 grid 生命周期等分量；$\Pi_S$ 与 $\Pi_P$ 的差值刻画固定物理边界上 PDL 的净重叠收益。各组实验锁定输入、输出、精度、task 指令、tile/layout 和 task 到执行队列的映射；物理边界引起的 device dispatch 与可见 GPU gap 作为显式成本进入测量，使性能差值对应于完整的依赖实现决策。
+% \begin{table}[htbp]
+%   \centering
+%   \caption{计算图相邻算子边的候选处理范式}
+%   \label{tab:edge-scheduling-modes}
+%   \small
+%   \begin{tabularx}{\textwidth}{p{0.22\textwidth}X}
+%     \toprule
+%     处理范式 & 适用依赖与执行方式 \\
+%     \midrule
+%     同 grid 细粒度事件
+%       & 消费者 task 只依赖部分生产者 task；对应 task/tile 就绪后即可通过 event 或 counter 放行，并与生产者尾部重叠执行。 \\
+%     同 grid 全量就绪
+%       & 消费者主体依赖生产者的完整输出；消费者在内部 ready counter 或调度门控满足后开始，避免错误读取未完成数据。 \\
+%     跨 grid completion
+%       & 在该边形成物理边界；由生产者 grid completion 统一保证完成顺序与内存可见性，再调度消费者 grid。 \\
+%     跨 grid PDL
+%       & 保留物理边界，但在 programmatic completion 后提前调度消费者；消费者先执行不读取生产者输出的独立前缀，并在首次依赖读取前同步。 \\
+%     \bottomrule
+%   \end{tabularx}
+% \end{table}
 
-记计划 $\Pi_i$ 在边界 $b$、workload $x$ 上的延迟为 $T_i(b,x)=L(b,x;\Pi_i)$，定义
+% \input{Tex/figs/fig_edge_scheduling_framework}
+
+基于以上统一依赖模型，总体优化目标为
 \begin{equation}
-\begin{aligned}
-  \Delta_{E\rightarrow G}&=T_G(b,x)-T_E(b,x),\\
-  \Delta_{G\rightarrow S}&=T_S(b,x)-T_G(b,x),\\
-  \Delta_{S\rightarrow P}&=T_P(b,x)-T_S(b,x).
-\end{aligned}
-  \label{eq:three-causal-contrasts}
+  \Pi^\star(G,x)
+  =\arg\min_{\Pi\in\mathcal{F}(G,x)}
+    T_{\mathrm{decode}}(G,x;\Pi),
+  \label{eq:global-scheduling-objective}
 \end{equation}
-式~\eqref{eq:three-causal-contrasts} 将“是否拆分”细化为 task 投放、物理阶段切换和跨边界重叠三个可独立测量的决策。H800 前期结果已经在 Hazy 的同一任务图中给出一条 $T_S<T_E$ 的正边和三条反向边，并在正边上观察到 $T_P<T_S$。这些结果确立了边界选择的现实性；本课题进一步建立其因果机制、适用条件和端到端传递规律。
+其中 $x$ 表示输入规模与运行配置，$\mathcal{F}(G,x)$ 表示满足数据依赖、内存可见性和硬件资源约束的合法计划集合，$T_{\mathrm{decode}}$ 表示完整解码路径的端到端时延。式~\eqref{eq:global-scheduling-objective} 将每条边的处理范式及参数作为全图决策变量，联合确定 grid 分组、同步方式与 PDL 配置。
 
-总体目标是建立\textbf{依赖感知的 Megakernel 物理分区与跨边界执行方法}：以依赖 ready 粒度、task 投放粒度、producer--consumer 时间结构和资源行为解释边界收益的正负转换；为选定物理边界生成满足数据依赖的 PDL 独立前缀；最终在真实 decoder layer 和 decode step 中形成可复现、可解释的执行计划选择依据。
 
-\subsection{研究问题}
 
-围绕上述目标，本课题回答以下四个研究问题。
-
-\begin{enumerate}
-  \item \textbf{RQ1：同一算子阶段切口应由哪一级执行机制承载？} 通过 $\Pi_E$、$\Pi_G$ 和 $\Pi_S$ 的受控比较，分离提前投放与物理边界净残差，并用阶段时间戳和主动干预定位残差中的关键路径分量。
-  \item \textbf{RQ2：哪些依赖与运行时特征决定物理分区的收益方向？} 研究全量或分块 ready、可流式 dependent work、合法 independent prefix、producer 窗口、跨边 locality、可见 launch gap 和阶段资源耦合对 crossover 的共同作用，以真实正负边和主动干预验证方向性预测。
-  \item \textbf{RQ3：PDL 在怎样的 trigger、预取量和共驻条件下产生净收益？} 对固定边界比较 $\Pi_S$ 与 $\Pi_P$，联合测量实际 overlap、producer slowdown、consumer tail 和完整临界路径，求得 PDL 的 break-even 区间。
-  \item \textbf{RQ4：局部边界收益如何传递到真实 LLM 解码关键路径？} 将同一变换依次接入 isolated edge、decoder layer、完整 decode step 和短生成，量化收益保留率，并解释 critical-path position、context length、batch size 和调度重叠对收益幅度的影响。
-\end{enumerate}
-
-\subsection{可证伪研究假设}
-
-本课题以可主动改变的系统变量提出以下假设。每个假设同时给出预测与拒绝条件，实验结论由干预后的方向和置信区间决定。
-
-\begin{description}
-  \item[H1：依赖粒度与投放粒度错配。]
-  当 $V_B$ 的主要任务共享全量 ready 条件、ready 前的 dependent work 为零，且提前进入的 consumer 状态占用 issue、queue、cache 或同步资源，或由此延长 producer/handoff 关键路径时，预测 $T_G<T_E$；收益随 pre-ready producer 窗口及受影响的 worker-time 增大。若等待状态完全休眠且不改变 producer 与 handoff，则预测 $T_G\simeq T_E$，admission 项为零。对于按 tile/head 逐步 ready 且能够形成有效流水的边，预测 $T_E<T_G$。主动改变 readiness 粒度、admission 时机和 consumer 占用后，延迟及跨阶段时间戳的方向用于检验 H1。
-
-  \item[H2：物理边界的 break-even。]
-  $\Delta_{G\rightarrow S}$ 是 dispatch gap、suffix 初始化、consumer 运行时间、cache/locality、阶段资源交互和 grid 生命周期共同形成的净残差。预测降低可见 GPU gap 将近似等量改善 $T_S$，物化跨边中间数据将增加 locality 损失，资源状态与生命周期处理将改变 last-ready 前的 producer 路径或 ready 后的 handoff/drain。若分别改变这些因素后 $\Delta_{G\rightarrow S}$ 及其阶段时间分解始终保持原值，则 H2 被拒绝。
-
-  \item[H3：PDL 的独立前缀与资源余量条件。]
-  当 consumer 具有可在 dependency wait 前执行的独立前缀，producer 尾部提供足够重叠窗口，且被隐藏的前缀时间 $H_{\mathrm{prefix}}$ 超过 trigger、wait 和资源竞争开销之和时，$\Delta_{S\rightarrow P}<0$；资源竞争项包含 PDL 引起的 producer slowdown。trigger 提前量与预取量增加时，隐藏时间与三类开销形成可测的 crossover。若时间线显示 device-side overlap 为零，或独立前缀长度变化与净延迟变化持续解耦，则 H3 被拒绝。
-
-  \item[H4：关键路径上的收益传递。]
-  当目标边在 decoder layer 或 decode step 中持续暴露于关键路径时，上层延迟差值与 isolated edge 的差值同号，其幅度由该边在关键路径中的暴露比例决定。若 Nsight Systems 确认目标边持续暴露于关键路径，而独立重复的 layer/decode 延迟置信区间稳定为零或反向，则 H4 被拒绝。
-\end{description}
-
-H1 与 H2 的前期消融已经提供两项约束：将 first-TMA 移到 ready 后以及将 polling backoff 从 $1$ ns 增至 $1024$ ns 时，Hazy 的 split 差距仍稳定在 $44.832$--$47.776\microsecond$。因此，后续因果实验聚焦 controller-level task admission、last-producer-ready 之前的 producer 关键路径，以及 ready 后的 VM/controller handoff 与 grid drain；同一时钟域的设备端时间戳定位差值所在阶段，admission、resource 和 lifecycle 主动干预进一步识别因果机制。
 
 \subsection{主要研究内容}
 
+围绕上述目标，本课题重点研究以下四个问题。
+
 \begin{enumerate}
-  \item \textbf{建立四方案受控基线并分解关键路径。} 在 Hazy 真实正边及同图负边上实现 $\Pi_E$、$\Pi_G$、$\Pi_S$ 和 $\Pi_P$。使用同步 \texttt{\%globaltimer} 记录 last producer store/atomic、programmatic trigger、consumer admission/grid start、producer exit、dependency wait return、first dependent read、consumer completion 与 consumer grid exit，以式~\eqref{eq:three-causal-contrasts} 定位收益来源；A/A、独立参考实现和随机交错测量共同控制数值正确性与时钟漂移。
+  \item \textbf{计算图依赖关系建模。}
+  建立从算子图到 task graph 的 lowering 过程，以统一抽象刻画相邻算子边的 task/tile 级依赖关系，并据此构造各边合法的处理候选空间。
 
-  \item \textbf{构建依赖---投放---边界 crossover 模型。} 从源码与执行 trace 中提取 ready 粒度、dependent/independent work 比例、producer 窗口、跨边复用、worker admission 和真实 GPU gap，并通过改变 context、task 粒度、ready 结构和 admission 时机进行主动干预。真实 Megakernel 正负边承担外部有效性，受控子图承担单变量机制检验；二者共同形成可解释的边界适用域。
+  \item \textbf{依赖感知的 PDL 跨边界重叠。}
+  在依赖抽象之上，研究跨 grid 边的 PDL 变换：依据就绪关系识别可提前发起的重叠工作，在保持同步合法的前提下，确定重叠范围、发起时机与执行形态，使生产者与消费者之间的可重叠部分尽可能隐藏边界等待并优化数据读取。
 
-  \item \textbf{实现安全的 PDL 跨边界变换。} 对 producer--consumer 边建立读写集合、alias、同步支配和 progress-safety 分析，从 consumer 中提取可提前执行的独立前缀；联合搜索 programmatic completion trigger、预取数据量和目标内存层级，并以 $T_S$ 为基线量化 overlap 收益与 producer 干扰的平衡点。
+  \item \textbf{全图边处理方案搜索。}
+  面向全图构造边处理与 grid 分组的联合搜索问题；以静态分析、轻量运行时特征与性能模型估计各候选的收益与开销，在合法空间内求解式~\eqref{eq:global-scheduling-objective}，得到端到端时延最优的执行计划。
 
-  \item \textbf{验证真实解码中的传递性并形成选择方法。} 将候选边接入 decoder layer、decode step 和短生成，在 context length、batch size 与模型 shape 上报告 P50/P90/P99、TPOT 和关键路径分解。基于多个真实正负边冻结特征卡与方向性规则，再在 held-out 边上检验边界选择和 PDL 参数选择，形成可嵌入 Megakernel 编译器与运行时的原型。
+  \item \textbf{框架实现与端到端验证。}
+  实现计划生成、CUDA 代码生成与运行时执行，将所得方案接入 decoder layer、完整 decode step 和连续 token 生成；真实的推理workload中进行精度验证的和性能测试。
 \end{enumerate}
 
 \subsection{预期目标、创新点与成果}
 
 \subsubsection{预期目标}
 
+与主要研究内容一一对应，本课题预期达到：
+
 \begin{enumerate}
-  \item 完成 Hazy 中至少一条正边和一条负边的机制闭环，量化 pre-ready admission、producer-side interaction、ready 后 handoff、边界 gap 与内部流水在关键路径中的作用，并给出 $T_G$ 与 $T_S$ 的直接判定结果。
-  \item 在第二类真实 Megakernel 计算图和受控子图中复验 H1--H2，获得覆盖 coarse/fine readiness、短/长 producer 和不同 locality 的正负样本，形成边界 crossover 的适用域。
-  \item 建立 PDL 合法性检查和 trigger--prefetch 搜索，得到 $T_P$ 相对 $T_S$ 的 break-even 曲线，并用 timeline 解释收益、饱和与反转区域。
-  \item 完成 isolated edge 到 decoder layer、decode step 与短生成的传递实验，形成带有置信区间、正确性记录和 profiler 证据的可复现实验包。
+  \item 完成计算图依赖关系建模，形成从算子图到 task graph 的统一抽象，并为相邻算子边给出合法的处理候选空间。
+  \item 完成依赖感知的 PDL 跨边界重叠方法，能够依据就绪关系识别重叠工作，并在同步合法约束下确定跨 grid 边的重叠方案。
+  \item 完成全图边处理与 grid 分组的联合搜索，在合法空间内求解式~\eqref{eq:global-scheduling-objective}，得到端到端时延更优的执行计划。
+  \item 完成框架原型与端到端验证，贯通计划生成、CUDA 代码生成与运行时执行，并在真实推理 workload 上完成精度与性能评估。
 \end{enumerate}
 
 \subsubsection{预期创新点}
 
 \begin{enumerate}
-  \item 提出“依赖 ready 粒度---task 投放粒度---物理执行粒度”的 Megakernel 边界 crossover 模型，用同一任务图上的正负边和主动干预解释软件依赖与 grid completion 的适用条件。
-  \item 建立 $\Pi_E$、$\Pi_G$、$\Pi_S$、$\Pi_P$ 四计划统一比较空间，将内部投放控制、物理阶段切换和 PDL 边界回收组织为连续的执行计划选择过程。
-  \item 提出面向已选物理边界的依赖安全 PDL 变换，以独立前缀、同步支配与 producer interference 共同决定 trigger 和预取配置，并将局部变换的收益传递纳入端到端选择依据。
+  \item 提出面向任意计算图的依赖感知边处理抽象，以 task/tile 级依赖关系统一刻画同 grid 与跨 grid 候选，形成可搜索的合法方案空间。
+  \item 提出依赖感知的 PDL 跨边界重叠方法，将重叠工作识别、发起时机与执行形态纳入统一变换，而不仅是固定边界上的静态预取。
+  \item 提出覆盖计算图全部边的联合执行计划搜索方法，使边处理选择与 grid 分组协同优化，直接服务于端到端 decode 时延目标。
 \end{enumerate}
 
 \subsubsection{预期成果}
 
-预期形成一套 Megakernel 边界基准与设备端时间线工具、一个依赖感知的物理分区与 PDL 优化原型、一组覆盖真实正负边及层级传递的可复现实验数据，以及完成硕士学位论文和高水平学术论文投稿所需的理论、系统与实验结果。
+预期形成依赖感知的 Megakernel 推理融合框架与系统原型，覆盖依赖建模、PDL 跨边界重叠、全图计划搜索及代码生成运行时；并给出真实推理 workload 上的精度与性能实验结果，以及硕士学位论文和相关学术论文。

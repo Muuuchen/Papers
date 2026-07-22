@@ -1,0 +1,206 @@
+\usetikzlibrary{arrows.meta,calc,positioning}
+\begin{figure}[htbp]
+  \centering
+  \makebox[\textwidth][c]{%
+  \resizebox{0.98\textwidth}{!}{%
+  \begin{tikzpicture}[
+      x=1cm,
+      y=1cm,
+      font=\sffamily\small,
+      panel/.style={
+        draw=black!24,
+        fill=black!1,
+        rounded corners=2.5pt,
+        line width=0.55pt
+      },
+      paneltitle/.style={
+        anchor=west,
+        font=\sffamily\small\bfseries,
+        text=black!78
+      },
+      op/.style={
+        circle,
+        draw=blue!62!black,
+        fill=blue!10,
+        minimum size=7mm,
+        inner sep=0pt,
+        line width=0.6pt
+      },
+      ptask/.style={
+        draw=blue!62!black,
+        fill=blue!10,
+        rounded corners=1.2pt,
+        minimum width=10mm,
+        minimum height=5.5mm,
+        inner sep=1pt
+      },
+      ctask/.style={
+        draw=teal!62!black,
+        fill=teal!10,
+        rounded corners=1.2pt,
+        minimum width=10mm,
+        minimum height=5.5mm,
+        inner sep=1pt
+      },
+      mode/.style={
+        draw=violet!55!black,
+        fill=violet!7,
+        rounded corners=1.5pt,
+        minimum width=19mm,
+        minimum height=7mm,
+        align=center,
+        font=\sffamily\scriptsize
+      },
+      search/.style={
+        draw=teal!58!black,
+        fill=teal!7,
+        rounded corners=1.8pt,
+        minimum width=41mm,
+        minimum height=8mm,
+        align=center,
+        font=\sffamily\scriptsize\bfseries
+      },
+      grid/.style={
+        draw=black!34,
+        fill=white,
+        rounded corners=1.8pt,
+        line width=0.55pt
+      },
+      tag/.style={
+        draw=black!25,
+        fill=white,
+        rounded corners=1pt,
+        inner xsep=3pt,
+        inner ysep=1.5pt,
+        font=\sffamily\scriptsize,
+        text=black!68
+      },
+      flow/.style={
+        -{Latex[length=1.8mm]},
+        draw=black!55,
+        line width=0.75pt
+      },
+      dep/.style={
+        -{Latex[length=1.3mm]},
+        draw=black!50,
+        line width=0.5pt
+      },
+      chosen/.style={
+        -{Latex[length=1.5mm]},
+        draw=red!62!black,
+        line width=0.8pt
+      }
+    ]
+
+    % ------------------------------------------------------------------
+    % Top row: input -> dependency analysis -> candidate/search
+    % ------------------------------------------------------------------
+    \draw[panel] (0,3.25) rectangle (4.05,7.35);
+    \node[paneltitle] at (0.28,7.02) {1.\ 输入计算图};
+
+    \node[op] (a) at (0.72,5.45) {$A$};
+    \node[op] (b) at (1.78,6.10) {$B$};
+    \node[op] (c) at (1.78,4.80) {$C$};
+    \node[op] (d) at (3.02,5.45) {$D$};
+    \node[op] (e) at (3.02,4.25) {$E$};
+    \draw[dep] (a) -- (b);
+    \draw[dep] (a) -- (c);
+    \draw[chosen] (b) -- node[above, font=\sffamily\scriptsize,
+      text=red!62!black] {$e$} (d);
+    \draw[dep] (c) -- (d);
+    \draw[dep] (c) -- (e);
+    \node[font=\sffamily\scriptsize, text=black!58, align=center]
+      at (2.02,3.62) {选择图中每条相邻算子边\\的执行方式};
+
+    \draw[panel] (4.55,3.25) rectangle (10.25,7.35);
+    \node[paneltitle] at (4.83,7.02) {2.\ task/tile 级依赖分析};
+
+    \node[font=\sffamily\scriptsize\bfseries, text=blue!58!black]
+      at (5.78,6.45) {生产者 tasks};
+    \node[font=\sffamily\scriptsize\bfseries, text=teal!58!black]
+      at (8.95,6.45) {消费者 tasks};
+    \node[ptask] (p1) at (5.30,5.72) {$p_1$};
+    \node[ptask] (p2) at (6.22,5.72) {$p_2$};
+    \node[ptask] (p3) at (5.30,4.88) {$p_3$};
+    \node[ptask] (p4) at (6.22,4.88) {$p_4$};
+    \node[ctask] (q1) at (8.55,5.72) {$q_1$};
+    \node[ctask] (q2) at (9.46,4.88) {$q_2$};
+    \draw[dep] (p1) -- (q1);
+    \draw[dep] (p2) -- (q1);
+    \draw[dep] (p2) -- (q2);
+    \draw[dep] (p3) -- (q2);
+    \draw[dep] (p4) -- (q2);
+
+    \node[tag] at (5.42,3.82) {就绪粒度};
+    \node[tag] at (6.82,3.82) {读写集合};
+    \node[tag] at (8.20,3.82) {资源占用};
+    \node[tag] at (9.50,3.82) {独立前缀};
+
+    \draw[panel] (10.75,3.25) rectangle (16.10,7.35);
+    \node[paneltitle] at (11.03,7.02) {3.\ 逐边候选与全图搜索};
+
+    \node[mode] (m1) at (12.05,6.12) {同 grid\\细粒度事件};
+    \node[mode] (m2) at (14.78,6.12) {同 grid\\全量就绪};
+    \node[mode] (m3) at (12.05,5.08) {跨 grid\\completion};
+    \node[mode] (m4) at (14.78,5.08) {跨 grid\\PDL};
+    \node[search] (s) at (13.415,3.90)
+      {合法性剪枝 \quad 成本估计 \quad 全图联合搜索};
+    \draw[flow] (m1.south) -- ++(0,-0.26) -| (s.north);
+    \draw[flow] (m2.south) -- ++(0,-0.26) -| (s.north);
+    \draw[flow] (m3.south) -- ++(0,-0.17) -| (s.north);
+    \draw[flow] (m4.south) -- ++(0,-0.17) -| (s.north);
+
+    \draw[flow] (4.05,5.30) -- (4.55,5.30);
+    \draw[flow] (10.25,5.30) -- (10.75,5.30);
+
+    % ------------------------------------------------------------------
+    % Bottom row: generated physical plan
+    % ------------------------------------------------------------------
+    \draw[panel] (0,0) rectangle (16.10,2.68);
+    \node[paneltitle] at (0.28,2.37)
+      {4.\ 输出：覆盖全图的物理执行计划};
+
+    \draw[grid] (0.50,0.45) rectangle (7.10,1.93);
+    \node[font=\sffamily\scriptsize\bfseries, text=black!65]
+      at (1.22,1.68) {Grid 0};
+    \node[ptask, minimum width=13mm] (ga) at (2.30,1.12) {task $A$};
+    \node[ctask, minimum width=13mm] (gb) at (4.30,1.12) {task $B$};
+    \node[ctask, minimum width=13mm] (gc) at (6.25,1.12) {task $C$};
+    \draw[chosen] (ga) -- node[above, font=\sffamily\scriptsize,
+      text=red!62!black] {event} (gb);
+    \draw[dep] (gb) -- node[above, font=\sffamily\scriptsize,
+      text=black!58] {counter} (gc);
+
+    \fill[orange!8] (7.42,0.40) rectangle (7.74,1.98);
+    \draw[orange!72!black, densely dashed, line width=0.75pt]
+      (7.58,0.40) -- (7.58,1.98);
+    \node[font=\sffamily\tiny, text=orange!72!black]
+      at (7.58,0.20) {grid boundary};
+
+    \draw[grid] (8.05,0.45) rectangle (15.62,1.93);
+    \node[font=\sffamily\scriptsize\bfseries, text=black!65]
+      at (8.78,1.68) {Grid 1};
+    \node[ctask, minimum width=15mm] (prefix) at (9.60,1.12) {prefix};
+    \node[
+      draw=orange!72!black,
+      fill=orange!10,
+      densely dotted,
+      rounded corners=1.2pt,
+      minimum width=12mm,
+      minimum height=5.5mm,
+      inner sep=1pt
+    ] (wait) at (12.02,1.12) {wait};
+    \node[ctask, minimum width=17mm] (body) at (14.35,1.12) {dependent body};
+    \draw[dep] (prefix) -- (wait);
+    \draw[dep] (wait) -- (body);
+    \draw[chosen, dashed] (6.95,1.68) to[out=15,in=165]
+      node[above, font=\sffamily\scriptsize, text=red!62!black]
+      {PDL trigger} (8.18,1.68);
+
+    \draw[flow] (13.42,3.25) -- (13.42,2.68);
+
+  \end{tikzpicture}%
+  }}%
+  \caption{依赖感知的计算图边调度框架。框架从任意计算图出发，在 task/tile 粒度分析每条边的就绪关系、读写集合、资源占用与独立前缀；随后为各边生成候选并进行全图联合搜索，最终输出 grid 分组、边同步方式和 PDL 配置。}
+  \label{fig:edge-scheduling-framework}
+\end{figure}
