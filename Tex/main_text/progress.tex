@@ -32,7 +32,7 @@ D$\to$Q & 全量就绪：下一层 QKV 投影依赖完整的层间归一化激�
 
 对应第 1 章的候选空间 $\mathcal{M}(e)$，每条阶段边 $e\in E_S$ 有三类物理执行候选（图~\ref{fig:scheme}）：（1）\textbf{同 grid 融合}，前后阶段合并于同一 persistent grid，由设备端全局屏障保证数据可见；（2）\textbf{跨 grid completion}，切分为两个独立 kernel，待前驱全部线程块退出后启动后继；（3）\textbf{跨 grid PDL}，保留物理切分边界，前驱在尾部发出 programmatic completion 信号提前启动后继，使其先执行独立前缀再等待前驱数据就绪。
 
-若各阶段线程块数与片上资源配置保持不变，单纯将融合 kernel 拆分为多个独立 kernel 只会引入跨边界同步与启动开销；只有在切分的同时按各分组特点重新配置分块与并发度，物理切分与跨边界重叠才能带来净加速。因此，算子边切分决策必须与 GPU 单次 kernel 启动的片上资源约束联合建模。
+不同算子边适合何种执行方式，取决于前后阶段的片上资源需求是否一致以及能否安全重叠。以图~\ref{fig:scheme}(b) 的 decode $16\times 2048$ 混合方案为例：U 与 D 同属线性矩阵投影（GEMM），分块形状、共享内存与寄存器需求高度一致，因此 U$\to$D 适合保留\textbf{同 grid 融合}，在不互相拖累并发度的前提下省去一次跨 kernel 启动与退出等待；而线性矩阵阶段（Q、O）与注意力阶段（A）的资源特征截然不同——在 decode 中，矩阵阶段需要较大的共享内存双缓冲而偏好较少线程块，attention 共享内存占用小却需要更多线程块以并行归约长上下文；在 prefill 中，FlashAttention-2 极高的寄存器占用又会压缩相邻矩阵阶段的并发度。若像图~\ref{fig:scheme}(a) 那样将全图强行绑在同一 persistent grid 中，则只能按最耗资源的阶段静态分配片上资源，导致 GEMM 与 attention 互相牵制；唯有在 Q$\to$A、A$\to$O 等异构边界切分为独立 kernel 并分别配置线程块数与分块参数（如图~\ref{fig:scheme}(b) 将 attention 独立扩展至 528 块），才能解除资源束缚。进一步地，切分后的物理边界若全部按串行 completion 等待前驱退出，跨边界启动间隙会抵消部分收益；对资源兼容的边界（如 D$\to$Q、Q$\to$A、O$\to$U）启用\textbf{跨 grid PDL}，可在前驱尾部提前执行初始化与权重预加载，而对存在缓存或调度冲突的边界（如 A$\to$O）保持串行则可避免性能回退。上述分析表明，单靠切分而不重配置资源反而更慢，算子边执行机制必须与 GPU 单次 kernel 启动的片上资源约束联合建模（定量机理详见第~\ref{sec:pos}--\ref{sec:mech}~节）。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=\textwidth]{Img/midterm/scheme}
@@ -59,9 +59,9 @@ n(g)\le\min\Bigl(\Bigl\lfloor\frac{R_{\mathrm{SM}}}{\tau\, r(g)}\Bigr\rfloor,\ \
 
 \subsubsection{Persistent Kernel 的优势与资源耦合瓶颈}\label{sec:hw}
 
-Persistent Kernel 将多个连续计算阶段融合于单一物理 grid，仅启动一次 kernel，常驻 SM 的线程块通过设备端屏障衔接各阶段。其优势在于消除了主机侧反复提交开销以及相邻 kernel 间的等待与重启间隙：当各阶段并行度与片上资源需求接近时，单核融合时延最低。表~\ref{tab:cores} 显示，单请求短上下文 decode（$1\times 512$）与采用轻量逐 warp attention 的极短 prefill（$1\times 16$）五阶段融合时，单层耗时较五阶段独立最优之和分别缩短 1.3\us 与 1.8\us。
+Persistent Kernel（亦称 megakernel）将多个连续计算阶段融合于单一物理 grid，仅启动一次 kernel，由常驻 SM 的线程块通过设备端同步屏障衔接各阶段。其优势在于消除了主机侧反复提交开销，也避免了相邻 kernel 间等待退出与重新启动的空闲间隙：当各阶段的线程块并行度与片上资源需求接近时，单核融合相比多核切分更快。表~\ref{tab:cores} 显示，单请求短上下文 decode（$1\times 512$）与采用轻量逐 warp attention 的极短 prefill（$1\times 16$）五阶段融合时，单层耗时较五阶段独立最优之和分别缩短 1.3\us 与 1.8\us。
 
-然而，在长上下文、中大批量或重度算子区间，单一 persistent kernel 出现显著性能退化。图~\ref{fig:hw} 的受控微基准表明，性能退化并非源于同步原语开销：经 CUDA Graph 封装后~\pGraph，相邻空阶段采用核内全局屏障、跨 grid completion 与跨 grid PDL 的单次耗时在 132 块下均约为 1.16\us，扩展至 528 块亦仅在 1.40--1.88\us 之间（图~\ref{fig:hw}(a)）；流式读取 64\,MiB 线性权重在 264 个线程块（每 SM 2 块，6 级异步流水）处即达到 2.4--3.0\,TB/s 的 HBM 带宽上限（图~\ref{fig:hw}(b)）。性能退化的主要原因在于式~(\ref{eq:env})--(\ref{eq:occ}) 所示的\textbf{异构阶段片上资源耦合}。
+然而，在长上下文、中大批量或重度算子区间，单一 persistent kernel 往往反而慢于独立切分执行，线程块常驻并不必然带来净收益。其原因可从两方面解释：一方面，图~\ref{fig:hw} 的受控微基准表明，经 CUDA Graph 封装后~\pGraph，相邻空阶段采用核内全局屏障、跨 grid completion 与跨 grid PDL 的单次耗时在 132 块下均约为 1.16\us，扩展至 528 块亦仅在 1.40--1.88\us 之间（图~\ref{fig:hw}(a)），说明原本常归功于 megakernel 的“消除重复启动”优势在 CUDA Graph 与 PDL 配合下已基本可被独立 kernel 恢复，而 persistent kernel 自身仍须支付核内调度与内存可见性同步成本；与此同时，流式读取 64\,MiB 线性权重在 264 个线程块（每 SM 2 块，6 级异步流水）处即已达到 2.4--3.0\,TB/s 的 HBM 带宽上限（图~\ref{fig:hw}(b)），当瓶颈访存带宽已饱和时，强行维持更多常驻线程块并不能提升吞吐。另一方面，更关键的瓶颈在于式~(\ref{eq:env})--(\ref{eq:occ}) 所示的\textbf{异构阶段片上资源耦合}：单一 persistent kernel 在整个执行期间静态绑定所有阶段的寄存器与共享内存上限，迫使不同算子互相迁就。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=\textwidth]{Img/midterm/hw_micro}
@@ -126,7 +126,7 @@ prefill 16$\times$16（逐 warp） & 23.4 & 19.2 & 16.4 & 52.7 & 34.6 & 146.3 & 
 \caption{五阶段全切分下各类物理边界单独启用 PDL 或带预取 PDL* 相对串行 completion 的端到端时延降幅（正值表示加速）。Q$\to$A 后继为无静态权重的 attention 阶段；色标截断于 $\pm 3\%$，格内标注实测百分比。}\label{fig:pdl}
 \end{figure}
 
-\textbf{（2）硬件 PDL 跨边界重叠在异构切分图上并非无条件获益。}Hopper 架构提供的硬件级 PDL~\pPDL 允许后继在前驱尾部提前启动，但图~\ref{fig:pdl} 的逐边实测显示其收益高度分化：decode 中矩阵主导的四类边在 36 组仅提前启动测试中有 34 组稳定加速（叠加预取最高 $+1.5\%$）；而 prefill 中 A$\to$O 边在 5 个负载上为负（$-0.3\%$ 至 $-2.2\%$），$1\times 16$ 下的 O$\to$U 边倒退达 $-7.8\%$。在 decode $16\times 2048$ 的 31 种切分方案中，全图无差别开启 PDL 有 27 种慢于纯串行执行。
+\textbf{（2）硬件 PDL 跨边界重叠在异构切分图上并非无条件获益。}Hopper 架构提供的硬件级 PDL~\pPDL 允许后继在前驱尾部提前启动以隐藏启动间隙与权重预加载，但独立 kernel 的前驱线程块在完全退出前仍独占其寄存器与共享内存，后继必须按完整线程块配额申请到足够的 SM 空闲资源及兼容的共享内存配置后方能提前入场。因此，图~\ref{fig:pdl} 的逐边实测显示 PDL 收益高度分化：decode 中矩阵主导的四类边在 36 组仅提前启动测试中有 34 组稳定加速（叠加预取最高 $+1.5\%$）；而 prefill 中 A$\to$O 边在 5 个负载上为负（$-0.3\%$ 至 $-2.2\%$），$1\times 16$ 下的 O$\to$U 边倒退达 $-7.8\%$。在 decode $16\times 2048$ 的 31 种切分方案中，全图无差别开启 PDL 有 27 种慢于纯串行执行。
 
 \subsubsection{边界执行机制的决定因素、相关工作局限与本文思路}\label{sec:factors}
 

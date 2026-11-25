@@ -1560,27 +1560,26 @@ LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
 ] (Tex/Mainmatter
 (Tex/main_text/situation [1
 
-] [2]) (Tex/main_text/progress [3] [4]
+] [2]) (Tex/main_text/progress [3] [4] [5]
 File: Img/midterm/scheme.pdf Graphic file (type pdf)
 <use Img/midterm/scheme.pdf>
- [5] [6]
+ [6]
+[7]
 File: Img/midterm/hw_micro.pdf Graphic file (type pdf)
 <use Img/midterm/hw_micro.pdf>
-
-[7]
 File: Img/midterm/stage_ctas.pdf Graphic file (type pdf)
 <use Img/midterm/stage_ctas.pdf>
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(2)/m/n' will be
 (Font)              scaled to size 6.00064pt on input line 81.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
 (Font)              scaled to size 5.99936pt on input line 81.
- [8]
+ [8] [9]
 File: Img/midterm/pdl_edges.pdf Graphic file (type pdf)
 <use Img/midterm/pdl_edges.pdf>
- [9] [10]
+ [10]
 File: Img/midterm/motiv_edges.pdf Graphic file (type pdf)
 <use Img/midterm/motiv_edges.pdf>
- [11]
+ [11] [12]
 
 Package fontspec Warning: Font "FandolFang-Regular" does not contain requested
 (fontspec)                Script "CJK".
@@ -1597,43 +1596,43 @@ Package fontspec Info: Font family 'FandolFang-Regular(0)' created for font
 (fontspec)             <->"[FandolFang-Regular.otf]/OT:language=dflt;"
 (fontspec)             - 'small caps'  (m/sc) with NFSS spec.: 
 
-[12]
+[13]
 File: Img/midterm/dacos_overview.pdf Graphic file (type pdf)
 <use Img/midterm/dacos_overview.pdf>
- [13]
+ [14]
 File: Img/midterm/v4_carve.pdf Graphic file (type pdf)
 <use Img/midterm/v4_carve.pdf>
- [14]
 File: Img/midterm/v4_timeline.pdf Graphic file (type pdf)
 <use Img/midterm/v4_timeline.pdf>
+ [15]
 File: Img/midterm/v4_pack.pdf Graphic file (type pdf)
 <use Img/midterm/v4_pack.pdf>
- [15]
 File: Img/midterm/v4_l1.pdf Graphic file (type pdf)
 <use Img/midterm/v4_l1.pdf>
- [16]
+ [16] [17]
 File: Img/midterm/v3_pdl.pdf Graphic file (type pdf)
 <use Img/midterm/v3_pdl.pdf>
- [17] [18]
+ [18]
 File: Img/midterm/v3_loop.pdf Graphic file (type pdf)
 <use Img/midterm/v3_loop.pdf>
+ [19]
 File: Img/midterm/v3_ladder.pdf Graphic file (type pdf)
 <use Img/midterm/v3_ladder.pdf>
- [19]
+ [20]
 File: Img/midterm/v4_order.pdf Graphic file (type pdf)
 <use Img/midterm/v4_order.pdf>
- [20] [21] [22]
+ [21] [22] [23]
 File: Img/midterm/gain.pdf Graphic file (type pdf)
 <use Img/midterm/gain.pdf>
 File: Img/midterm/rule.pdf Graphic file (type pdf)
 <use Img/midterm/rule.pdf>
- [23] [24]
+ [24] [25]
 File: Img/midterm/v4_rulereal.pdf Graphic file (type pdf)
 <use Img/midterm/v4_rulereal.pdf>
 File: Img/midterm/v4_guided.pdf Graphic file (type pdf)
 <use Img/midterm/v4_guided.pdf>
- [25])
-(Tex/main_text/schedule [26] [27]) [28] (Tex/main_text/results [29])
+ [26])
+(Tex/main_text/schedule [27] [28]) [29] (Tex/main_text/results [30])
 (Tex/main_text/refs
 Underfull \hbox (badness 2368) in paragraph at lines 12--13
 []\TU/entexttt/m/n/10.53937 Hazy Research. Megakernels: Low-latency LLM inferen
@@ -1673,14 +1672,14 @@ Underfull \hbox (badness 3471) in paragraph at lines 17--18
 [] []
  []
 
-[30]
+[31]
 Underfull \hbox (badness 1577) in paragraph at lines 24--25
 []\TU/entexttt/m/n/10.53937 Zheng Z, Yang X, Zhao P, et al. AStitch: Enabling a
  new multi-dimensional optimiza-
  []
 
-[31])) (Thesis.aux)
+[32])) (Thesis.aux)
 Package rerunfilecheck Info: File `Thesis.out' has not changed.
 (rerunfilecheck)             Checksum: 7459D780DEBC9B9A65953CE5692008D7;2413.
  )
-Output written on Thesis.xdv (33 pages, 474272 bytes).
+Output written on Thesis.xdv (34 pages, 489756 bytes).
