@@ -1418,53 +1418,53 @@ Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 )
 \Hy@SectionHShift=\skip88
 )
-Package hyperref Info: Option `psdextra' set `true' on input line 82.
+Package hyperref Info: Option `psdextra' set `true' on input line 66.
  (puenc-greekbasic.def
 File: puenc-greekbasic.def 2022-02-21 v7.00n Hyperref: PDF Unicode definition (
 greek block) (HO)
 ) (psdextra.def
 File: psdextra.def 2022-02-21 v7.00n Hyperref: Additions to PDF string support
 )
-Package hyperref Info: Option `bookmarksnumbered' set `true' on input line 82.
+Package hyperref Info: Option `bookmarksnumbered' set `true' on input line 66.
 (se-ascii-print.def
 File: se-ascii-print.def 2019/11/29 v1.12 stringenc: Printable ASCII characters
 
 )
-Package hyperref Info: Option `pdffitwindow' set `false' on input line 82.
-Package hyperref Info: Option `colorlinks' set `true' on input line 82.
+Package hyperref Info: Option `pdffitwindow' set `false' on input line 66.
+Package hyperref Info: Option `colorlinks' set `true' on input line 66.
  (Thesis.aux)
 \openout1 = `Thesis.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 82.
-LaTeX Font Info:    ... okay on input line 82.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 66.
+LaTeX Font Info:    ... okay on input line 66.
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: float package is loaded.
 Package caption Info: hyperref package is loaded.
 Package caption Info: rotating package is loaded.
 Package caption Info: End \AtBeginDocument code.
-Package bicaption Info: Main language is not set on input line 82.
+Package bicaption Info: Main language is not set on input line 66.
 
-Package chemgreek Info: Activating mapping `fontspec' on line 82.
+Package chemgreek Info: Activating mapping `fontspec' on line 66.
 
-Package hyperref Info: Link coloring ON on input line 82.
+Package hyperref Info: Link coloring ON on input line 66.
  (nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
  (refcount.sty
@@ -1475,9 +1475,9 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count375
 )
-LaTeX Info: Redefining \ref on input line 82.
-LaTeX Info: Redefining \pageref on input line 82.
-LaTeX Info: Redefining \nameref on input line 82.
+LaTeX Info: Redefining \ref on input line 66.
+LaTeX Info: Redefining \pageref on input line 66.
+LaTeX Info: Redefining \nameref on input line 66.
  (Thesis.out) (Thesis.out)
 \@outlinefile=\write4
 \openout4 = `Thesis.out'.
@@ -1576,12 +1576,29 @@ Underfull \hbox (badness 2818) in paragraph at lines 26--26
 [1
 
 ] [2] [3]) (Tex/main_text/progress [4]
-File: Img/midterm/v5_overview.pdf Graphic file (type pdf)
-<use Img/midterm/v5_overview.pdf>
- [5] [6] [7]
+File: Img/midterm/hw_micro.pdf Graphic file (type pdf)
+<use Img/midterm/hw_micro.pdf>
+ [5]
+File: Img/midterm/stage_ctas.pdf Graphic file (type pdf)
+<use Img/midterm/stage_ctas.pdf>
+LaTeX Font Info:    Font shape `TU/XITSMath-Regular(2)/m/n' will be
+(Font)              scaled to size 6.00064pt on input line 28.
+LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
+(Font)              scaled to size 5.99936pt on input line 28.
+ [6] [7]
+File: Img/midterm/pdl_edges.pdf Graphic file (type pdf)
+<use Img/midterm/pdl_edges.pdf>
+ [8]
+File: Img/midterm/motiv_edges.pdf Graphic file (type pdf)
+<use Img/midterm/motiv_edges.pdf>
+ [9] [10] [11]
 File: Img/midterm/scheme.pdf Graphic file (type pdf)
 <use Img/midterm/scheme.pdf>
- [8]
+ [12]
+File: Img/midterm/v5_arch.pdf Graphic file (type pdf)
+<use Img/midterm/v5_arch.pdf>
+
+[13] [14]
 
 Package fontspec Warning: Font "FandolFang-Regular" does not contain requested
 (fontspec)                Script "CJK".
@@ -1598,106 +1615,58 @@ Package fontspec Info: Font family 'FandolFang-Regular(0)' created for font
 (fontspec)             <->"[FandolFang-Regular.otf]/OT:language=dflt;"
 (fontspec)             - 'small caps'  (m/sc) with NFSS spec.: 
 
-[9]
-File: Img/midterm/pdl_edges.pdf Graphic file (type pdf)
-<use Img/midterm/pdl_edges.pdf>
- [10]
+[15]
 File: Img/midterm/v4_carve.pdf Graphic file (type pdf)
 <use Img/midterm/v4_carve.pdf>
- [11] [12]
+ [16]
 File: Img/midterm/v4_timeline.pdf Graphic file (type pdf)
 <use Img/midterm/v4_timeline.pdf>
-LaTeX Font Info:    Font shape `TU/XITSMath-Regular(2)/m/n' will be
-(Font)              scaled to size 6.00064pt on input line 111.
-LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
-(Font)              scaled to size 5.99936pt on input line 111.
- [13]
+ [17]
 File: Img/midterm/v4_pack.pdf Graphic file (type pdf)
 <use Img/midterm/v4_pack.pdf>
- [14] [15] [16]
-File: Img/midterm/hw_micro.pdf Graphic file (type pdf)
-<use Img/midterm/hw_micro.pdf>
- [17]
-File: Img/midterm/stage_ctas.pdf Graphic file (type pdf)
-<use Img/midterm/stage_ctas.pdf>
- [18] [19] [20] [21]
-File: Img/midterm/gain.pdf Graphic file (type pdf)
-<use Img/midterm/gain.pdf>
-File: Img/midterm/rule.pdf Graphic file (type pdf)
-<use Img/midterm/rule.pdf>
- [22]
+ [18]
+File: Img/midterm/v4_l1.pdf Graphic file (type pdf)
+<use Img/midterm/v4_l1.pdf>
+ [19]
+File: Img/midterm/v3_pdl.pdf Graphic file (type pdf)
+<use Img/midterm/v3_pdl.pdf>
+ [20]
 File: Img/midterm/v4_ablate.pdf Graphic file (type pdf)
 <use Img/midterm/v4_ablate.pdf>
 File: Img/midterm/v3_loop.pdf Graphic file (type pdf)
 <use Img/midterm/v3_loop.pdf>
- [23]
+ [21]
 File: Img/midterm/v3_ladder.pdf Graphic file (type pdf)
 <use Img/midterm/v3_ladder.pdf>
-
-[24]
+ [22]
 File: Img/midterm/v4_order.pdf Graphic file (type pdf)
 <use Img/midterm/v4_order.pdf>
- [25]
-
-LaTeX Warning: Text page 26 contains only floats.
-
-
-Overfull \vbox (1.83508pt too high) has occurred while \output is active []
-
-
-[26]
+ [23] [24]
 File: Img/midterm/v3_group.pdf Graphic file (type pdf)
 <use Img/midterm/v3_group.pdf>
- [27] [28]
-File: Img/midterm/v3_pdl.pdf Graphic file (type pdf)
-<use Img/midterm/v3_pdl.pdf>
- [29]
-File: Img/midterm/v4_l1.pdf Graphic file (type pdf)
-<use Img/midterm/v4_l1.pdf>
- [30]
-File: Img/midterm/v4_rulereal.pdf Graphic file (type pdf)
-<use Img/midterm/v4_rulereal.pdf>
- [31]
-Underfull \hbox (badness 2334) in paragraph at lines 473--473
-[]|\TU/FandolSong-Regular(0)/m/n/10.53937 启 用 跨 \TU/entextrm/m/n/10.53937 grid 
-PDL |\TU/FandolSong-Regular(0)/m/n/10.53937 （后
- []
-
-
-Underfull \hbox (badness 2435) in paragraph at lines 473--473
-\TU/FandolSong-Regular(0)/m/n/10.53937 继 首 阶 段 含 静 态 权 重
- []
-
-
-Underfull \hbox (badness 2435) in paragraph at lines 473--473
-\TU/FandolSong-Regular(0)/m/n/10.53937 且 行 数 较 小 时 可 预 取
- []
-
-[32] [33]
-File: Img/midterm/v4_guided.pdf Graphic file (type pdf)
-<use Img/midterm/v4_guided.pdf>
- [34]
-File: Img/midterm/motiv_edges.pdf Graphic file (type pdf)
-<use Img/midterm/motiv_edges.pdf>
+ [25] [26]
 File: Img/midterm/v5_colour.pdf Graphic file (type pdf)
 <use Img/midterm/v5_colour.pdf>
- [35]
 File: Img/midterm/v5_tile.pdf Graphic file (type pdf)
 <use Img/midterm/v5_tile.pdf>
- [36] [37]
-File: Img/midterm/v5_arch.pdf Graphic file (type pdf)
-<use Img/midterm/v5_arch.pdf>
- [38] [39]
-File: Img/midterm/v6_online.pdf Graphic file (type pdf)
-<use Img/midterm/v6_online.pdf>
- [40]) (Tex/main_text/schedule [41]
-[42]
-Underfull \hbox (badness 1107) in paragraph at lines 31--31
-[]|\TU/FandolSong-Regular(0)/m/n/10.53937 完 成 \TU/entextrm/m/n/10.53937 DACOS \
-TU/FandolSong-Regular(0)/m/n/10.53937 期 刊 扩 展 稿 撰
- []
+ [27] [28] [29]
 
+LaTeX Warning: Text page 30 contains only floats.
 
+[30]
+File: Img/midterm/gain.pdf Graphic file (type pdf)
+<use Img/midterm/gain.pdf>
+File: Img/midterm/rule.pdf Graphic file (type pdf)
+<use Img/midterm/rule.pdf>
+ [31]
+File: Img/midterm/v4_rulereal.pdf Graphic file (type pdf)
+<use Img/midterm/v4_rulereal.pdf>
+ [32]
+File: Img/midterm/v4_guided.pdf Graphic file (type pdf)
+<use Img/midterm/v4_guided.pdf>
+) [33] [34] [35] [36] (Tex/main_text/schedule [37
+
+]
 Underfull \hbox (badness 10000) in paragraph at lines 31--31
 []|\TU/entextrm/m/n/10.53937 2027.01 |\TU/FandolSong-Regular(0)/m/n/10.53937 –|
 
@@ -1720,13 +1689,13 @@ Underfull \hbox (badness 6032) in paragraph at lines 31--31
 []|\TU/FandolSong-Regular(0)/m/n/10.53937 总 结 与 论 文
  []
 
-) [43] [44] (Tex/main_text/results) (Tex/main_text/refs
+) [38] [39] (Tex/main_text/results) (Tex/main_text/refs
 Underfull \hbox (badness 1028) in paragraph at lines 5--6
 []\TU/entextrm/m/n/10.53937 Abdolrashidi A, Esfeden H A, Jahanshahi A, et al. B
 lockMaestro: Enabling programmer-
  []
 
-[45] [46]
+[40] [41]
 Underfull \hbox (badness 2368) in paragraph at lines 33--34
 []\TU/entexttt/m/n/10.53937 Hazy Research. Megakernels: Low-latency LLM inferen
 ce with device-side task graphs
@@ -1751,7 +1720,7 @@ Underfull \hbox (badness 1189) in paragraph at lines 35--36
 ys Conference. 2019. DOI:
  []
 
-[47] [48]
+[42] [43]
 Underfull \hbox (badness 10000) in paragraph at lines 69--70
 []\TU/entexttt/m/n/10.53937 NVIDIA. Communication overlap (NeMo framework user 
 guide); Transformer En-
@@ -1770,7 +1739,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 69--70
 [][][][][][][][][][] []
  []
 
-[49]
+[44]
 Underfull \hbox (badness 4132) in paragraph at lines 74--75
 []\TU/entexttt/m/n/10.53937 NVIDIA. CUDA programming guide: Configuring L1/shar
 ed memory balance [EB/OL].
@@ -1790,7 +1759,7 @@ Underfull \hbox (badness 3471) in paragraph at lines 78--79
 [] []
  []
 
-[50]
+[45]
 Underfull \hbox (badness 1796) in paragraph at lines 92--93
 []\TU/entexttt/m/n/10.53937 Steinberger M, Kenzel M, Boechat P, et al. Whipplet
 ree: Task-based scheduling of dy-
@@ -1808,22 +1777,22 @@ Underfull \hbox (badness 10000) in paragraph at lines 100--101
 ][][] [] [] [] [][][][][][][] [] [][][][][][][] [] [][][] [] [] []
  []
 
-[51] [52]
+[46] [47]
 Underfull \hbox (badness 1577) in paragraph at lines 128--129
 []\TU/entexttt/m/n/10.53937 Zheng Z, Yang X, Zhao P, et al. AStitch: Enabling a
  new multi-dimensional optimiza-
  []
 
-[53] [54]) (Tex/main_text/appendix
+[48] [49]) (Tex/main_text/appendix
 
 Package hyperref Warning: Token not allowed in a PDF string (Unicode):
 (hyperref)                \hskip 12.045pt
 (hyperref)                replaced by space on input line 2.
 
-[55
+[50
 
-] [56] [57] [58] [59] [60] [61] [62] [63])) [64] (Thesis.aux)
+] [51] [52] [53] [54] [55] [56] [57] [58])) [59] (Thesis.aux)
 Package rerunfilecheck Info: File `Thesis.out' has not changed.
-(rerunfilecheck)             Checksum: BDA57069505C9D17EF30D88623B2EDAA;2686.
+(rerunfilecheck)             Checksum: C2C63B5A8E679C4475D1CEEA62DE7082;2302.
  )
-Output written on Thesis.xdv (66 pages, 1159240 bytes).
+Output written on Thesis.xdv (61 pages, 1033956 bytes).

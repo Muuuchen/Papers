@@ -4,29 +4,26 @@
 \contentsline {subsection}{\numberline {1.3}已取得的阶段性成果}{3}{subsection.1.3}%
 \contentsline {subsection}{\numberline {1.4}存在的问题}{4}{subsection.1.4}%
 \contentsline {section}{\numberline {二}现有研究进展}{4}{section.2}%
-\contentsline {subsection}{\numberline {2.1}相关研究进展与课题定位}{5}{subsection.2.1}%
-\contentsline {subsection}{\numberline {2.2}问题抽象：边处理方式与候选空间}{7}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}预备工作：PDL 跨边界重叠机制}{9}{subsection.2.3}%
-\contentsline {subsubsection}{\numberline {2.3.1}交接机制实现与边级收益特征}{10}{subsubsection.2.3.1}%
-\contentsline {subsubsection}{\numberline {2.3.2}共享内存档位约束与准入条件}{10}{subsubsection.2.3.2}%
-\contentsline {subsubsection}{\numberline {2.3.3}独立前缀开销与带宽争用分析}{12}{subsubsection.2.3.3}%
-\contentsline {subsubsection}{\numberline {2.3.4}后继线程块派发规律与落位建模}{13}{subsubsection.2.3.4}%
-\contentsline {subsection}{\numberline {2.4}执行特性刻画：边处理与资源配置的定量分析}{15}{subsection.2.4}%
-\contentsline {subsubsection}{\numberline {2.4.1}统一算子后端与实验方法}{15}{subsubsection.2.4.1}%
-\contentsline {subsubsection}{\numberline {2.4.2}单一 grid 的共驻代价与瓶颈分析}{17}{subsubsection.2.4.2}%
-\contentsline {subsubsection}{\numberline {2.4.3}不同负载下的最优方案与收益归因}{19}{subsubsection.2.4.3}%
-\contentsline {subsubsection}{\numberline {2.4.4}阶段与分组时延的解析建模}{22}{subsubsection.2.4.4}%
-\contentsline {subsubsection}{\numberline {2.4.5}物理边界的 PDL 准入分类与选择判据}{28}{subsubsection.2.4.5}%
-\contentsline {subsubsection}{\numberline {2.4.6}边处理决策准则小结}{32}{subsubsection.2.4.6}%
-\contentsline {subsection}{\numberline {2.5}系统设计：面向动态输入规模的自适应执行框架}{32}{subsection.2.5}%
-\contentsline {subsubsection}{\numberline {2.5.1}从枚举实测规划到模型与判据引导规划}{33}{subsubsection.2.5.1}%
-\contentsline {subsubsection}{\numberline {2.5.2}决策对输入规模的敏感度与三类解耦}{34}{subsubsection.2.5.2}%
-\contentsline {subsubsection}{\numberline {2.5.3}设计原则与离线—在线自适应系统架构}{37}{subsubsection.2.5.3}%
-\contentsline {subsubsection}{\numberline {2.5.4}在线计划表原型、非整倍边界与连续解码闭环验证}{39}{subsubsection.2.5.4}%
-\contentsline {section}{\numberline {三}下一步工作计划和内容}{42}{section.3}%
-\contentsline {subsection}{\numberline {3.1}下一步工作内容}{42}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}进度安排}{43}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}预计答辩时间}{43}{subsection.3.3}%
-\contentsline {section}{\numberline {四}已取得科研成果列表}{45}{section.4}%
-\contentsline {section}{参考文献}{45}{section*.44}%
-\contentsline {section}{附录\hskip 1em\relax 相关研究进展}{55}{section*.45}%
+\contentsline {subsection}{\numberline {2.1}执行范式剖析与研究动机}{5}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}全图驻留执行的优势与共驻包络瓶颈}{5}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}独立切分执行的收益与跨边界交接困境}{7}{subsubsection.2.1.2}%
+\contentsline {subsubsection}{\numberline {2.1.3}现有方案的局限与本课题的核心观点}{9}{subsubsection.2.1.3}%
+\contentsline {subsection}{\numberline {2.2}自适应边级执行框架总体设计}{11}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}问题抽象与联合决策空间}{11}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}离线准备与在线选择两阶段架构}{13}{subsubsection.2.2.2}%
+\contentsline {subsection}{\numberline {2.3}核心机制设计与建模分析}{14}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}统一算子后端与核内分阶段驻留机制}{15}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}基于依赖感知的跨边界重叠与静态准入判据}{15}{subsubsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.3}分组波量化解析代价模型与引导式规划}{20}{subsubsection.2.3.3}%
+\contentsline {subsubsection}{\numberline {2.3.4}动态规模敏感度解耦与自适应决策机制}{26}{subsubsection.2.3.4}%
+\contentsline {subsection}{\numberline {2.4}实验评估与结果分析}{27}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}实验环境与评测方法}{27}{subsubsection.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}端到端推理性能与机制贡献归因}{29}{subsubsection.2.4.2}%
+\contentsline {subsubsection}{\numberline {2.4.3}静态边界判据与引导式规划器评估}{32}{subsubsection.2.4.3}%
+\contentsline {section}{\numberline {三}下一步工作计划和内容}{37}{section.3}%
+\contentsline {subsection}{\numberline {3.1}下一步工作内容}{37}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}进度安排}{38}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}预计答辩时间}{38}{subsection.3.3}%
+\contentsline {section}{\numberline {四}已取得科研成果列表}{40}{section.4}%
+\contentsline {section}{参考文献}{40}{section*.40}%
+\contentsline {section}{附录\hskip 1em\relax 相关研究进展}{50}{section*.41}%
