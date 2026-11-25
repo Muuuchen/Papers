@@ -11,15 +11,15 @@
 \contentsline {subsubsection}{\numberline {2.2.3}边界执行机制的决定因素与相关工作对比}{11}{subsubsection.2.2.3}%
 \contentsline {subsection}{\numberline {2.3}自适应执行机制设计与实现}{12}{subsection.2.3}%
 \contentsline {subsubsection}{\numberline {2.3.1}统一 CUDA 算子实现与核内分阶段并发控制}{12}{subsubsection.2.3.1}%
-\contentsline {subsubsection}{\numberline {2.3.2}基于 DACOS 的 PDL 跨边界重叠与硬件准入规律}{13}{subsubsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.2}基于 DACOS 的 PDL 跨边界重叠与 SM 调度规律}{13}{subsubsection.2.3.2}%
 \contentsline {subsubsection}{\numberline {2.3.3}L1 缓存敏感度与静态 PDL 启用规则}{16}{subsubsection.2.3.3}%
 \contentsline {subsection}{\numberline {2.4}划分方案搜索与动态 Shape 自适应框架}{19}{subsection.2.4}%
 \contentsline {subsubsection}{\numberline {2.4.1}基于线程块波次的分组耗时解析模型}{19}{subsubsection.2.4.1}%
-\contentsline {subsubsection}{\numberline {2.4.2}模型与静态规则引导的离线规划方法}{22}{subsubsection.2.4.2}%
+\contentsline {subsubsection}{\numberline {2.4.2}模型与静态规则引导的离线规划方法}{21}{subsubsection.2.4.2}%
 \contentsline {subsubsection}{\numberline {2.4.3}动态 Shape 决策分类与离线—在线协同架构}{24}{subsubsection.2.4.3}%
-\contentsline {subsection}{\numberline {2.5}阶段性实验评估与分析}{26}{subsection.2.5}%
-\contentsline {subsubsection}{\numberline {2.5.1}实验环境与评测设置}{26}{subsubsection.2.5.1}%
-\contentsline {subsubsection}{\numberline {2.5.2}端到端性能收益与对比分析}{27}{subsubsection.2.5.2}%
+\contentsline {subsection}{\numberline {2.5}阶段性实验评估与分析}{25}{subsection.2.5}%
+\contentsline {subsubsection}{\numberline {2.5.1}实验环境与评测设置}{25}{subsubsection.2.5.1}%
+\contentsline {subsubsection}{\numberline {2.5.2}端到端性能收益与对比分析}{26}{subsubsection.2.5.2}%
 \contentsline {subsubsection}{\numberline {2.5.3}PDL 静态规则与引导式规划器验证}{28}{subsubsection.2.5.3}%
 \contentsline {section}{\numberline {三}下一步工作计划和内容}{31}{section.3}%
 \contentsline {subsection}{\numberline {3.1}现存问题与下一步工作内容}{31}{subsection.3.1}%

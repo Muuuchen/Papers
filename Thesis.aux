@@ -63,30 +63,30 @@
 \newlabel{sec:mech}{{2.3}{12}{自适应执行机制设计与实现}{subsection.2.3}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}统一 CUDA 算子实现与核内分阶段并发控制}{12}{subsubsection.2.3.1}\protected@file@percent }
 \newlabel{sec:method}{{2.3.1}{12}{统一 CUDA 算子实现与核内分阶段并发控制}{subsubsection.2.3.1}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}基于 DACOS 的 PDL 跨边界重叠与硬件准入规律}{13}{subsubsection.2.3.2}\protected@file@percent }
-\newlabel{sec:pdl}{{2.3.2}{13}{基于 DACOS 的 PDL 跨边界重叠与硬件准入规律}{subsubsection.2.3.2}{}}
-\newlabel{sec:admit}{{2.3.2}{13}{基于 DACOS 的 PDL 跨边界重叠与硬件准入规律}{subsubsection.2.3.2}{}}
-\newlabel{sec:place}{{2.3.2}{13}{基于 DACOS 的 PDL 跨边界重叠与硬件准入规律}{subsubsection.2.3.2}{}}
-\newlabel{eq:dacos}{{4}{13}{基于 DACOS 的 PDL 跨边界重叠与硬件准入规律}{equation.2.4}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}基于 DACOS 的 PDL 跨边界重叠与 SM 调度规律}{13}{subsubsection.2.3.2}\protected@file@percent }
+\newlabel{sec:pdl}{{2.3.2}{13}{基于 DACOS 的 PDL 跨边界重叠与 SM 调度规律}{subsubsection.2.3.2}{}}
+\newlabel{sec:admit}{{2.3.2}{13}{基于 DACOS 的 PDL 跨边界重叠与 SM 调度规律}{subsubsection.2.3.2}{}}
+\newlabel{sec:place}{{2.3.2}{13}{基于 DACOS 的 PDL 跨边界重叠与 SM 调度规律}{subsubsection.2.3.2}{}}
+\newlabel{eq:dacos}{{4}{13}{基于 DACOS 的 PDL 跨边界重叠与 SM 调度规律}{equation.2.4}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces 前期工作 DACOS\nobreakspace  {}（Hao 等，2026）的依赖感知跨 kernel 重叠框架与运行时执行时间线。上方展示在单一 CUDA Stream 中通过 PDL 提前启动后继并将权重/Q 分块预加载至 L2、共享内存或寄存器的重叠过程；下方依次为依赖分析与重叠阶段构造、三维配置空间与代价模型、以及基于形状分桶缓存的运行时实例化流程。\relax }}{14}{figure.caption.11}\protected@file@percent }
 \newlabel{fig:dacos}{{6}{14}{前期工作 DACOS~\pDacos 的依赖感知跨 kernel 重叠框架与运行时执行时间线。上方展示在单一 CUDA Stream 中通过 PDL 提前启动后继并将权重/Q 分块预加载至 L2、共享内存或寄存器的重叠过程；下方依次为依赖分析与重叠阶段构造、三维配置空间与代价模型、以及基于形状分桶缓存的运行时实例化流程。\relax }{figure.caption.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces 共享内存 carve-out 档位决定的三种跨边界准入结局。横条表示单个 SM 的统一片上存储，竖线左侧划归共享内存、右侧留作 L1 缓存：(a) 后继所需档位不高于当前档位且剩余资源充足，顺利提前共驻；(b) 后继需求档位高于当前档位，被迫等待部分 SM 排空并集中调度到先空闲的少数 SM；(c) 需求档位较低的后继提前进入后被动沿用前驱大档位，导致可用 L1 容量缩水。\relax }}{15}{figure.caption.12}\protected@file@percent }
-\newlabel{fig:carve}{{7}{15}{共享内存 carve-out 档位决定的三种跨边界准入结局。横条表示单个 SM 的统一片上存储，竖线左侧划归共享内存、右侧留作 L1 缓存：(a) 后继所需档位不高于当前档位且剩余资源充足，顺利提前共驻；(b) 后继需求档位高于当前档位，被迫等待部分 SM 排空并集中调度到先空闲的少数 SM；(c) 需求档位较低的后继提前进入后被动沿用前驱大档位，导致可用 L1 容量缩水。\relax }{figure.caption.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces 真实模型 prefill 1$\times $16（第 2 层）中 O$\to $U 边界在三种模式下的 SM 执行时间线。每条水平线段对应一个线程块的执行起止区间：(a) 串行发射下 U 均匀分布；(b) 仅该边启用 PDL 时 U 因档位受阻集中落入先空闲的少数 SM；(c) 全链启用 PDL 时 SM 维持高档位，U 恢复提前共驻且分布均衡。\relax }}{16}{figure.caption.13}\protected@file@percent }
-\newlabel{fig:timeline}{{8}{16}{真实模型 prefill 1$\times $16（第 2 层）中 O$\to $U 边界在三种模式下的 SM 执行时间线。每条水平线段对应一个线程块的执行起止区间：(a) 串行发射下 U 均匀分布；(b) 仅该边启用 PDL 时 U 因档位受阻集中落入先空闲的少数 SM；(c) 全链启用 PDL 时 SM 维持高档位，U 恢复提前共驻且分布均衡。\relax }{figure.caption.13}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces 分批派发模型对 PDL 后继 SM 落位状态的预测精度。命中定义为最拥挤 SM 上的预测后继块数与实测完全一致；SM 数误差给出占用 SM 数绝对偏差的中位数与 90 分位数\relax }}{16}{table.caption.14}\protected@file@percent }
-\newlabel{tab:place}{{5}{16}{分批派发模型对 PDL 后继 SM 落位状态的预测精度。命中定义为最拥挤 SM 上的预测后继块数与实测完全一致；SM 数误差给出占用 SM 数绝对偏差的中位数与 90 分位数\relax }{table.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces 共享内存 carve-out 配置档位决定的三种 PDL 调度情形。横条表示单个 SM 的统一片上存储，竖线左侧为共享内存、右侧为 L1 缓存：(a) 后继所需档位不高于当前档位且剩余资源充足，顺利提前进入 SM 并发执行；(b) 后继需求档位高于当前档位，被迫等待部分 SM 空闲并集中调度到先空闲的少数 SM；(c) 需求档位较低的后继提前进入后被动沿用前驱大档位，导致可用 L1 缓存容量缩水。\relax }}{15}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:carve}{{7}{15}{共享内存 carve-out 配置档位决定的三种 PDL 调度情形。横条表示单个 SM 的统一片上存储，竖线左侧为共享内存、右侧为 L1 缓存：(a) 后继所需档位不高于当前档位且剩余资源充足，顺利提前进入 SM 并发执行；(b) 后继需求档位高于当前档位，被迫等待部分 SM 空闲并集中调度到先空闲的少数 SM；(c) 需求档位较低的后继提前进入后被动沿用前驱大档位，导致可用 L1 缓存容量缩水。\relax }{figure.caption.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces 真实模型 prefill 1$\times $16（第 2 层）中 O$\to $U 边界在三种模式下的 SM 执行时间线。每条水平线段对应一个线程块的执行起止区间：(a) 串行发射下 U 均匀分布；(b) 仅该边启用 PDL 时 U 因档位不兼容集中落入先空闲的少数 SM；(c) 全链启用 PDL 时 SM 维持高档位，U 恢复提前并发执行且分布均衡。\relax }}{16}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:timeline}{{8}{16}{真实模型 prefill 1$\times $16（第 2 层）中 O$\to $U 边界在三种模式下的 SM 执行时间线。每条水平线段对应一个线程块的执行起止区间：(a) 串行发射下 U 均匀分布；(b) 仅该边启用 PDL 时 U 因档位不兼容集中落入先空闲的少数 SM；(c) 全链启用 PDL 时 SM 维持高档位，U 恢复提前并发执行且分布均衡。\relax }{figure.caption.13}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces 分批派发模型对 PDL 后继线程块 SM 分配结果的预测精度。命中定义为最拥挤 SM 上的预测后继块数与实测完全一致；SM 数误差给出占用 SM 数绝对偏差的中位数与 90 分位数\relax }}{16}{table.caption.14}\protected@file@percent }
+\newlabel{tab:place}{{5}{16}{分批派发模型对 PDL 后继线程块 SM 分配结果的预测精度。命中定义为最拥挤 SM 上的预测后继块数与实测完全一致；SM 数误差给出占用 SM 数绝对偏差的中位数与 90 分位数\relax }{table.caption.14}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.3}L1 缓存敏感度与静态 PDL 启用规则}{16}{subsubsection.2.3.3}\protected@file@percent }
 \newlabel{sec:edge}{{2.3.3}{16}{L1 缓存敏感度与静态 PDL 启用规则}{subsubsection.2.3.3}{}}
 \newlabel{sec:answer}{{2.3.3}{16}{L1 缓存敏感度与静态 PDL 启用规则}{subsubsection.2.3.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces 不同跨 SM 线程块分布对后继执行时间的影响。上图为 U 型矩阵探针（128$\times $16 分块，132 块）在五种空间分布下的耗时，集中调度及真实 PDL 放置显著拉长尾时延；下图对照真实模型 U 阶段在串行与单边 PDL 下的耗时。\relax }}{17}{figure.caption.15}\protected@file@percent }
-\newlabel{fig:pack}{{9}{17}{不同跨 SM 线程块分布对后继执行时间的影响。上图为 U 型矩阵探针（128$\times $16 分块，132 块）在五种空间分布下的耗时，集中调度及真实 PDL 放置显著拉长尾时延；下图对照真实模型 U 阶段在串行与单边 PDL 下的耗时。\relax }{figure.caption.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces 不同跨 SM 线程块分布对后继执行时间的影响。上图为 U 型矩阵探针（128$\times $16 分块，132 块）在五种空间分布下的耗时，集中调度及真实 PDL 分配显著拉长尾时延；下图对照真实模型 U 阶段在串行与单边 PDL 下的耗时。\relax }}{17}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:pack}{{9}{17}{不同跨 SM 线程块分布对后继执行时间的影响。上图为 U 型矩阵探针（128$\times $16 分块，132 块）在五种空间分布下的耗时，集中调度及真实 PDL 分配显著拉长尾时延；下图对照真实模型 U 阶段在串行与单边 PDL 下的耗时。\relax }{figure.caption.15}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces 算子阶段对共享内存 carve-out 档位（剩余 L1 容量）的敏感度差异及其对 PDL 减速的解释。(a) 纯串行发射下强制最大档位引发的各阶段耗时变化；(b) 全链启用 PDL 时 attention 的实际减速幅度与离线测得的 L1 敏感度高度吻合。\relax }}{17}{figure.caption.16}\protected@file@percent }
 \newlabel{fig:lone}{{10}{17}{算子阶段对共享内存 carve-out 档位（剩余 L1 容量）的敏感度差异及其对 PDL 减速的解释。(a) 纯串行发射下强制最大档位引发的各阶段耗时变化；(b) 全链启用 PDL 时 attention 的实际减速幅度与离线测得的 L1 敏感度高度吻合。\relax }{figure.caption.16}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces 物理边界静态准入分类对 PDL 实测净收益的区分能力。(a) 253 类边界按静态资源足迹划分为三类后的单边时延变化分布（横线为中位数）；(b) 16 个全切分方案中后继最拥挤 SM 偏斜比与后继执行时间增幅的对应关系。\relax }}{18}{figure.caption.17}\protected@file@percent }
-\newlabel{fig:cmpdl}{{11}{18}{物理边界静态准入分类对 PDL 实测净收益的区分能力。(a) 253 类边界按静态资源足迹划分为三类后的单边时延变化分布（横线为中位数）；(b) 16 个全切分方案中后继最拥挤 SM 偏斜比与后继执行时间增幅的对应关系。\relax }{figure.caption.17}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces 静态三分法在 253 类实测物理边界上的 PDL 单边收益统计（\textmu s/边界，正值表示加速，按后继首阶段类型分列）\relax }}{18}{table.caption.18}\protected@file@percent }
-\newlabel{tab:cmrule}{{6}{18}{静态三分法在 253 类实测物理边界上的 PDL 单边收益统计（\textmu s/边界，正值表示加速，按后继首阶段类型分列）\relax }{table.caption.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces 物理边界静态三分类对 PDL 实测净收益的区分能力。(a) 253 类边界按静态资源特征分为三类后的单边时延变化分布（横线为中位数）；(b) 16 个全切分方案中后继最拥挤 SM 块数集中程度与后继执行时间增幅的对应关系。\relax }}{18}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:cmpdl}{{11}{18}{物理边界静态三分类对 PDL 实测净收益的区分能力。(a) 253 类边界按静态资源特征分为三类后的单边时延变化分布（横线为中位数）；(b) 16 个全切分方案中后继最拥挤 SM 块数集中程度与后继执行时间增幅的对应关系。\relax }{figure.caption.17}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces 静态三分类在 253 类实测物理边界上的 PDL 单边收益统计（\textmu s/边界，正值表示加速，按后继首阶段类型分列）\relax }}{18}{table.caption.18}\protected@file@percent }
+\newlabel{tab:cmrule}{{6}{18}{静态三分类在 253 类实测物理边界上的 PDL 单边收益统计（\textmu s/边界，正值表示加速，按后继首阶段类型分列）\relax }{table.caption.18}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces 计算图相邻算子边的处理规则与依据汇总\relax }}{19}{table.caption.19}\protected@file@percent }
 \newlabel{tab:answer}{{7}{19}{计算图相邻算子边的处理规则与依据汇总\relax }{table.caption.19}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.4}划分方案搜索与动态 Shape 自适应框架}{19}{subsection.2.4}\protected@file@percent }
@@ -96,21 +96,21 @@
 \newlabel{sec:cm}{{2.4.1}{19}{基于线程块波次的分组耗时解析模型}{subsubsection.2.4.1}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces 矩阵主循环部件消融实验（权重常驻 L2 时单个 K 步耗时）。小分块下剥离异步拷贝节省的时间显著高于剥离 MMA 指令；每 SM 驻留 3 块时纯异步拷贝因装载通路过载反慢于完整循环。\relax }}{20}{figure.caption.20}\protected@file@percent }
 \newlabel{fig:ablate}{{12}{20}{矩阵主循环部件消融实验（权重常驻 L2 时单个 K 步耗时）。小分块下剥离异步拷贝节省的时间显著高于剥离 MMA 指令；每 SM 驻留 3 块时纯异步拷贝因装载通路过载反慢于完整循环。\relax }{figure.caption.20}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces 片外流式读取下每个 K 步耗时向 HBM 带宽界的过渡规律。(a)--(c) 三种分块形状下每步耗时随并发读取相异权重块数的变化（虚线为 2.96\,TB/s 带宽界）；(d) 128$\times $64 分块下有效读取带宽随参与线程块数的变化。\relax }}{20}{figure.caption.21}\protected@file@percent }
-\newlabel{fig:cmloop}{{13}{20}{片外流式读取下每个 K 步耗时向 HBM 带宽界的过渡规律。(a)--(c) 三种分块形状下每步耗时随并发读取相异权重块数的变化（虚线为 2.96\,TB/s 带宽界）；(d) 128$\times $64 分块下有效读取带宽随参与线程块数的变化。\relax }{figure.caption.21}{}}
-\newlabel{eq:stage}{{5}{21}{基于线程块波次的分组耗时解析模型}{equation.2.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces 四个矩阵阶段独立成组时随输入行数的波量化阶梯曲线及解析模型拟合效果。模型 A 完全复用微探针常数，模型 B 仅使用 16、64 与 2048 三个采样行数标定尾部系数，均准确复现了其余 40 个留出行数上的台阶位置与幅值。\relax }}{21}{figure.caption.22}\protected@file@percent }
-\newlabel{fig:cmladder}{{14}{21}{四个矩阵阶段独立成组时随输入行数的波量化阶梯曲线及解析模型拟合效果。模型 A 完全复用微探针常数，模型 B 仅使用 16、64 与 2048 三个采样行数标定尾部系数，均准确复现了其余 40 个留出行数上的台阶位置与幅值。\relax }{figure.caption.22}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces 矩阵阶段独立成组时核内各组成部分的实测耗时分解（\textmu s，取对应行数最优分块/块数配置）\relax }}{22}{table.caption.23}\protected@file@percent }
-\newlabel{tab:cmtl}{{8}{22}{矩阵阶段独立成组时核内各组成部分的实测耗时分解（\textmu s，取对应行数最优分块/块数配置）\relax }{table.caption.23}{}}
-\newlabel{eq:group}{{6}{22}{基于线程块波次的分组耗时解析模型}{equation.2.6}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.2}模型与静态规则引导的离线规划方法}{22}{subsubsection.2.4.2}\protected@file@percent }
-\newlabel{sec:search}{{2.4.2}{22}{模型与静态规则引导的离线规划方法}{subsubsection.2.4.2}{}}
-\newlabel{sec:guided}{{2.4.2}{22}{模型与静态规则引导的离线规划方法}{subsubsection.2.4.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces 高驻留密度下同 SM 线程块的速度分层及其对模型精度的修正效果。(a) 每 SM 驻留 3 块时同核内快、中、慢三个线程块的单任务耗时差异；(b) 多波推进过程中随累计权重逼近 L2 容量出现的单波耗时抬升；(c) 改按最慢线程块建模前后在三种驻留密度下的留出集中位误差对比。\relax }}{23}{figure.caption.24}\protected@file@percent }
-\newlabel{fig:order}{{15}{23}{高驻留密度下同 SM 线程块的速度分层及其对模型精度的修正效果。(a) 每 SM 驻留 3 块时同核内快、中、慢三个线程块的单任务耗时差异；(b) 多波推进过程中随累计权重逼近 L2 容量出现的单波耗时抬升；(c) 改按最慢线程块建模前后在三种驻留密度下的留出集中位误差对比。\relax }{figure.caption.24}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces 单阶段解析模型（模型 B）在留出测试集上的时延预测误差与配置优选表现\relax }}{23}{table.caption.25}\protected@file@percent }
-\newlabel{tab:cm_all_acc}{{9}{23}{单阶段解析模型（模型 B）在留出测试集上的时延预测误差与配置优选表现\relax }{table.caption.25}{}}
+\newlabel{eq:stage}{{5}{20}{基于线程块波次的分组耗时解析模型}{equation.2.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces 片外流式读取下每个 K 步耗时向 HBM 带宽界的过渡规律。(a)--(c) 三种分块形状下每步耗时随并发读取相异权重块数的变化（虚线为 2.96\,TB/s 带宽界）；(d) 128$\times $64 分块下有效读取带宽随参与线程块数的变化。\relax }}{21}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:cmloop}{{13}{21}{片外流式读取下每个 K 步耗时向 HBM 带宽界的过渡规律。(a)--(c) 三种分块形状下每步耗时随并发读取相异权重块数的变化（虚线为 2.96\,TB/s 带宽界）；(d) 128$\times $64 分块下有效读取带宽随参与线程块数的变化。\relax }{figure.caption.21}{}}
+\newlabel{eq:group}{{6}{21}{基于线程块波次的分组耗时解析模型}{equation.2.6}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.2}模型与静态规则引导的离线规划方法}{21}{subsubsection.2.4.2}\protected@file@percent }
+\newlabel{sec:search}{{2.4.2}{21}{模型与静态规则引导的离线规划方法}{subsubsection.2.4.2}{}}
+\newlabel{sec:guided}{{2.4.2}{21}{模型与静态规则引导的离线规划方法}{subsubsection.2.4.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces 四个矩阵阶段独立成组时随输入行数的波量化阶梯曲线及解析模型拟合效果。模型 A 完全复用微探针常数，模型 B 仅使用 16、64 与 2048 三个采样行数标定尾部系数，均准确复现了其余 40 个留出行数上的台阶位置与幅值。\relax }}{22}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:cmladder}{{14}{22}{四个矩阵阶段独立成组时随输入行数的波量化阶梯曲线及解析模型拟合效果。模型 A 完全复用微探针常数，模型 B 仅使用 16、64 与 2048 三个采样行数标定尾部系数，均准确复现了其余 40 个留出行数上的台阶位置与幅值。\relax }{figure.caption.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces 高并发密度下同 SM 线程块的速度差异及其对模型精度的修正效果。(a) 每 SM 并发 3 块时同 SM 内快、中、慢三个线程块的单任务耗时差异；(b) 多波推进过程中随累计权重逼近 L2 容量出现的单波耗时抬升；(c) 改按最慢线程块建模前后在三种并发密度下的留出集中位误差对比。\relax }}{22}{figure.caption.24}\protected@file@percent }
+\newlabel{fig:order}{{15}{22}{高并发密度下同 SM 线程块的速度差异及其对模型精度的修正效果。(a) 每 SM 并发 3 块时同 SM 内快、中、慢三个线程块的单任务耗时差异；(b) 多波推进过程中随累计权重逼近 L2 容量出现的单波耗时抬升；(c) 改按最慢线程块建模前后在三种并发密度下的留出集中位误差对比。\relax }{figure.caption.24}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces 矩阵阶段独立成组时核内各组成部分的实测耗时分解（\textmu s，取对应行数最优分块/块数配置）\relax }}{23}{table.caption.23}\protected@file@percent }
+\newlabel{tab:cmtl}{{8}{23}{矩阵阶段独立成组时核内各组成部分的实测耗时分解（\textmu s，取对应行数最优分块/块数配置）\relax }{table.caption.23}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces 单阶段解析模型（模型 B）在留出测试集上的时延预测误差与配置选择精度\relax }}{23}{table.caption.25}\protected@file@percent }
+\newlabel{tab:cm_all_acc}{{9}{23}{单阶段解析模型（模型 B）在留出测试集上的时延预测误差与配置选择精度\relax }{table.caption.25}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces 零组合拟合参数下多阶段分组模型预测值与真实模型 2177 组实测耗时的对比散点图（不含首尾词嵌入与词表投影分组）。\relax }}{24}{figure.caption.26}\protected@file@percent }
 \newlabel{fig:group}{{16}{24}{零组合拟合参数下多阶段分组模型预测值与真实模型 2177 组实测耗时的对比散点图（不含首尾词嵌入与词表投影分组）。\relax }{figure.caption.26}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces 分组时延模型在 2177 组真实模型配置上的相对误差分布（\%，报告中位数与 90 分位数）\relax }}{24}{table.caption.27}\protected@file@percent }
@@ -118,16 +118,16 @@
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.4.3}动态 Shape 决策分类与离线—在线协同架构}{24}{subsubsection.2.4.3}\protected@file@percent }
 \newlabel{sec:types}{{2.4.3}{24}{动态 Shape 决策分类与离线—在线协同架构}{subsubsection.2.4.3}{}}
 \newlabel{sec:arch}{{2.4.3}{24}{动态 Shape 决策分类与离线—在线协同架构}{subsubsection.2.4.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces 容差 1\% 下五类算子边切分决策的敏感度分类与候选压缩效果。(a) Decode 与 prefill 阶段各边切分决策所属类别及固定后的最大相对时延损失；(b) 各负载下单一 grid 相对最优切分方案的时延增幅；(c) 切分层仅保留单一候选或双候选集合时的跨负载最大与平均损失。\relax }}{25}{figure.caption.28}\protected@file@percent }
-\newlabel{fig:types}{{17}{25}{容差 1\% 下五类算子边切分决策的敏感度分类与候选压缩效果。(a) Decode 与 prefill 阶段各边切分决策所属类别及固定后的最大相对时延损失；(b) 各负载下单一 grid 相对最优切分方案的时延增幅；(c) 切分层仅保留单一候选或双候选集合时的跨负载最大与平均损失。\relax }{figure.caption.28}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces 分组资源配置沿输入行数轴的参数型跳变特征。(a) 四个矩阵阶段在 43 个行数上实测最优的分块形状与启动线程块数；(b) 全局固定采用单一配置（128$\times $64 分块、264 个线程块）相对逐行数最优配置的时延损失。\relax }}{26}{figure.caption.29}\protected@file@percent }
-\newlabel{fig:tile}{{18}{26}{分组资源配置沿输入行数轴的参数型跳变特征。(a) 四个矩阵阶段在 43 个行数上实测最优的分块形状与启动线程块数；(b) 全局固定采用单一配置（128$\times $64 分块、264 个线程块）相对逐行数最优配置的时延损失。\relax }{figure.caption.29}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}阶段性实验评估与分析}{26}{subsection.2.5}\protected@file@percent }
-\newlabel{sec:exp}{{2.5}{26}{阶段性实验评估与分析}{subsection.2.5}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.1}实验环境与评测设置}{26}{subsubsection.2.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}阶段性实验评估与分析}{25}{subsection.2.5}\protected@file@percent }
+\newlabel{sec:exp}{{2.5}{25}{阶段性实验评估与分析}{subsection.2.5}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.1}实验环境与评测设置}{25}{subsubsection.2.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces 容差 1\% 下五类算子边切分决策的敏感度分类与候选压缩效果。(a) Decode 与 prefill 阶段各边切分决策所属类别及固定后的最大相对时延损失；(b) 各负载下单一 grid 相对最优切分方案的时延增幅；(c) 切分层仅保留单一候选或双候选集合时的跨负载最大与平均损失。\relax }}{26}{figure.caption.28}\protected@file@percent }
+\newlabel{fig:types}{{17}{26}{容差 1\% 下五类算子边切分决策的敏感度分类与候选压缩效果。(a) Decode 与 prefill 阶段各边切分决策所属类别及固定后的最大相对时延损失；(b) 各负载下单一 grid 相对最优切分方案的时延增幅；(c) 切分层仅保留单一候选或双候选集合时的跨负载最大与平均损失。\relax }{figure.caption.28}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.2}端到端性能收益与对比分析}{26}{subsubsection.2.5.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces 分组资源配置沿输入行数轴的参数型跳变特征。(a) 四个矩阵阶段在 43 个行数上实测最优的分块形状与启动线程块数；(b) 全局固定采用单一配置（128$\times $64 分块、264 个线程块）相对逐行数最优配置的时延损失。\relax }}{27}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:tile}{{18}{27}{分组资源配置沿输入行数轴的参数型跳变特征。(a) 四个矩阵阶段在 43 个行数上实测最优的分块形状与启动线程块数；(b) 全局固定采用单一配置（128$\times $64 分块、264 个线程块）相对逐行数最优配置的时延损失。\relax }{figure.caption.29}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces 面向动态输入规模的“离线准备—在线选择”两阶段系统架构。离线阶段一次性完成统一算子编译、模型与规则引导规划、规模敏感度分类及候选计划表构建；在线阶段根据实时请求有效行数直接查表重放预捕获 CUDA Graph。\relax }}{27}{figure.caption.30}\protected@file@percent }
 \newlabel{fig:arch}{{19}{27}{面向动态输入规模的“离线准备—在线选择”两阶段系统架构。离线阶段一次性完成统一算子编译、模型与规则引导规划、规模敏感度分类及候选计划表构建；在线阶段根据实时请求有效行数直接查表重放预捕获 CUDA Graph。\relax }{figure.caption.30}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.2}端到端性能收益与对比分析}{27}{subsubsection.2.5.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.5.3}PDL 静态规则与引导式规划器验证}{28}{subsubsection.2.5.3}\protected@file@percent }
 \@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Decode 阶段端到端单步时延（\textmu s）及规划方案相对两级单一 grid 基线的时延降幅（\%）\relax }}{29}{table.caption.31}\protected@file@percent }
 \newlabel{tab:decode}{{11}{29}{Decode 阶段端到端单步时延（\textmu s）及规划方案相对两级单一 grid 基线的时延降幅（\%）\relax }{table.caption.31}{}}
