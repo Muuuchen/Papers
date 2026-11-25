@@ -1,18 +1,18 @@
-围绕第 1 章确立的优化目标（式~(\ref{eq:obj})）与四个核心问题，本章依次汇报中期研究进展：第~\ref{sec:dep}~节建立从通用计算图到阶段依赖图的抽象及资源约束表示；第~\ref{sec:pos}~节定量剖析 Persistent Kernel 与独立 Kernel 的优缺点与边界选择因素；第~\ref{sec:mech}~节阐述统一 CUDA 算子实现、基于 DACOS 的跨边界 PDL 重叠与静态启用规则；第~\ref{sec:search_sys}~节介绍基于线程块波次的解析代价模型、引导式离线规划及动态 shape 自适应架构；第~\ref{sec:exp}~节汇报真实模型上的实验评估结果。
+围绕第 1 章的优化目标（式~(\ref{eq:obj})）与四个核心问题，本章依次汇报中期进展：第~\ref{sec:dep}~节给出从通用计算图到阶段依赖图的抽象及资源约束模型；第~\ref{sec:pos}~节对比 Persistent Kernel 与独立 Kernel 的优缺点并归纳边界选择因素；第~\ref{sec:mech}~节阐述统一 CUDA 算子实现、基于 DACOS 的跨边界 PDL 重叠与静态启用规则；第~\ref{sec:search_sys}~节介绍基于线程块波次的分组耗时模型与引导式规划方法；第~\ref{sec:exp}~节汇报真实模型上的实验评估结果。
 
 \subsection{算子间依赖分析与片上资源约束建模}\label{sec:dep}\label{sec:abs}
 
-针对问题一，本节从通用推理计算图 $G=(O,E)$ 出发，说明模型无关的阶段图化简与边级依赖分析方法，并结合单次 kernel 启动的硬件资源限制给出执行计划的统一表示。
+本节针对问题一，从通用推理计算图 $G=(O,E)$ 出发，说明模型无关的阶段图化简与边级依赖分析，并结合单次 kernel 启动的硬件资源限制给出执行计划表示。
 
 \subsubsection{从通用算子计算图到阶段级依赖抽象}\label{sec:form}
 
-系统输入为通用推理计算图 $G=(O,E)$，其中节点 $o\in O$ 表示原始算子。按 GPU 执行特征，推理计算图中的算子可分为两类：（1）\textbf{计算或归约主导算子}（如线性投影 GEMM、Attention），通常需要矩阵分块、共享内存双缓冲与较高的寄存器预算，且不同算子偏好的线程块并行度差异显著；（2）\textbf{访存主导的轻量逐元素/尾处理算子}（如 RMSNorm、RoPE、SwiGLU/SiLU 激活、残差相加、KV 缓存写入），算术强度极低，将其拆分为独立 kernel 既无法缓解寄存器或共享内存压力，又必然增加全局内存往返与 kernel 启动开销。
+系统输入为任意推理计算图 $G=(O,E)$，其中节点 $o\in O$ 为原始算子。按 GPU 执行特征，图中的算子分为两类：（1）\textbf{计算或归约主导算子}（如线性投影 GEMM、Attention），通常需要专门的矩阵分块、共享内存双缓冲与较高的寄存器预算，且不同算子偏好的线程块并行度差异明显；（2）\textbf{访存主导的轻量逐元素/尾处理算子}（如 RMSNorm、RoPE、SwiGLU/SiLU 激活、残差相加、KV 缓存写入），算术强度低，将其拆分为独立 kernel 既不能缓解寄存器或共享内存压力，还会增加全局内存读写和 kernel 启动开销。
 
-据此，对任意输入计算图 $G=(O,E)$，前端首先执行模型无关的\textbf{轻量算子吸收（prologue/epilogue 预融合）}，将轻量算子并入相邻主导算子的输入准备或输出收尾，从而把原始算子图化简为由主导计算阶段组成的\textbf{阶段依赖图} $G_S=(V_S,E_S)$。真正存在“融合为同一 kernel”与“切分为独立 kernel”性能权衡的，正是阶段图中的相邻阶段边 $e=(u,v)\in E_S$。该方法不依赖于特定网络结构：对于 Qwen、Gemma、Mistral 等不同归一化或激活形式的模型，以及含路由与专家分组 GEMM 的 MoE、多头潜在注意力（MLA）或混合架构，化简后仅阶段图 $G_S$ 的节点类型与连接关系随之变化，后续依赖分析、资源建模、PDL 重叠与方案搜索均直接作用于 $G_S$，无需限定固定阶段数。
+据此，前端对任意输入图 $G=(O,E)$ 首先执行模型无关的\textbf{轻量算子吸收（prologue/epilogue 预融合）}，将轻量算子并入相邻主导算子的输入准备或输出收尾，将原始算子图化简为由主导计算阶段组成的\textbf{阶段依赖图} $G_S=(V_S,E_S)$。算子融合与切分的硬件权衡集中在阶段图的相邻阶段边 $e=(u,v)\in E_S$ 上。该化简方法不依赖特定网络结构：对于 Qwen、Gemma、Mistral 等不同归一化或激活形式的模型，以及含路由与专家分组 GEMM 的 MoE、多头潜在注意力（MLA）或混合架构，化简后仅阶段图 $G_S$ 的节点类型与拓扑随之变化，后续依赖分析、资源建模、PDL 重叠与方案搜索均直接作用于 $G_S$，不限定固定阶段数。
 
-作为中期真机实验的载体，课题以 Llama-3.2-1B（16 个解码层，隐藏维度 2048，中间层维度 8192，32 个查询头与 8 个键值头）为具体实例。上述化简规则作用于其解码层后，每层归结为五个顺序主导阶段：Q 阶段（输入 RMSNorm、QKV 投影、RoPE 与 KV 写入）、A 阶段（attention 计算）、O 阶段（输出投影、残差相加与后继 RMSNorm）、U 阶段（gate/up 投影融合 SwiGLU 激活）以及 D 阶段（down 投影、残差相加与下层输入 RMSNorm）；首层前接词嵌入，末层后接词表投影与贪心采样，层内与跨层形成五类阶段边（Q$\to$A、A$\to$O、O$\to$U、U$\to$D、D$\to$Q）。
+作为中期真机实验实例，课题选用 Llama-3.2-1B（16 个解码层，隐藏维度 2048，中间层维度 8192，32 个查询头与 8 个键值头）。上述化简规则作用于其解码层后，每层得到五个顺序主导阶段：Q 阶段（输入 RMSNorm、QKV 投影、RoPE 与 KV 写入）、A 阶段（attention 计算）、O 阶段（输出投影、残差相加与后继 RMSNorm）、U 阶段（gate/up 投影融合 SwiGLU 激活）和 D 阶段（down 投影、残差相加与下层输入 RMSNorm）；首层前接词嵌入，末层后接词表投影与贪心采样，层内与跨层形成五类阶段边（Q$\to$A、A$\to$O、O$\to$U、U$\to$D、D$\to$Q）。
 
-对应第 1 章的任务级依赖模型，对任意阶段边 $e=(K_i,K_j)\in E_S$，系统分析两项属性：一是\textbf{数据就绪粒度}（局部就绪或全量就绪）；二是沿用前期工作 DACOS~\pDacos 对跨 kernel 输入的划分，将后继 $K_j$ 的输入区分为前驱实时产出的\textbf{依赖张量}与启动时即已就绪的\textbf{独立张量}（只读权重、张量描述符与索引元数据），进而提取首次读取依赖数据前可合法提前执行的\textbf{独立前缀}。Llama-3.2-1B 实例下五类阶段边的依赖属性归纳于表~\ref{tab:edges}。
+对应第 1 章的任务级依赖模型，对每条阶段边 $e=(K_i,K_j)\in E_S$ 分析两项属性：一是\textbf{数据就绪粒度}（局部就绪或全量就绪）；二是沿用前期工作 DACOS~\pDacos 的跨 kernel 输入划分，将后继 $K_j$ 的输入区分为前驱实时产出的\textbf{依赖张量}与启动时已就绪的\textbf{独立张量}（只读权重、张量描述符与索引元数据），据此提取首次读取依赖数据前可提前执行的\textbf{独立前缀}。Llama-3.2-1B 实例下五类阶段边的依赖属性见表~\ref{tab:edges}。
 
 \begin{table}[!htb]\centering
 \caption{Llama-3.2-1B 解码层实例中五类相邻阶段边的依赖就绪形态与消费者独立前缀}\label{tab:edges}
@@ -30,9 +30,9 @@ D$\to$Q & 全量就绪：下一层 QKV 投影依赖完整的层间归一化激�
 \end{tabularx}
 \end{table}
 
-对应第 1 章的候选空间 $\mathcal{M}(e)$，阶段图每条边 $e\in E_S$ 具有三类物理执行候选（图~\ref{fig:scheme}）：（1）\textbf{同 grid 融合}，前后阶段合并于同一 persistent grid，通过设备端全局屏障保证数据可见；（2）\textbf{跨 grid completion}，切分为两个独立 kernel，待前驱全部线程块退出后再启动后继；（3）\textbf{跨 grid PDL}，保留物理切分边界，前驱在尾部发出 programmatic completion 信号提前启动后继，使其先执行独立前缀再等待前驱数据就绪。
+对应第 1 章的候选空间 $\mathcal{M}(e)$，每条阶段边 $e\in E_S$ 有三类物理执行候选（图~\ref{fig:scheme}）：（1）\textbf{同 grid 融合}，前后阶段合并于同一 persistent grid，由设备端全局屏障保证数据可见；（2）\textbf{跨 grid completion}，切分为两个独立 kernel，待前驱全部线程块退出后启动后继；（3）\textbf{跨 grid PDL}，保留物理切分边界，前驱在尾部发出 programmatic completion 信号提前启动后继，使其先执行独立前缀再等待前驱数据就绪。
 
-若各阶段线程块数与片上资源配置保持不变而单纯将融合 kernel 拆分为多个独立 kernel，反而会额外引入跨边界同步与启动开销；唯有在切分的同时按各分组特点重新配置分块与并行度，物理切分与跨边界重叠才能释放正收益。因此，算子边切分决策必须与 GPU 单次 kernel 启动的片上资源约束联合建模。
+若各阶段线程块数与片上资源配置保持不变，单纯将融合 kernel 拆分为多个独立 kernel 只会引入跨边界同步与启动开销；只有在切分的同时按各分组特点重新配置分块与并发度，物理切分与跨边界重叠才能带来净加速。因此，算子边切分决策必须与 GPU 单次 kernel 启动的片上资源约束联合建模。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=\textwidth]{Img/midterm/scheme}
@@ -41,34 +41,34 @@ D$\to$Q & 全量就绪：下一层 QKV 投影依赖完整的层间归一化激�
 
 \subsubsection{单次 Kernel 启动的资源约束与全图执行计划表示}\label{sec:env}
 
-在 GPU 执行模型中，每线程寄存器用量与每线程块动态共享内存大小均以单次物理 kernel 启动为粒度静态确定。当多个连续阶段融合在同一物理 grid $g$ 内时，其片上资源分配由组内需求最高的阶段支配：
+在 GPU 执行模型中，每线程寄存器用量与每线程块动态共享内存大小以单次物理 kernel 启动为粒度静态确定。当多个连续阶段融合在同一物理 grid $g$ 内时，其片上资源分配由组内需求最高的阶段决定：
 \begin{equation}
 r(g)\ge\max_{s\in g} r_s,\qquad m(g)=\max_{s\in g} m_s. \label{eq:env}
 \end{equation}
-设单 SM 的寄存器容量为 $R_{\mathrm{SM}}$、共享内存容量为 $M_{\mathrm{SM}}$、最大常驻线程数为 $T_{\mathrm{SM}}$（H100 上分别为 65\,536、228\,KiB 与 2048），每线程块含 $\tau=128$ 个线程时，单 SM 最大并发线程块数 $n(g)$（即 occupancy 上限）满足：
+设单 SM 的寄存器容量为 $R_{\mathrm{SM}}$、共享内存容量为 $M_{\mathrm{SM}}$、最大常驻线程数为 $T_{\mathrm{SM}}$（H100 上分别为 65\,536、228\,KiB 与 2048），每线程块含 $\tau=128$ 个线程时，单 SM 最大并发线程块数 $n(g)$（occupancy 上限）满足：
 \begin{equation}
 n(g)\le\min\Bigl(\Bigl\lfloor\frac{R_{\mathrm{SM}}}{\tau\, r(g)}\Bigr\rfloor,\ \Bigl\lfloor\frac{M_{\mathrm{SM}}}{m(g)}\Bigr\rfloor,\ \Bigl\lfloor\frac{T_{\mathrm{SM}}}{\tau}\Bigr\rfloor\Bigr), \label{eq:occ}
 \end{equation}
 协作启动（cooperative launch）的全卡总线程块数不超过 $n(g)$ 与 SM 总数（132）之积。
 
-据此，第 1 章式~(\ref{eq:obj}) 中的全图执行计划 $\Pi$ 在阶段图 $G_S=(V_S,E_S)$ 上表述为三元组 $\Pi=\langle C,\allowbreak \{\theta_g\},\allowbreak \{\varphi_e\}\rangle$：其中 $C\subseteq E_S$ 为切分为物理 kernel 边界的边集合（在 Llama 五类每层同构边下共 $2^5=32$ 种切分方案，$C=\varnothing$ 对应全图单一 persistent kernel）；$\theta_g$ 为连续阶段分组 $g$ 的执行配置，包括矩阵分块形状、启动线程块数及核内各阶段活跃块配置；$\varphi_e\in\{\text{completion},\allowbreak \text{PDL},\allowbreak \text{PDL}^*\}$ 为物理边界 $e\in C$ 的衔接模式（$\text{PDL}^*$ 表示等待前驱数据前附带静态权重预加载）。
+据此，第 1 章式~(\ref{eq:obj}) 中的全图执行计划 $\Pi$ 在阶段图 $G_S=(V_S,E_S)$ 上表示为三元组 $\Pi=\langle C,\allowbreak \{\theta_g\},\allowbreak \{\varphi_e\}\rangle$：其中 $C\subseteq E_S$ 为切分为物理 kernel 边界的边集合（在 Llama 五类每层同构边下共 $2^5=32$ 种切分方案，$C=\varnothing$ 对应全图单一 persistent kernel）；$\theta_g$ 为连续阶段分组 $g$ 的执行配置，包括矩阵分块形状、启动线程块数及核内各阶段活跃块配置；$\varphi_e\in\{\text{completion},\allowbreak \text{PDL},\allowbreak \text{PDL}^*\}$ 为物理边界 $e\in C$ 的衔接模式（$\text{PDL}^*$ 表示等待前驱数据前附带静态权重预加载）。
 
-\subsection{Persistent Kernel 与独立 Kernel 的优缺点剖析及边界选择因素}\label{sec:pos}
+\subsection{Persistent Kernel 与独立 Kernel 的优缺点分析及边界选择因素}\label{sec:pos}
 
-针对问题二，本节基于受控微基准与跨负载实验，系统剖析 Persistent Kernel 与独立 Kernel 两类执行范式的优势、局限以及决定边界执行机制的关键硬件因素。
+针对问题二，本节基于受控微基准与跨负载实验，对比 Persistent Kernel 与独立 Kernel 两类执行方式的优势和局限，归纳决定边界执行机制的硬件因素。
 
 \subsubsection{Persistent Kernel 的优势与资源耦合瓶颈}\label{sec:hw}
 
-Persistent Kernel 将连续多个计算阶段融于单一物理 grid，仅发起一次 kernel 启动，由常驻 SM 的线程块经设备端屏障完成阶段衔接。其核心优势在于消除了主机侧反复提交开销以及相邻 kernel 间退出等待与重启间隙：在各阶段并行度与资源需求接近的轻量负载上，单核融合可获得最低时延。如表~\ref{tab:cores} 所示，单请求短上下文 decode（$1\times 512$）与采用轻量逐 warp attention 的极短 prefill（$1\times 16$）五阶段融合时，单层耗时较五阶段独立最优之和分别缩短 1.3\us 与 1.8\us。
+Persistent Kernel 将多个连续计算阶段融合于单一物理 grid，仅启动一次 kernel，常驻 SM 的线程块通过设备端屏障衔接各阶段。其优势在于消除了主机侧反复提交开销以及相邻 kernel 间的等待与重启间隙：当各阶段并行度与片上资源需求接近时，单核融合时延最低。表~\ref{tab:cores} 显示，单请求短上下文 decode（$1\times 512$）与采用轻量逐 warp attention 的极短 prefill（$1\times 16$）五阶段融合时，单层耗时较五阶段独立最优之和分别缩短 1.3\us 与 1.8\us。
 
-然而，在长上下文、中大批量或重度算子区间，单一 persistent kernel 出现显著性能退化。图~\ref{fig:hw} 的受控微基准排除了同步原语本身的影响：经 CUDA Graph 封装后~\pGraph，相邻空阶段采用核内全局屏障、跨 grid completion 与跨 grid PDL 的单次耗时在 132 块下均约为 1.16\us，扩展至 528 块亦仅在 1.40--1.88\us 之间（图~\ref{fig:hw}(a)）；流式读取 64\,MiB 线性权重在 264 个线程块（每 SM 2 块，6 级异步流水）处即达到 2.4--3.0\,TB/s 的 HBM 带宽上限（图~\ref{fig:hw}(b)）。性能退化的真正根源在于式~(\ref{eq:env})--(\ref{eq:occ}) 揭示的\textbf{异构阶段资源耦合}。
+然而，在长上下文、中大批量或重度算子区间，单一 persistent kernel 出现显著性能退化。图~\ref{fig:hw} 的受控微基准表明，性能退化并非源于同步原语开销：经 CUDA Graph 封装后~\pGraph，相邻空阶段采用核内全局屏障、跨 grid completion 与跨 grid PDL 的单次耗时在 132 块下均约为 1.16\us，扩展至 528 块亦仅在 1.40--1.88\us 之间（图~\ref{fig:hw}(a)）；流式读取 64\,MiB 线性权重在 264 个线程块（每 SM 2 块，6 级异步流水）处即达到 2.4--3.0\,TB/s 的 HBM 带宽上限（图~\ref{fig:hw}(b)）。性能退化的主要原因在于式~(\ref{eq:env})--(\ref{eq:occ}) 所示的\textbf{异构阶段片上资源耦合}。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=\textwidth]{Img/midterm/hw_micro}
 \caption{跨阶段同步开销与流式权重读取带宽微基准。(a) 相邻空阶段间三种衔接方式随线程块数的单次耗时；(b) 流式读取 64\,MiB gate/up 权重的有效带宽随线程块数与访存连续性的变化，在 264 个线程块处即达到平台带宽上限。}\label{fig:hw}
 \end{figure}
 
-具体而言，线性矩阵阶段（Q、O、U、D）与 attention 阶段（A）在并行度与片上资源占用上存在双重冲突（图~\ref{fig:stage}、表~\ref{tab:foot}）：（1）\textbf{并行度需求相反}，四个矩阵阶段独立运行时多在 132 或 264 个线程块处最优，继续增块反而加剧缓存竞争与归约成本；高负载 decode attention 则随线程块数扩展持续提速（$16\times 2048$ 下 528 块较 132 块快 2.5 倍）；（2）\textbf{片上资源上限互相制约}，decode 矩阵阶段每块需 72\,KiB 共享内存，将五阶段融合 kernel 限制在每 SM 3 块（396 块），使原本可并发 4 块/SM（528 块）的 attention 损失四分之一并发度；prefill 中基于 Tensor Core 的 FlashAttention-2~\pFA 每线程占满 255 个寄存器，融合后将全图并发度降至每 SM 2 块（264 块）。
+线性矩阵阶段（Q、O、U、D）与 attention 阶段（A）在并行度与片上资源占用上存在双重冲突（图~\ref{fig:stage}、表~\ref{tab:foot}）：（1）\textbf{并行度需求相反}，四个矩阵阶段独立运行时多在 132 或 264 个线程块处最优，继续增块反而加剧缓存竞争与归约成本；高负载 decode attention 则随线程块数增加持续提速（$16\times 2048$ 下 528 块较 132 块快 2.5 倍）；（2）\textbf{片上资源上限互相制约}，decode 矩阵阶段每块需 72\,KiB 共享内存，将五阶段融合 kernel 限制在每 SM 3 块（396 块），使原本可并发 4 块/SM（528 块）的 attention 损失四分之一并发度；prefill 中基于 Tensor Core 的 FlashAttention-2~\pFA 每线程占满 255 个寄存器，融合后将全图并发度降至每 SM 2 块（264 块）。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=\textwidth]{Img/midterm/stage_ctas}
@@ -117,37 +117,37 @@ prefill 16$\times$16（逐 warp） & 23.4 & 19.2 & 16.4 & 52.7 & 34.6 & 146.3 & 
 
 \subsubsection{独立 Kernel 切分的收益与算子间等待及重叠限制}\label{sec:split}
 
-与全图融合相反，将计算图切分为独立 kernel 能够彻底解除片上资源耦合，使各分组独立选取最优分块形状、寄存器预算与线程块数。但其同样存在两方面局限：
+与全图融合相反，将计算图切分为独立 kernel 可解除片上资源耦合，使各分组独立选取最优分块形状、寄存器预算与线程块数。但其存在两方面局限：
 
-\textbf{局限一：串行执行导致算子间等待间隙逐层累积。}传统 completion 语义要求前驱全部线程块退出后再启动后继。正如前期工作 DACOS~\pDacos 对短序列 LLM 推理的剖析所示，尽管后继普遍包含不依赖前驱输出的准备与权重加载操作，严格串行边界仍使等待与启动间隙沿执行链累加：16 层五阶段全切分下，79 个物理边界在 decode $1\times 512$ 上累计耗时 166\us（占总时延约 11\%），致使资源冲突较轻的中小批量负载单纯切分反而较单一 grid 慢 1.4\%--5.4\%。
+\textbf{（1）串行执行导致算子间等待间隙逐层累积。}传统 completion 语义要求前驱全部线程块退出后再启动后继。如前期工作 DACOS~\pDacos 在短序列 LLM 推理中观察到的，尽管后继普遍包含不依赖前驱输出的准备与权重加载操作，严格串行边界仍使等待与启动间隙沿执行链累加：16 层五阶段全切分下，79 个物理边界在 decode $1\times 512$ 上累计耗时 166\us（占总时延约 11\%），致使资源冲突较轻的中小批量负载单纯切分反而较单一 grid 慢 1.4\%--5.4\%。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=\textwidth]{Img/midterm/pdl_edges}
 \caption{五阶段全切分下各类物理边界单独启用 PDL 或带预取 PDL* 相对串行 completion 的端到端时延降幅（正值表示加速）。Q$\to$A 后继为无静态权重的 attention 阶段；色标截断于 $\pm 3\%$，格内标注实测百分比。}\label{fig:pdl}
 \end{figure}
 
-\textbf{局限二：硬件 PDL 跨边界重叠在异构切分图上并非无条件获益。}Hopper 架构提供的硬件级 PDL~\pPDL 允许后继在前驱尾部提前启动，但图~\ref{fig:pdl} 的逐边实测显示其收益高度分化：decode 中矩阵主导的四类边在 36 组仅提前启动测试中有 34 组稳定加速（叠加预取最高 $+1.5\%$）；而 prefill 中 A$\to$O 边在 5 个负载上为负（$-0.3\%$ 至 $-2.2\%$），$1\times 16$ 下的 O$\to$U 边倒退达 $-7.8\%$。在 decode $16\times 2048$ 的 31 种切分方案中，全图无差别开启 PDL 有 27 种慢于纯串行执行。
+\textbf{（2）硬件 PDL 跨边界重叠在异构切分图上并非无条件获益。}Hopper 架构提供的硬件级 PDL~\pPDL 允许后继在前驱尾部提前启动，但图~\ref{fig:pdl} 的逐边实测显示其收益高度分化：decode 中矩阵主导的四类边在 36 组仅提前启动测试中有 34 组稳定加速（叠加预取最高 $+1.5\%$）；而 prefill 中 A$\to$O 边在 5 个负载上为负（$-0.3\%$ 至 $-2.2\%$），$1\times 16$ 下的 O$\to$U 边倒退达 $-7.8\%$。在 decode $16\times 2048$ 的 31 种切分方案中，全图无差别开启 PDL 有 27 种慢于纯串行执行。
 
 \subsubsection{边界执行机制的决定因素、相关工作局限与本文思路}\label{sec:factors}
 
-动态输入规模下的跨负载评测（图~\ref{fig:motiv}）进一步表明，15 个覆盖不同 batch 与序列长度的 decode/prefill 负载分化出 11 种不同的最优逐边方案，任何固定范式（全融合、全切分串行或全图盲目 PDL）均无法覆盖全区间。综上，\textbf{算子边界执行机制的选择由三类可量化的硬件因素共同决定}：（1）两侧阶段融合的\textbf{资源耦合代价}是否高于单次跨 kernel 启动开销（决定是否切分）；（2）边界两侧的\textbf{共享内存配置档位兼容性与 SM 资源余量}（决定 PDL 后继能否提前共驻，或因受阻集中调度至少数先空闲 SM 导致负载不均）；（3）后继对 \textbf{L1 缓存容量的敏感度}及前驱尾部的 \textbf{HBM 带宽余量}（决定是否引发 L1 容量缩水或预加载带宽争用）。
+跨输入规模评测（图~\ref{fig:motiv}）表明，15 个覆盖不同 batch 与序列长度的 decode/prefill 负载分化出 11 种不同的最优逐边方案，全融合、全切分串行与全图全局 PDL 均无法覆盖全区间。算子边界执行机制的选择由三类可量化的硬件因素决定：（1）两侧阶段融合的\textbf{资源耦合代价}是否高于单次跨 kernel 启动开销（决定是否切分）；（2）边界两侧的\textbf{共享内存配置档位兼容性与 SM 资源余量}（决定 PDL 后继能否提前共驻，或因受阻集中调度至少数先空闲 SM 导致负载不均）；（3）后继对 \textbf{L1 缓存容量的敏感度}及前驱尾部的 \textbf{HBM 带宽余量}（决定是否引发 L1 容量缩水或预加载带宽争用）。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=0.9\textwidth]{Img/midterm/motiv_edges}
 \caption{15 个典型负载上最优逐边执行方案的分化特征及其相对最优单一 grid 的时延降幅。}\label{fig:motiv}
 \end{figure}
 
-对照上述因素审视既有研究，可见三点局限：第一，全图单一 kernel 方案（Hazy Megakernels\pHazy、MPK\pMPK）以全融合为预设终态，难以解除异构阶段间的片上资源冲突，近期拆解分析~\pQiang 与编译器实践~\pcite{together2026}{Together AI，2026}亦证实核内屏障（约 646\,ns）与 CUDA Graph 配合 PDL 的边界开销（约 645\,ns）相近，盲目融合反致性能回退；第二，既有融合与动态 shape 编译工作多限于单 kernel 内部优化~\pcite{zhengz2022}{Zheng 等，2022a}、静态配置（\rcite{nvidiate}{NVIDIA，2026g}；\rcite{andoorveedu2026}{Andoorveedu 等，2026}）或粗粒度区段切换（\rcite{chatterjee2026}{Chatterjee 等，2026a}；\rcite{chatterjee2026b}{Chatterjee 等，2026b}），微内核编译如 MikPoly~\pcite{yu2024}{Yu 等，2024} 与 MoonPoly~\pcite{zhangy2026}{Zhang 等，2026a} 仅调节算子内分块参数，算子间仍固定串行启动；第三，在跨 kernel 重叠限制上，既有文献仅在多流场景零星报道共享内存配置干扰（\rcite{nvidiaforum}{NVIDIA，2025}；\rcite{strati2026}{Strati 等，2026}；\rcite{flashinfer7548}{FlashInfer，2026}）或寄存器受限~\pQiang，前期工作 DACOS~\pDacos 也仍假定算子边界固定。为此，本课题将阶段图每条边的执行方式提升为决策变量，与分组资源配置及硬件调度规则协同优化。
+对照上述因素，既有相关工作存在三点局限：第一，全图单一 kernel 方案（Hazy Megakernels\pHazy、MPK\pMPK）以全融合为预设终态，难以解除异构阶段间的片上资源冲突，近期实证分析~\pQiang 与编译器实践~\pcite{together2026}{Together AI，2026}亦表明核内屏障（约 646\,ns）与 CUDA Graph 配合 PDL 的边界开销（约 645\,ns）相近，盲目融合反致性能回退；第二，既有融合与动态 shape 编译工作多限于单 kernel 内部优化~\pcite{zhengz2022}{Zheng 等，2022a}、静态配置（\rcite{nvidiate}{NVIDIA，2026g}；\rcite{andoorveedu2026}{Andoorveedu 等，2026}）或粗粒度区段切换（\rcite{chatterjee2026}{Chatterjee 等，2026a}；\rcite{chatterjee2026b}{Chatterjee 等，2026b}），微内核编译如 MikPoly~\pcite{yu2024}{Yu 等，2024} 与 MoonPoly~\pcite{zhangy2026}{Zhang 等，2026a} 仅调节算子内分块参数，算子间仍固定串行启动；第三，在跨 kernel 重叠限制方面，既有文献仅在多流场景零星报道共享内存配置干扰（\rcite{nvidiaforum}{NVIDIA，2025}；\rcite{strati2026}{Strati 等，2026}；\rcite{flashinfer7548}{FlashInfer，2026}）或寄存器受限~\pQiang，前期工作 DACOS~\pDacos 也假定算子边界固定。为此，本课题将阶段图每条边的执行方式与分组资源配置、硬件调度规则联合建模并协同优化。
 
 \subsection{自适应执行机制设计与实现}\label{sec:mech}
 
-针对问题三，本节阐述统一 CUDA 算子实现与核内分阶段活跃块控制、基于 DACOS 扩展的跨边界 PDL 重叠与 H100 调度规律，以及静态 PDL 启用规则。
+针对问题三，本节阐述统一 CUDA 算子实现与核内分阶段活跃块控制、基于 DACOS 的跨边界 PDL 重叠与 H100 调度规律，以及静态 PDL 启用规则。
 
 \subsubsection{统一 CUDA 算子实现与核内分阶段并发控制}\label{sec:method}
 
-为剥离外部算子库实现差异、保证不同切分方案在完全同质的算子代码下对比，课题构建了一套模板化统一 CUDA 后端：从词嵌入、解码层五阶段到末层贪心采样共享同一套设备端实现，任意连续阶段区间均可实例化为独立的协作式 persistent grid。矩阵阶段提供 $64\times 64$、$128\times 64$ 与 $128\times 16$（列 $\times$ 行）三种 Tensor Core 分块，支持沿归约维（K 维）切分并融合收尾残差、RMSNorm、RoPE 与 KV 写入；decode attention 采用历史键值切片并行与双缓冲异步加载（较逐键串行提速 1.1--2.0 倍），prefill attention 同时支持 FlashAttention-2 与零共享内存的逐 warp 在线归约。
+为消除外部算子库实现差异、保证不同切分方案在同质算子代码下对比，课题构建了一套模板化统一 CUDA 后端：从词嵌入、解码层五阶段到末层贪心采样共享同一套设备端代码，任意连续阶段区间均可实例化为独立的协作式 persistent grid。矩阵阶段提供 $64\times 64$、$128\times 64$ 与 $128\times 16$（列 $\times$ 行）三种 Tensor Core 分块，支持沿归约维（K 维）切分并融合收尾残差、RMSNorm、RoPE 与 KV 写入；decode attention 采用历史键值切片并行与双缓冲异步加载（较逐键串行提速 1.1--2.0 倍），prefill attention 同时支持 FlashAttention-2 与零共享内存的逐 warp 在线归约。
 
-针对多阶段融合于同一 persistent grid 时各阶段理想线程块数不同的矛盾，后端实现了\textbf{按物理 SM 重排逻辑块号的核内分阶段活跃块控制}。启动初期，各线程块读取 \texttt{\%smid} 并经原子计数按“同 SM 内块序号优先、物理 SM 编号次之”重映射逻辑块号，确保任意前缀子集均匀覆盖全卡 132 个 SM。借此，融合 kernel 内的矩阵阶段仅激活每 SM 1--2 块以保持缓存效率与整波对齐，attention 阶段则激活全部常驻线程块，其余休眠块仅参与轻量屏障同步。实测表明，该控制使单一 grid 基线自身在 decode $16\times 2048$ 上提速 6.0\%（由 2201.8\us 降至 2070.8\us），构建了公平的强单核基线。
+针对多阶段融合于同一 persistent grid 时各阶段理想线程块数不同的矛盾，后端实现了\textbf{按物理 SM 重排逻辑块号的核内分阶段活跃块控制}。启动初期，各线程块读取 \texttt{\%smid} 并经原子计数按“同 SM 内块序号优先、物理 SM 编号次之”重映射逻辑块号，使任意前缀子集均匀覆盖全卡 132 个 SM。借此，融合 kernel 内的矩阵阶段仅激活每 SM 1--2 块以保持缓存效率与整波对齐，attention 阶段激活全部常驻线程块，其余休眠块仅参与轻量屏障同步。实测表明，该控制使单一 grid 基线自身在 decode $16\times 2048$ 上提速 6.0\%（由 2201.8\us 降至 2070.8\us），保证了后续对比建立在公平的单核强基线上。
 
 \subsubsection{基于 DACOS 的 PDL 跨边界重叠与 SM 调度规律}\label{sec:pdl}\label{sec:admit}\label{sec:place}
 
@@ -171,41 +171,25 @@ prefill 16$\times$16（逐 warp） & 23.4 & 19.2 & 16.4 & 52.7 & 34.6 & 146.3 & 
 \caption{前期工作 DACOS~\pDacos 的依赖感知跨 kernel 重叠框架与运行时执行时间线。上方展示在单一 CUDA Stream 中通过 PDL 提前启动后继并将权重/Q 分块预加载至 L2、共享内存或寄存器的重叠过程；下方依次为依赖分析与重叠阶段构造、三维配置空间与代价模型、以及基于形状分桶缓存的运行时实例化流程。}\label{fig:dacos}
 \end{figure}
 
-将 DACOS 拓展至可变切分图时，H100 实测进一步揭示了两项决定 PDL 实际收益的底层硬件限制：
+将 DACOS 拓展至可变切分图时，H100 实测揭示了两项决定 PDL 收益的底层硬件限制：
 
-\textbf{（1）HBM 带宽余量约束预加载规模。}受控带宽测试表明，当前驱为不占片外带宽的纯算术负载时，仅提前启动节省 0.1--0.3\us，叠加 8\,MiB 权重预加载凭借 L2 驻留可将收益增至 1.0--1.4\us（32--64\,MiB 饱和于 1.5\us）；而在持续饱和 HBM 带宽的连续矩阵链上，仅提前启动稳定隐藏 0.4--0.8\us 启动间隙，叠加 1\,MiB 预加载净收益降至 0.2--0.5\us，8\,MiB 以上则因带宽争用倒退 0.8--7.3\us（真实模型 21 组全切分测试中，1\,MiB 预加载相对纯提前启动的中位变化为 $-0.20$\us 至 $+0.12$\us）。因此，模板将带宽密集链的重叠前缀限定为轻量初始化与至多 1\,MiB 权重预加载。
+\textbf{（1）HBM 带宽余量限制预加载规模。}受控带宽测试表明，当前驱为不占片外带宽的纯算术负载时，仅提前启动节省 0.1--0.3\us，叠加 8\,MiB 权重预加载凭借 L2 驻留可将收益增至 1.0--1.4\us（32--64\,MiB 饱和于 1.5\us）；而在持续饱和 HBM 带宽的连续矩阵链上，仅提前启动稳定隐藏 0.4--0.8\us 启动间隙，叠加 1\,MiB 预加载净收益降至 0.2--0.5\us，8\,MiB 以上则因带宽争用倒退 0.8--7.3\us（真实模型 21 组全切分测试中，1\,MiB 预加载相对纯提前启动的中位变化为 $-0.20$\us 至 $+0.12$\us）。因此，模板将带宽密集链的重叠前缀限定为轻量初始化与至多 1\,MiB 权重预加载。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=\textwidth]{Img/midterm/v4_carve}
 \caption{共享内存 carve-out 配置档位决定的三种 PDL 调度情形。横条表示单个 SM 的统一片上存储，竖线左侧为共享内存、右侧为 L1 缓存：(a) 后继所需档位不高于当前档位且剩余资源充足，顺利提前进入 SM 并发执行；(b) 后继需求档位高于当前档位，被迫等待部分 SM 空闲并集中调度到先空闲的少数 SM；(c) 需求档位较低的后继提前进入后被动沿用前驱大档位，导致可用 L1 缓存容量缩水。}\label{fig:carve}
 \end{figure}
 
-\textbf{（2）共享内存配置档位（carve-out）兼容条件决定 SM 负载均衡。}H100 将单 SM 统一片上存储动态划分为共享内存与 L1 缓存，共享内存侧设有 0、8、16、32、64、100、132、164、196 与 228\,KiB 十个档位；默认模式下，驱动按“单 SM 最大并发块数 $\times$（单块动态共享内存 $+$ 1\,KiB 开销）”向上取整选定最小档位。覆盖 30 组默认档位与 16 组显式档位的微基准证实两条规则（图~\ref{fig:carve}）：其一，PDL 后继线程块提前进入非空 SM，须同时满足\textbf{所需档位不高于当前生效档位}（显式指定时须严格相等），且该 SM 剩余共享内存、寄存器与线程槽足以容纳至少一个后继块；其二，SM 生效档位仅在\textbf{该 SM 上全部线程块退出后}才由下一 kernel 重设，非空交叠期间持续沿用。
+\textbf{（2）共享内存配置档位（carve-out）兼容条件决定 SM 负载均衡。}H100 将单 SM 统一片上存储动态划分为共享内存与 L1 缓存，共享内存侧设有 0、8、16、32、64、100、132、164、196 与 228\,KiB 十个档位；默认模式下，驱动按“单 SM 最大并发块数 $\times$（单块动态共享内存 $+$ 1\,KiB 开销）”向上取整选定最小档位。覆盖 30 组默认档位与 16 组显式档位的微基准给出两条规律（图~\ref{fig:carve}）：其一，PDL 后继线程块提前进入非空 SM，须同时满足\textbf{所需档位不高于当前生效档位}（显式指定时须严格相等），且该 SM 剩余共享内存、寄存器与线程槽足以容纳至少一个后继块；其二，SM 生效档位仅在\textbf{该 SM 上全部线程块退出后}才由下一 kernel 重设，非空交叠期间持续沿用。
 
-当后继因档位更高或余量不足而无法提前进入非空 SM、且总块数低于全卡满载容量时，硬件调度器会将后继块集中调度至最先空闲的少数 SM，造成严重 \textbf{SM 负载不均}（图~\ref{fig:carve}(b)）。图~\ref{fig:timeline} 给出了真实模型 prefill $1\times 16$（第 2 层）O$\to$U 边界的逐块 SM 执行轨迹：串行下 U 均匀分布于 132 个 SM（中位 25.6\us）；仅对该边启用 PDL 时，需求 228\,KiB 档位的 U 被迫集中落入先空闲的不到半数 SM（单 SM 达 3 块），单阶段耗时增至 33.2\us、整网退化 9.6\%；全链连续启用 PDL 维持 228\,KiB 高档位后，U 恢复提前并发与均匀分布（26.0\us）。
+当后继因档位更高或余量不足而无法提前进入非空 SM、且总块数低于全卡满载容量时，硬件调度器会将后继块集中调度至最先空闲的少数 SM，造成严重 \textbf{SM 负载不均}（图~\ref{fig:carve}(b)）。图~\ref{fig:timeline} 给出了真实模型 prefill $1\times 16$（第 2 层）O$\to$U 边界的逐块 SM 执行轨迹：串行下 U 均匀分布于 132 个 SM（中位 25.6\us）；仅对该边启用 PDL 时，需求 228\,KiB 档位的 U 集中落入先空闲的不到半数 SM（单 SM 达 3 块），单阶段耗时增至 33.2\us、整网退化 9.6\%；全链连续启用 PDL 维持 228\,KiB 高档位后，U 恢复提前并发与均匀分布（26.0\us）。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=\textwidth]{Img/midterm/v4_timeline}
 \caption{真实模型 prefill 1$\times$16（第 2 层）中 O$\to$U 边界在三种模式下的 SM 执行时间线。每条水平线段对应一个线程块的执行起止区间：(a) 串行发射下 U 均匀分布；(b) 仅该边启用 PDL 时 U 因档位不兼容集中落入先空闲的少数 SM；(c) 全链启用 PDL 时 SM 维持高档位，U 恢复提前并发执行且分布均衡。}\label{fig:timeline}
 \end{figure}
 
-基于设备端时间戳建立的分批均衡派发模型（按约 0.9\us 周期扫描满足档位与余量的候选 SM 并均匀派发待命块），仅用纯串行运行的前驱退出时刻即可预测 PDL 后继的 SM 分配结果：表~\ref{tab:place} 显示在 442 次样本外跨边界发射上，最拥挤 SM 块数的精确命中率达 90\%（两类不可共驻边界分别为 146/146 与 120/124）。受控探针实验（图~\ref{fig:pack}）证实，单 SM 驻留 3 块时有效访存带宽仅为单块 SM 的 1.7 倍，负载不均将尾时延拉长 5.3--7.2\us，与真实模型 7.6\us 的劣化吻合。
-
-\begin{table}[!htb]\centering
-\caption{分批派发模型对 PDL 后继线程块 SM 分配结果的预测精度。命中定义为最拥挤 SM 上的预测后继块数与实测完全一致；SM 数误差给出占用 SM 数绝对偏差的中位数与 90 分位数}\label{tab:place}
-\footnotesize\setlength{\tabcolsep}{3.8pt}
-\begin{tabular}{@{}lcccccc@{}}
-\toprule
- & \multicolumn{3}{c}{基于同次运行退出时刻复现} & \multicolumn{3}{c}{基于串行运行退出时刻样本外预测}\\
-\cmidrule(lr){2-4}\cmidrule(l){5-7}
-物理边界类别 & 发射次数 & 精确命中 & SM 数误差 & 发射次数 & 精确命中 & SM 数误差\\
-\midrule
-可提前共驻 SM & 368 & 222（60\%） & 0 / 16 & 172 & 134（78\%） & 0 / 4 \\
-不可共驻、后继占满全卡 & 286 & 286（100\%） & 0 / 0 & 146 & 146（100\%） & 0 / 0 \\
-不可共驻、后继未占满全卡 & 236 & 225（95\%） & 3 / 44 & 124 & 120（97\%） & 2 / 10 \\
-\bottomrule
-\end{tabular}
-\end{table}
+基于设备端时间戳建立的分批均衡派发模型（按约 0.9\us 周期扫描满足档位与余量的候选 SM 并均匀派发待命块），仅利用纯串行运行的前驱退出时刻即可预测 PDL 后继的 SM 分配结果：在 442 次样本外跨边界发射上，最拥挤 SM 块数的精确命中率达 90\%（不可共驻且满载边界 146/146，不可共驻且未满载边界 120/124）。受控探针实验（图~\ref{fig:pack}）进一步表明，单 SM 驻留 3 块时有效访存带宽仅为单块 SM 的 1.7 倍，负载不均将尾时延拉长 5.3--7.2\us，与真实模型 7.6\us 的劣化吻合。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=0.94\textwidth]{Img/midterm/v4_pack}
@@ -214,14 +198,14 @@ prefill 16$\times$16（逐 warp） & 23.4 & 19.2 & 16.4 & 52.7 & 34.6 & 146.3 & 
 
 \subsubsection{L1 缓存容量缩水分析与静态 PDL 启用规则}\label{sec:edge}\label{sec:answer}
 
-除 SM 负载不均外，档位沿执行链保持还会导致第二类性能退化：\textbf{低共享内存需求的后继提前进入高档位 SM 后沿用前驱大档位，导致可用 L1 缓存容量缩水}（图~\ref{fig:carve}(c)）。在纯串行发射下强制全图采用 228\,KiB 最大档位的对照实验（图~\ref{fig:lone}）剥离了这一效应：显式使用共享内存双缓冲的矩阵阶段对 L1 容量不敏感（九成变化在 $\pm 1.4\%$ 以内）；而依赖 L1 缓存复用键值数据的 prefill Flash\allowbreak{}Attention-2 变慢 7.3\%--15.5\%，长序列逐 warp attention（$1\times 256$）耗时由 117\us 升至 191\us（增幅 63\%），与全链开启 PDL 时的实测减速一一对应（图~\ref{fig:lone}(b)）。
+除 SM 负载不均外，档位沿执行链保持还会引起第二类性能退化：\textbf{低共享内存需求的后继提前进入高档位 SM 后沿用前驱大档位，导致可用 L1 缓存容量缩水}（图~\ref{fig:carve}(c)）。在纯串行发射下强制全图采用 228\,KiB 最大档位的对照实验（图~\ref{fig:lone}）分离了这一效应：显式使用共享内存双缓冲的矩阵阶段对 L1 容量不敏感（九成变化在 $\pm 1.4\%$ 以内）；而依赖 L1 缓存复用键值数据的 prefill Flash\allowbreak{}Attention-2 变慢 7.3\%--15.5\%，长序列逐 warp attention（$1\times 256$）耗时由 117\us 升至 191\us（增幅 63\%），与全链开启 PDL 时的实测减速一一对应（图~\ref{fig:lone}(b)）。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=\textwidth]{Img/midterm/v4_l1}
 \caption{算子阶段对共享内存 carve-out 档位（剩余 L1 容量）的敏感度差异及其对 PDL 减速的解释。(a) 纯串行发射下强制最大档位引发的各阶段耗时变化；(b) 全链启用 PDL 时 attention 的实际减速幅度与离线测得的 L1 敏感度高度吻合。}\label{fig:lone}
 \end{figure}
 
-综合上述两项硬件规律，仅凭编译期已知的寄存器数、动态共享内存、启动线程块数及对应 carve-out 档位，即可将任意物理边界静态归入三类：（1）可提前共驻 SM；（2）不可提前共驻但后继占满全卡；（3）不可提前共驻且后继未占满全卡。图~\ref{fig:cmpdl} 与表~\ref{tab:cmrule} 在 253 类实测物理边界上的检验表明：后继以矩阵阶段开头时，前两类的 113 类边界中有 106 类（94\%）加速、0 类减速（中位数 $+1.0$\us/边），而第三类中有 58\% 减速（最差 $-9.8$\us/边）。据此导出\textbf{基于编译期信息的静态 PDL 启用规则}：
+综合上述两项硬件规律，仅凭编译期已知的寄存器数、动态共享内存、启动线程块数及对应 carve-out 档位，即可将任意物理边界静态分为三类：（1）可提前共驻 SM；（2）不可提前共驻但后继占满全卡；（3）不可提前共驻且后继未占满全卡。图~\ref{fig:cmpdl} 与表~\ref{tab:cmrule} 在 253 类实测物理边界上的检验表明：后继以矩阵阶段开头时，前两类的 113 类边界中有 106 类（94\%）加速、0 类减速（中位数 $+1.0$\us/边），而第三类中有 58\% 减速（最差 $-9.8$\us/边）。据此导出\textbf{基于编译期信息的静态 PDL 启用规则}：
 \begin{quote}\small
 物理边界启用 PDL，当且仅当沿执行链当前生效档位判定该边属于“可提前共驻 SM”或“后继占满全卡”，且若后继以 attention 开头并将沿用更高档位时，其离线测得的 L1 容量缩水代价不超过单次边界节省量（1.0\us）。
 \end{quote}
@@ -265,27 +249,22 @@ prefill 16$\times$16（逐 warp） & 23.4 & 19.2 & 16.4 & 52.7 & 34.6 & 146.3 & 
 \end{tabularx}
 \end{table}
 
-\subsection{划分方案搜索与动态 Shape 自适应框架}\label{sec:search_sys}\label{sec:sys}
+\subsection{基于代价模型的划分方案搜索}\label{sec:search_sys}\label{sec:sys}
 
-针对问题四，本节依次建立分组耗时解析模型与引导式离线规划方法以缩减单点搜索开销，再按对输入规模的敏感程度对执行决策分类，构建面向动态 shape 的两阶段协同架构。
+针对问题四，本节建立基于线程块波次的分组耗时解析模型，并结合静态 PDL 启用规则设计低开销的引导式离线规划方法，面向动态 shape 的在线自适应调度将在下一阶段展开。
 
 \subsubsection{基于线程块波次的分组耗时解析模型}\label{sec:cm}
 
-为避免随输入规模变化反复遍历大量分组配置，课题自底向上构建了单阶段与多阶段融合分组的解析耗时模型。
+为避免在真机上遍历大量分组配置，课题自底向上构建了单阶段与多阶段融合分组的解析耗时模型。
 
-在\textbf{矩阵主循环层面}，权重常驻 L2 时的消融实验（图~\ref{fig:ablate}）表明小分块主循环受片上异步装载通路主导：$128\times 16$ 与 $64\times 64$ 分块剥离异步拷贝可缩短每步耗时 28\%--41\%，高于剥离 MMA 指令的 18\%--26\%；每 SM 并发 3 块时纯异步拷贝因装载通路饱和反而慢于完整循环。当权重从 HBM 流式读取时（图~\ref{fig:cmloop}），每步耗时随并发相异权重块数迅速触及 2.96\,TB/s 带宽界，随行数 $M$ 增大经行方向权重复用过渡至主循环计算受限。
-
-\begin{figure}[!htb]\centering
-\includegraphics[width=0.95\textwidth]{Img/midterm/v4_ablate}
-\caption{矩阵主循环部件消融实验（权重常驻 L2 时单个 K 步耗时）。小分块下剥离异步拷贝节省的时间显著高于剥离 MMA 指令；每 SM 并发 3 块时纯异步拷贝因装载通路过载反而慢于完整循环。}\label{fig:ablate}
-\end{figure}
+在\textbf{矩阵主循环层面}，权重常驻 L2 时的主循环消融表明，小分块循环受片上异步装载通路主导（$128\times 16$ 与 $64\times 64$ 分块移除异步拷贝可缩短每步耗时 28\%--41\%，高于移除 MMA 指令的 18\%--26\%）。当权重从 HBM 流式读取时（图~\ref{fig:cmloop}），每步耗时随并发读取的相异权重块数迅速触及 2.96\,TB/s 带宽界，随行数 $M$ 增大经行方向权重复用过渡至主循环计算受限。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=0.94\textwidth]{Img/midterm/v3_loop}
 \caption{片外流式读取下每个 K 步耗时向 HBM 带宽上限的过渡规律。(a)--(c) 三种分块形状下每步耗时随并发读取相异权重块数的变化（虚线为 2.96\,TB/s 带宽界）；(d) 128$\times$64 分块下有效读取带宽随参与线程块数的变化。}\label{fig:cmloop}
 \end{figure}
 
-在\textbf{单阶段层面}，扫描 1 至 2048 行的 43 个行数（1376 个测点）呈现由线程块波次（wave quantization）主导的阶梯曲线（图~\ref{fig:cmladder}）：每当行数越过分块行数整数倍使总波数 $W$ 加一，耗时即阶跃抬升（如 U 阶段由 128 行的 32.0\us 升至 129 行第二波的 47.0\us，增幅 47\%）。结合核内计时分解（表~\ref{tab:cmtl}），矩阵阶段总耗时可表示为固定开销、多波主循环与尾部逐元素第二遍三项之和：
+在\textbf{单阶段层面}，扫描 1 至 2048 行的 43 个行数（1376 个测点）呈现由线程块波次（wave quantization）主导的阶梯曲线（图~\ref{fig:cmladder}）：每当行数越过分块行数整数倍使总波数 $W$ 加一，耗时即阶跃抬升（如 U 阶段由 128 行的 32.0\us 升至 129 行第二波的 47.0\us，增幅 47\%）。结合核内计时分解（启动固定开销约 2.1--2.3\us，核内屏障约 1.1--1.7\us，其余为主循环与尾部逐元素第二遍），矩阵阶段总耗时可表示为：
 \begin{equation}
 T=T_{\mathrm{fix}}+\sum_{w=1}^{W}\bigl[t_{\mathrm{wave}}(n_w,c_w,k)+t_{\mathrm{epi}}\bigr]+T_{\mathrm{2nd}}, \label{eq:stage}
 \end{equation}
@@ -296,36 +275,13 @@ T=T_{\mathrm{fix}}+\sum_{w=1}^{W}\bigl[t_{\mathrm{wave}}(n_w,c_w,k)+t_{\mathrm{e
 \caption{四个矩阵阶段独立成组时随输入行数的波次阶梯曲线及解析模型拟合效果。模型 A 完全复用微探针常数，模型 B 仅使用 16、64 与 2048 三个采样行数标定尾部系数，均准确复现了其余 40 个留出行数上的台阶位置与幅值。}\label{fig:cmladder}
 \end{figure}
 
-\begin{table}[!htb]\centering
-\caption{矩阵阶段独立成组时核内各组成部分的实测耗时分解（\textmu s，取对应行数最优分块/块数配置）}\label{tab:cmtl}
-\footnotesize\setlength{\tabcolsep}{4.2pt}
-\begin{tabular}{@{}lrlccrrrrrr@{}}
-\toprule
-阶段 & 行数 & 最优配置 & \makecell{K 维\\切分} & 波数 & \makecell[r]{固定\\开销} & \makecell[r]{主循\\环遍} & \makecell[r]{核内\\屏障} & \makecell[r]{尾部第\\二遍} & 计时合计 & 生产实测\\
-\midrule
-Q & 16 & 128$\times$16 / 264 & 8 & 1 & 2.2 & 6.6 & 1.2 & 1.0 & 11.0 & 10.8 \\
-Q & 256 & 64$\times$64 / 396 & 2 & 1 & 2.3 & 13.3 & 1.5 & 6.0 & 23.2 & 23.6 \\
-Q & 2048 & 128$\times$64 / 264 & 1 & 3 & 2.3 & 71.2 & 1.2 & 40.8 & 115.6 & 116.9 \\
-O & 16 & 128$\times$16 / 132 & 8 & 1 & 2.1 & 4.7 & 1.2 & 3.5 & 11.7 & 11.2 \\
-O & 256 & 64$\times$64 / 264 & 2 & 1 & 2.2 & 9.1 & 1.7 & 3.1 & 16.3 & 16.5 \\
-O & 2048 & 128$\times$64 / 264 & 1 & 2 & 2.2 & 49.9 & 1.1 & 14.5 & 67.8 & 67.9 \\
-U & 16 & 128$\times$16 / 132 & 1 & 1 & 2.3 & 24.3 & -- & -- & 26.8 & 27.0 \\
-U & 256 & 128$\times$64 / 264 & 1 & 2 & 2.2 & 50.6 & -- & -- & 53.0 & 53.1 \\
-U & 2048 & 128$\times$64 / 264 & 1 & 16 & 2.2 & 388.7 & -- & -- & 391.0 & 394.1 \\
-D & 16 & 128$\times$16 / 132 & 8 & 1 & 2.2 & 12.8 & 1.2 & 3.8 & 20.1 & 20.3 \\
-D & 256 & 128$\times$64 / 264 & 4 & 1 & 2.2 & 26.8 & 1.3 & 4.2 & 34.7 & 35.0 \\
-D & 2048 & 128$\times$64 / 264 & 1 & 2 & 2.2 & 180.1 & 1.1 & 16.3 & 199.7 & 195.9 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
 针对每 SM 并发 3 块时同 SM 三个线程块间稳定存在 17\% 速度差异（14.6\us 至 17.1\us）的现象，将单波时长 $t_{\mathrm{wave}}$ 由中位数修正为同 SM 最慢线程块耗时后，模型 A 在每 SM 3 块下的留出中位误差由 10.9\% 降至 3.8\%（图~\ref{fig:order}，模型 B 为 3.5\%）。连同三种 attention 参数化模型，单阶段留出集精度汇总于表~\ref{tab:cm_all_acc}（矩阵阶段仅实测模型推荐前 2 配置，平均性能损失仅 0.34\%）。
 
 在\textbf{多阶段融合分组层面}，任意连续分组 $g$ 的耗时无需新增组合拟合参数，由固定开销、各阶段主体耗时与核内屏障线性叠加得到：
 \begin{equation}
 T_g=T_{\mathrm{fix}}+\sum_{s\in g}B_s(x,\theta_g)+(|g|-1)\,t_{\mathrm{bar}}. \label{eq:group}
 \end{equation}
-在真实模型采集的全部 2177 组配置上检验（图~\ref{fig:group}、表~\ref{tab:group}），整体中位误差为 4.9\%，其中纯矩阵多阶段分组误差（2.9\%--3.5\%）与单阶段持平；仅含高寄存器 FlashAttention-2 的融合分组因跨阶段指令干扰误差偏高（15.3\%），将作为后续精细化建模重点。
+在真实模型采集的全部 2177 组配置上检验（表~\ref{tab:group}），整体中位误差为 4.9\%，其中纯矩阵多阶段分组误差（2.9\%--3.5\%）与单阶段持平；仅含高寄存器 FlashAttention-2 的融合分组因跨阶段指令干扰误差偏高（15.3\%），将作为后续模型精细化的重点。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=0.95\textwidth]{Img/midterm/v4_order}
@@ -352,11 +308,6 @@ Attention & Decode 切片归约 & 100 & 5.1 & 15.8 & 14/25（Top-1） & 3.70 \\
 \end{tabular}
 \end{table}
 
-\begin{figure}[!htb]\centering
-\includegraphics[width=0.94\textwidth]{Img/midterm/v3_group}
-\caption{零组合拟合参数下多阶段分组模型预测值与真实模型 2177 组实测耗时的对比散点图（不含首尾词嵌入与词表投影分组）。}\label{fig:group}
-\end{figure}
-
 \begin{table}[!htb]\centering
 \caption{分组时延模型在 2177 组真实模型配置上的相对误差分布（\%，报告中位数与 90 分位数）}\label{tab:group}
 \footnotesize\setlength{\tabcolsep}{4.5pt}
@@ -376,32 +327,6 @@ Prefill，逐 warp & 774 & 5.2 & 16.3 & 3.3 & 10.9 & 3.0 & 8.9 & 8.0 & 23.5 \\
 \subsubsection{模型与静态规则引导的离线规划方法}\label{sec:search}\label{sec:guided}
 
 基准穷举规划器需在每个输入规模上扫描全部多阶段分组配置、端到端实测 32 种切分方案并逐边贪心搜索 PDL 模式，单负载耗时达 35--262\,s。结合式~(\ref{eq:group}) 与第~\ref{sec:edge}~节的静态 PDL 规则，课题将其压缩为\textbf{四步引导式离线规划流程}：（1）多阶段分组按式~(\ref{eq:group}) 排序并仅实测首位配置，单阶段分组扫描基准块数并为 attention 加测一次最大档位以标定 L1 缩水代价；（2）以分组最优耗时之和减去静态规则核准的 PDL 预计节省量（1.0\us/边）为 31 种切分方案评分，截取前 6 名进入端到端候选；（3）取消逐边贪心搜索，对入围拓扑直接生成静态规则集合、附带 1\,MiB 权重预载集合、链式档位一致集合与全开对照（至多 4 个变体）；（4）在选择集上与最优单一 grid 对比定案。
-
-\subsubsection{动态 Shape 决策分类与离线—在线协同架构}\label{sec:types}\label{sec:arch}
-
-针对在线推理中 batch 与序列长度动态变化的场景，需区分执行计划中可离线固定与须随输入规模调整的决策。基于 15 个代表负载上全量采集的 1649 个端到端方案，以“固定某项决策后跨全负载的最大相对时延增幅”为衡量指标，在 1.0\% 容差内将执行计划划分为三类：
-\begin{enumerate}[leftmargin=2.4em,itemsep=2pt]
-\item \textbf{固定型决策（离线固定）。}如图~\ref{fig:types}(a) 所示，同属矩阵阶段、资源需求一致的 U$\to$D 边在全负载上固定融合最大损失不超过 0.3\%；decode 阶段其余四条边统一固定为切分（即 Q|A|O|UD 分组）跨全负载最大损失仅 0.6\%。
-\item \textbf{切换型决策（保留双候选）。}prefill 阶段除 U$\to$D 外的四条边随融合代价由负转正同步切换（图~\ref{fig:types}(b)）。因此切分层仅需保留\textbf{“全模型单一 grid”与“Q|A|O|UD 四边切分”两个候选}（图~\ref{fig:types}(c)），即可将跨负载切分损失控制在 0.6\% 以内（无先验自动选两项亦仅 1.4\%）；各物理边界的 PDL 开关由静态规则唯一导出，在 Q|A|O|UD 上相对串行稳定提速 0.8\%--4.2\%。
-\item \textbf{参数型决策（按行数区间建表）。}各分组的分块形状与线程块数沿输入行数高频跳变（图~\ref{fig:tile}）：43 个扫描行数上四个矩阵阶段经历 5--16 次切换，固定单一配置最大损失达 16\%--22\%（decode attention 固定 528 块达 26\%）。在 1\% 容差内合并相邻最优配置相同的行数后，覆盖全行数范围仅需约 22 个有效行数区间（5\% 容差下缩至 15 个区间）。
-\end{enumerate}
-
-\begin{figure}[!htb]\centering
-\includegraphics[width=\textwidth]{Img/midterm/v5_colour}
-\caption{容差 1\% 下五类算子边切分决策的敏感度分类与候选压缩效果。(a) Decode 与 prefill 阶段各边切分决策所属类别及固定后的最大相对时延损失；(b) 各负载下单一 grid 相对最优切分方案的时延增幅；(c) 切分层仅保留单一候选或双候选集合时的跨负载最大与平均损失。}\label{fig:types}
-\end{figure}
-
-\begin{figure}[!htb]\centering
-\includegraphics[width=\textwidth]{Img/midterm/v5_tile}
-\caption{分组资源配置沿输入行数轴的参数型跳变特征。(a) 四个矩阵阶段在 43 个行数上实测最优的分块形状与启动线程块数；(b) 全局固定采用单一配置（128$\times$64 分块、264 个线程块）相对逐行数最优配置的时延损失。}\label{fig:tile}
-\end{figure}
-
-基于上述三类划分，课题确立了如图~\ref{fig:arch} 所示的\textbf{“离线准备—在线选择”两阶段系统架构}：离线阶段（每模型与目标 GPU 仅执行一次）完成统一后端编译、模型与静态规则引导规划、决策分类，并按有效行数区间组织双候选执行方案、分组资源配置与预捕获 CUDA Graph 候选计划表；在线阶段（每次前向传播）依据实时 batch 与序列长度计算有效行数，查表取出目标计划并更新运行参数直接重放，保证候选表规模线性可控、在线路径零搜索。目前离线侧候选生成、引导规划与 15 负载决策分类已完成，二维全网格计划表与在线查表执行器将在下一阶段（2027.01–04）落地实现。
-
-\begin{figure}[!htb]\centering
-\includegraphics[width=\textwidth]{Img/midterm/v5_arch}
-\caption{面向动态输入规模的“离线准备—在线选择”两阶段系统架构。离线阶段一次性完成统一算子编译、模型与规则引导规划、规模敏感度分类及候选计划表构建；在线阶段根据实时请求有效行数直接查表重放预捕获 CUDA Graph。}\label{fig:arch}
-\end{figure}
 
 \subsection{阶段性实验评估与分析}\label{sec:exp}
 
@@ -478,7 +403,7 @@ Prefill，逐 warp & 774 & 5.2 & 16.3 & 3.3 & 10.9 & 3.0 & 8.9 & 8.0 & 23.5 \\
 \caption{16 个真实模型全切分方案上三种 PDL 策略相对纯串行 completion 的端到端时延降幅对比。静态 PDL 规则在全部方案上均无负收益，整体表现与逐边实测搜索相当。}\label{fig:rulereal}
 \end{figure}
 
-其次评估模型与静态规则引导的离线规划器。图~\ref{fig:guided} 在 15 个基准负载上对比引导式规划器与穷举规划器：引导式流程将分组配置实测次数压缩至穷举的 62\%、整网实测次数压缩至 20\%，总测量量降至 43\%（单负载中位耗时由 40\,s 缩至 21\,s，prefill $16\times 128$ 由 262\,s 降至 99\,s）；报告集端到端时延偏差严格落在 $\pm 1.0\%$ 以内（中位数 $-0.15\%$，峰值加速 19.6\%），验证了受控搜索空间规划的高效性。
+其次评估模型与静态规则引导的离线规划器。图~\ref{fig:guided} 在 15 个基准负载上对比引导式规划器与穷举规划器：引导式流程将分组配置实测次数压缩至穷举的 62\%、整网实测次数压缩至 20\%，总测量量降至 43\%（单负载中位耗时由 40\,s 缩至 21\,s，prefill $16\times 128$ 由 262\,s 降至 99\,s）；报告集端到端时延偏差严格落在 $\pm 1.0\%$ 以内（中位数 $-0.15\%$，峰值加速 19.6\%），验证了引导式规划的高效性。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=\textwidth]{Img/midterm/v4_guided}
