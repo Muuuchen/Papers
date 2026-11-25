@@ -80,10 +80,10 @@
 %-> Backmatter: bibliography, glossary, index
 %-
 \artxifstreq{\artxbib}{bibtex}{% enable bibtex
-    % The checked-in BBL is generated from Biblio/ref.bib with the template's
-    % gbt7714-author-year style.  Direct input keeps the document buildable in
-    % engines whose bundled BibTeX is incompatible with this legacy BST.
-    \input{Thesis.bbl}% bibliography
+    % Standard BibTeX flow: the bst (Biblio/gbt7714-author-year) is already
+    % selected by artratex.sty via \bibliographystyle. This writes \bibdata
+    % into Thesis.aux so BibTeX can build the .bbl from Biblio/ref.bib.
+    \bibliography{Biblio/ref}% bibliography
 }{%
     \printbibliography% bibliography
 }

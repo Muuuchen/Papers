@@ -1,114 +1,24 @@
 \relax 
 \bibstyle{Biblio/gbt7714-author-year}
 \providecommand\hyper@newdestlabel[2]{}
-\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
-\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
-\global\let\oldnewlabel\newlabel
-\gdef\newlabel#1#2{\newlabelxx{#1}#2}
-\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
-\AtEndDocument{\ifx\hyper@anchor\@undefined
-\let\newlabel\oldnewlabel
-\fi}
-\fi}
-\global\let\hyper@last\relax 
-\gdef\HyperFirstAtBeginDocument#1{#1}
 \providecommand*\HyPL@Entry[1]{}
 \HyPL@Entry{0<</S/r>>}
-\citation{yu2022orca,kwon2023vllm}
-\citation{zhong2024distserve,agrawal2024sarathiServe}
-\citation{luo2026agentix}
-\citation{dao2022flashattention,nrusimha2025flashformer}
-\citation{nrusimha2025flashformer,vellaisamy2026taxbreak}
-\citation{chen2018tvm,niu2021dnnfusion,shi2023welder,nvidia2026cudaGraphs}
-\citation{dao2022flashattention,chen2018tvm,niu2021dnnfusion,shi2023welder}
-\citation{nrusimha2025flashformer}
-\citation{hazy2025nobubbles,hazyMegakernels2025}
-\citation{cheng2025mpk}
-\citation{deepgemm2026,deepgemmPr360}
-\citation{eventTensor2026}
 \HyPL@Entry{2<</S/D>>}
-\@writefile{toc}{\contentsline {section}{\numberline {一}选题的背景及意义}{1}{section.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}研究背景}{1}{subsection.1.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces 同一条 $A\!\rightarrow \!B\!\rightarrow \!C$ 算子链的三种执行映射。 (a)\nobreakspace  {}多 kernel 以物理 grid completion 排序阶段，并在边界处物化中间结果； (b)\nobreakspace  {}传统融合消去 $A$--$B$ 物理边界，但 worker 仍执行静态融合程序，且 $C$ 前仍保留物理边界； (c)\nobreakspace  {}persistent Megakernel 仅 launch 一次，由设备端调度维护 queue/event/counter，worker 拉取 tile 任务： tile-ready 允许 $B_0$ 与 $A$ 尾部重叠，而 $C$ 前的 all-ready 则表现为内部 readiness gate。 Megakernel 中间结果是否落 HBM 取决于具体实现，图中不作约定。\relax }}{2}{figure.caption.2}\protected@file@percent }
-\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{fig:megakernel-principle}{{1}{2}{同一条 $A\!\rightarrow \!B\!\rightarrow \!C$ 算子链的三种执行映射。 (a)~多 kernel 以物理 grid completion 排序阶段，并在边界处物化中间结果； (b)~传统融合消去 $A$--$B$ 物理边界，但 worker 仍执行静态融合程序，且 $C$ 前仍保留物理边界； (c)~persistent Megakernel 仅 launch 一次，由设备端调度维护 queue/event/counter，worker 拉取 tile 任务： tile-ready 允许 $B_0$ 与 $A$ 尾部重叠，而 $C$ 前的 all-ready 则表现为内部 readiness gate。 Megakernel 中间结果是否落 HBM 取决于具体实现，图中不作约定。\relax }{figure.caption.2}{}}
-\citation{nvidia2026pdl,nvidia2026cutlassDependentLaunch}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Hazy \texttt  {PartialAttention}$\rightarrow $\texttt  {O\_ProjResidual} 的 SM--时间执行结构。Early-Inside 中，queues 8--131 在 32 个 query heads 全量就绪前进入 consumer 路径，形成 pre-ready residence interval；Serial-Split 由 producer grid completion 统一放行 consumer grid。两种方案保持 task code、queue mapping、task/noop slots 和 instruction bytes 一致。橙色区间对应后续 admission-gated 对照与设备端时间戳所分解的关键阶段。\relax }}{3}{figure.caption.3}\protected@file@percent }
-\newlabel{fig:hazy-boundary}{{2}{3}{Hazy \texttt {PartialAttention}$\rightarrow $\texttt {O\_ProjResidual} 的 SM--时间执行结构。Early-Inside 中，queues 8--131 在 32 个 query heads 全量就绪前进入 consumer 路径，形成 pre-ready residence interval；Serial-Split 由 producer grid completion 统一放行 consumer grid。两种方案保持 task code、queue mapping、task/noop slots 和 instruction bytes 一致。橙色区间对应后续 admission-gated 对照与设备端时间戳所分解的关键阶段。\relax }{figure.caption.3}{}}
-\citation{nvidia2026pdl,nvidia2026cutlassDependentLaunch}
-\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}选题意义}{4}{subsection.1.2}\protected@file@percent }
-\citation{chen2018tvm,niu2021dnnfusion,shi2023welder}
-\citation{dao2022flashattention,dao2023flashattention2,shah2024flashattention3}
-\citation{hu2024korch}
-\citation{luo2025clusterfusion}
-\citation{nrusimha2025flashformer}
-\citation{deepgemm2026,deepgemmPr360}
-\@writefile{toc}{\contentsline {section}{\numberline {二}国内外本学科领域的发展现状与趋势}{5}{section.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}从图级融合到编译期 kernel 划分}{5}{subsection.2.1}\protected@file@percent }
-\citation{hazy2025nobubbles,hazyMegakernels2025}
-\citation{cheng2025mpk}
-\citation{eventTensor2026}
-\citation{dong2026adamk}
-\citation{jaber2026automegakernel}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Persistent Megakernel}{6}{subsection.2.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}动态 task/event 与自动执行计划生成}{6}{subsection.2.3}\protected@file@percent }
-\citation{nvidia2026cudaGraphs}
-\citation{nvidia2026pdl}
-\citation{nvidia2026cutlassDependentLaunch,nvidia2026cutlassExample63}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}CUDA Graph 与 Programmatic Dependent Launch}{7}{subsection.2.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}现状归纳与研究机会}{7}{subsection.2.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {三}课题主要研究内容、预期目标}{8}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}问题定义与总体目标}{8}{subsection.3.1}\protected@file@percent }
-\newlabel{sec:purpose}{{3.1}{8}{问题定义与总体目标}{subsection.3.1}{}}
-\newlabel{eq:global-scheduling-objective}{{1}{9}{问题定义与总体目标}{equation.3.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}主要研究内容}{9}{subsection.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}预期目标、创新点与成果}{10}{subsection.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.1}预期目标}{10}{subsubsection.3.3.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.2}预期创新点}{10}{subsubsection.3.3.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.3.3}预期成果}{10}{subsubsection.3.3.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {四}拟采用的研究方法、技术路线与实验方案}{11}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}框架总体方法}{11}{subsection.4.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces 依赖感知的计算图边调度框架。框架从任意计算图出发，在 task/tile 粒度分析每条边的就绪关系、读写集合、资源占用与独立前缀；随后为各边生成候选并进行全图联合搜索，最终输出 grid 分组、边同步方式和 PDL 配置。\relax }}{11}{figure.caption.4}\protected@file@percent }
-\newlabel{fig:edge-scheduling-framework}{{3}{11}{依赖感知的计算图边调度框架。框架从任意计算图出发，在 task/tile 粒度分析每条边的就绪关系、读写集合、资源占用与独立前缀；随后为各边生成候选并进行全图联合搜索，最终输出 grid 分组、边同步方式和 PDL 配置。\relax }{figure.caption.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}计算图依赖关系建模}{11}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}依赖感知的 PDL 跨边界重叠}{12}{subsection.4.3}\protected@file@percent }
-\newlabel{eq:pdl-legality}{{2}{12}{依赖感知的 PDL 跨边界重叠}{equation.4.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}全图边处理方案搜索}{12}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}计划生成与运行时执行}{12}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {一}课题目标与计划执行情况总结}{1}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}课题目标}{1}{subsection.1.1}\protected@file@percent }
+\newlabel{sec:purpose}{{1.1}{1}{课题目标}{subsection.1.1}{}}
+\newlabel{eq:global-scheduling-objective}{{1}{1}{课题目标}{equation.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}主要研究内容}{1}{subsection.1.2}\protected@file@percent }
 \citation{hao2026dacos}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}实验方案}{13}{subsection.4.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {五}已有科研基础与所需的科研条件}{13}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}已有科研基础}{13}{subsection.5.1}\protected@file@percent }
-\bibcite{agrawal2024sarathiServe}{{1}{2024}{{Agrawal {等}}}{{Agrawal, Kedia, Panwar, Mohan, Kwatra, Gulavani, Tumanov, and Ramjee}}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}所需的科研条件}{14}{subsection.5.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {六}研究工作计划与进度安排}{14}{section.6}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces 研究进度安排与阶段成果\relax }}{14}{table.caption.5}\protected@file@percent }
-\newlabel{tab:schedule}{{1}{14}{研究进度安排与阶段成果\relax }{table.caption.5}{}}
-\bibcite{chen2018tvm}{{2}{2018}{{Chen {等}}}{{Chen, Moreau, Jiang, Zheng, Yan, Shen, Cowan, Wang, Hu, Ceze, Guestrin, and Krishnamurthy}}}
-\bibcite{cheng2025mpk}{{3}{2026}{{Cheng {等}}}{{Cheng, Zhang, Zhou, Ji, Jiang, Zhao, Xiao, Ye, Huang, Lai, Jin, Hou, Wu, Dong, Yip, Ye, Wang, Yang, Miao, Chen, and Jia}}}
-\bibcite{dao2023flashattention2}{{4}{2024}{{Dao}}{{}}}
-\bibcite{dao2022flashattention}{{5}{2022}{{Dao {等}}}{{Dao, Fu, Ermon, Rudra, and R{\'e}}}}
-\bibcite{deepgemm2026}{{6}{2026{a}}{{DeepSeek-AI}}{{}}}
-\bibcite{deepgemmPr360}{{7}{2026{b}}{{DeepSeek-AI}}{{}}}
-\bibcite{dong2026adamk}{{8}{2026}{{Dong {等}}}{{Dong et~al.}}}
-\bibcite{hao2026dacos}{{9}{2026}{{Hao {等}}}{{Hao, Li, Luo, Qian, Wang, Zhao, Feng, Cui, and Xue}}}
-\bibcite{hazy2025nobubbles}{{10}{2025{a}}{{Hazy Research}}{{}}}
-\bibcite{hazyMegakernels2025}{{11}{2025{b}}{{Hazy Research}}{{}}}
-\bibcite{hu2024korch}{{12}{2024}{{Hu {等}}}{{Hu, Venkatram, Biswas, Marimuthu, Hou, Oliaro, Wang, Zheng, Miao, Zhai, and Jia}}}
-\bibcite{jaber2026automegakernel}{{13}{2026}{{Jaber {等}}}{{Jaber and Jaber}}}
-\bibcite{eventTensor2026}{{14}{2026}{{Jin {等}}}{{Jin, Hou, Wang, Lai, Chen, Ye, Cai, Dong, Cheng, Zhang, Zhao, Huang, Yang, Jiang, Oliaro, Ji, Miao, Grover, Mowry, Jia, and Chen}}}
-\bibcite{kwon2023vllm}{{15}{2023}{{Kwon {等}}}{{Kwon, Li, Zhuang, Sheng, Zheng, Yu, Gonzalez, Zhang, and Stoica}}}
-\bibcite{luo2026agentix}{{16}{2026}{{Luo {等}}}{{Luo et~al.}}}
-\bibcite{luo2025clusterfusion}{{17}{2025}{{Luo {等}}}{{Luo, Liu, Zhou, Fang, Huang, Feng, Zhang, Sun, Zheng, Leng, and Guo}}}
-\bibcite{niu2021dnnfusion}{{18}{2021}{{Niu {等}}}{{Niu, Guan, Wang, Agrawal, and Ren}}}
-\bibcite{nrusimha2025flashformer}{{19}{2025}{{Nrusimha {等}}}{{Nrusimha, Brandon, Mishra, Shen, Panda, Ragan-Kelley, and Kim}}}
-\bibcite{nvidia2026cudaGraphs}{{20}{2026{a}}{{NVIDIA}}{{}}}
-\bibcite{nvidia2026cutlassDependentLaunch}{{21}{2026{b}}{{NVIDIA}}{{}}}
-\bibcite{nvidia2026cutlassExample63}{{22}{2026{c}}{{NVIDIA}}{{}}}
-\bibcite{nvidia2026pdl}{{23}{2026{d}}{{NVIDIA}}{{}}}
-\bibcite{shah2024flashattention3}{{24}{2024}{{Shah {等}}}{{Shah, Bikshandi, Zhang, Thakkar, Ramani, and Dao}}}
-\bibcite{shi2023welder}{{25}{2023}{{Shi {等}}}{{Shi, Yang, Xue, Ma, Xia, Miao, Guo, Yang, and Zhou}}}
-\bibcite{vellaisamy2026taxbreak}{{26}{2026}{{Vellaisamy {等}}}{{Vellaisamy, Tripathi, Natarajan, Thenarasu, Blanton, and Shen}}}
-\bibcite{yu2022orca}{{27}{2022}{{Yu {等}}}{{Yu, Jeong, Kim, Kim, and Chun}}}
-\bibcite{zhong2024distserve}{{28}{2024}{{Zhong {等}}}{{Zhong, Liu, Chen, Hu, Zhu, Liu, Jin, and Zhang}}}
-\gdef \@abspage@last{19}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.3}计划安排}{2}{subsection.1.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {二}现有研究进展}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}已完成的工作}{2}{subsection.2.1}\protected@file@percent }
+\citation{hao2026dacos}
+\@writefile{toc}{\contentsline {section}{\numberline {三}下一步工作计划和内容}{3}{section.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces 研究进度安排与阶段成果}}{3}{table.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:schedule}{{1}{3}{研究进度安排与阶段成果}{table.caption.2}{}}
+\bibdata{Biblio/ref}
+\bibcite{hao2026dacos}{{1}{2026}{{Hao {等}}}{{Hao, Li, Luo, Qian, Wang, Zhao, Feng, Cui, and Xue}}}
+\@writefile{toc}{\contentsline {section}{\numberline {四}已取得科研成果列表}{4}{section.4}\protected@file@percent }
+\gdef \@abspage@last{6}

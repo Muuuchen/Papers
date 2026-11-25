@@ -1,9 +1,5 @@
-\subsection{已有科研基础}
+\subsection{已完成的工作}
 
 本课题已有工作提出了 DACOS（Dependency-Aware Cross-Kernel Overlapping），即一种依赖感知的跨 kernel 重叠框架\cite{hao2026dacos}。DACOS 利用 programmatic dependent launch 提前发起后继 kernel，并在前驱输出尚未就绪前执行与依赖无关的工作，例如操作数准备与数据预取。框架结合依赖分析、跨 kernel 重叠构造以及代价模型驱动的配置选择，共同决定后继 kernel 的触发时机与可提前推进的工作内容。在真实 LLM workload 上的评估表明，相对 TorchEager 与 TorchInductor，DACOS 分别可获得最高约 $3.5\times$ 与 $1.2\times$ 的端到端加速，验证了依赖感知跨 kernel 重叠的有效性。
 
 上述基础为本课题提供了可复用的依赖分析、重叠阶段构造与 PDL 参数化实现路径。本课题进一步面向任意计算图，将边级依赖抽象、PDL 跨边界重叠与全图边处理搜索统一到同一融合框架中。
-
-\subsection{所需的科研条件}
-
-实验环境具备 NVIDIA Hopper 级 GPU、CUDA 工具链及完整 CUDA/C++ 构建条件，可支持依赖分析、计划搜索、代码生成与端到端验证。已有代码、配置与评测脚本可作为后续原型扩展的起点。
