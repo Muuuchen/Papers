@@ -1,34 +1,32 @@
 \contentsline {section}{\numberline {一}课题目标与计划执行情况总结}{1}{section.1}%
 \contentsline {subsection}{\numberline {1.1}课题目标}{1}{subsection.1.1}%
 \contentsline {subsection}{\numberline {1.2}计划执行情况}{1}{subsection.1.2}%
-\contentsline {subsection}{\numberline {1.3}已取得的阶段性成果}{1}{subsection.1.3}%
-\contentsline {subsection}{\numberline {1.4}存在的问题}{3}{subsection.1.4}%
-\contentsline {section}{\numberline {二}现有研究进展}{5}{section.2}%
-\contentsline {subsection}{\numberline {2.1}相关研究进展与课题定位}{6}{subsection.2.1}%
+\contentsline {subsection}{\numberline {1.3}已取得的阶段性成果}{3}{subsection.1.3}%
+\contentsline {subsection}{\numberline {1.4}存在的问题}{4}{subsection.1.4}%
+\contentsline {section}{\numberline {二}现有研究进展}{4}{section.2}%
+\contentsline {subsection}{\numberline {2.1}相关研究进展与课题定位}{5}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}问题抽象：边处理方式与候选空间}{7}{subsection.2.2}%
-\contentsline {subsection}{\numberline {2.3}预备工作：PDL 跨核函数重叠}{9}{subsection.2.3}%
-\contentsline {subsubsection}{\numberline {2.3.1}交接机制与实现}{9}{subsubsection.2.3.1}%
-\contentsline {subsubsection}{\numberline {2.3.2}后继提前进入的条件}{11}{subsubsection.2.3.2}%
-\contentsline {subsubsection}{\numberline {2.3.3}独立前缀的收益}{12}{subsubsection.2.3.3}%
-\contentsline {subsubsection}{\numberline {2.3.4}后继的落位}{13}{subsubsection.2.3.4}%
-\contentsline {subsection}{\numberline {2.4}执行特性刻画：何种边界采用何种处理}{15}{subsection.2.4}%
-\contentsline {subsubsection}{\numberline {2.4.1}刻画方法}{15}{subsubsection.2.4.1}%
-\contentsline {subsubsection}{\numberline {2.4.2}Q1：单一 grid 的代价来自何处}{18}{subsubsection.2.4.2}%
-\contentsline {subsubsection}{\numberline {2.4.3}Q2：各负载上何种执行方式最优}{22}{subsubsection.2.4.3}%
-\contentsline {subsubsection}{\numberline {2.4.4}Q3：时延由什么决定，能否预测}{26}{subsubsection.2.4.4}%
-\contentsline {subsubsection}{\numberline {2.4.5}Q4：何种边界适合 PDL}{36}{subsubsection.2.4.5}%
-\contentsline {subsubsection}{\numberline {2.4.6}小结：边界的处理方式}{41}{subsubsection.2.4.6}%
-\contentsline {subsection}{\numberline {2.5}系统设计：动态负载下的自适应执行机制}{42}{subsection.2.5}%
-\contentsline {subsubsection}{\numberline {2.5.1}已实现的逐边规划器}{43}{subsubsection.2.5.1}%
-\contentsline {subsubsection}{\numberline {2.5.2}以模型引导测量的规划}{44}{subsubsection.2.5.2}%
-\contentsline {subsubsection}{\numberline {2.5.3}三类决策：对输入规模的依赖}{45}{subsubsection.2.5.3}%
-\contentsline {subsubsection}{\numberline {2.5.4}设计原则}{51}{subsubsection.2.5.4}%
-\contentsline {subsubsection}{\numberline {2.5.5}系统结构：离线准备与在线选择}{51}{subsubsection.2.5.5}%
-\contentsline {subsubsection}{\numberline {2.5.6}待解决的三个问题}{53}{subsubsection.2.5.6}%
-\contentsline {section}{\numberline {三}下一步工作计划和内容}{53}{section.3}%
-\contentsline {subsection}{\numberline {3.1}下一步工作内容}{53}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}进度安排}{55}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}预计答辩时间}{55}{subsection.3.3}%
-\contentsline {section}{\numberline {四}已取得科研成果列表}{55}{section.4}%
-\contentsline {section}{参考文献}{56}{section*.50}%
-\contentsline {section}{附录\hskip 1em\relax 相关研究进展}{66}{section*.51}%
+\contentsline {subsection}{\numberline {2.3}预备工作：PDL 跨边界重叠机制}{9}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}交接机制实现与边级收益特征}{10}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}共享内存档位约束与准入条件}{10}{subsubsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.3}独立前缀开销与带宽争用分析}{12}{subsubsection.2.3.3}%
+\contentsline {subsubsection}{\numberline {2.3.4}后继线程块派发规律与落位建模}{13}{subsubsection.2.3.4}%
+\contentsline {subsection}{\numberline {2.4}执行特性刻画：边处理与资源配置的定量分析}{15}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}统一算子后端与实验方法}{15}{subsubsection.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}单一 grid 的共驻代价与瓶颈分析}{17}{subsubsection.2.4.2}%
+\contentsline {subsubsection}{\numberline {2.4.3}不同负载下的最优方案与收益归因}{19}{subsubsection.2.4.3}%
+\contentsline {subsubsection}{\numberline {2.4.4}阶段与分组时延的解析建模}{22}{subsubsection.2.4.4}%
+\contentsline {subsubsection}{\numberline {2.4.5}物理边界的 PDL 准入分类与选择判据}{28}{subsubsection.2.4.5}%
+\contentsline {subsubsection}{\numberline {2.4.6}边处理决策准则小结}{32}{subsubsection.2.4.6}%
+\contentsline {subsection}{\numberline {2.5}系统设计：面向动态输入规模的自适应执行框架}{32}{subsection.2.5}%
+\contentsline {subsubsection}{\numberline {2.5.1}从枚举实测规划到模型与判据引导规划}{33}{subsubsection.2.5.1}%
+\contentsline {subsubsection}{\numberline {2.5.2}决策对输入规模的敏感度与三类解耦}{34}{subsubsection.2.5.2}%
+\contentsline {subsubsection}{\numberline {2.5.3}设计原则与离线—在线自适应系统架构}{37}{subsubsection.2.5.3}%
+\contentsline {subsubsection}{\numberline {2.5.4}在线计划表原型、非整倍边界与连续解码闭环验证}{39}{subsubsection.2.5.4}%
+\contentsline {section}{\numberline {三}下一步工作计划和内容}{42}{section.3}%
+\contentsline {subsection}{\numberline {3.1}下一步工作内容}{42}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}进度安排}{43}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}预计答辩时间}{43}{subsection.3.3}%
+\contentsline {section}{\numberline {四}已取得科研成果列表}{45}{section.4}%
+\contentsline {section}{参考文献}{45}{section*.44}%
+\contentsline {section}{附录\hskip 1em\relax 相关研究进展}{55}{section*.45}%
