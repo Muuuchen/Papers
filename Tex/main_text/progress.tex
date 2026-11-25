@@ -97,7 +97,7 @@ prefill 16$\times$16（逐 warp） & 23.4 & 19.2 & 16.4 & 52.7 & 34.6 & 146.3 & 
 
 围绕上述核心观点，本节建立计算图边级执行机制与分组资源配置的统一形式化表示，并给出“离线分析建表—在线轻量匹配”的系统总体架构。
 
-\subsubsection{问题抽象与联合决策空间}
+\subsubsection{问题抽象与联合决策空间}\label{sec:form}
 
 本课题以主流轻量化模型 Llama-3.2-1B（16 个解码层，隐藏维度 2048，中间层维度 8192，采用 32 个查询头与 8 个键值头的分组查询注意力）作为研究与验证载体。依据算子间数据依赖与寄存器级融合关系，每个 decoder layer 规范化为五个顺序计算阶段：Q 阶段（输入 RMSNorm、QKV 线性投影、RoPE 位置编码与 KV cache 写入）、A 阶段（attention 计算）、O 阶段（输出投影、残差相加与后继 RMSNorm）、U 阶段（gate/up 投影并在寄存器内融合 SwiGLU 激活）以及 D 阶段（down 投影、残差相加与下一层输入 RMSNorm）；首层前接词嵌入（embedding），末层后接词表投影与贪心采样（argmax）。层内与跨层相邻阶段之间共构成五类核心算子边：Q$\to$A、A$\to$O、O$\to$U、U$\to$D 及跨层边 D$\to$Q，各边的就绪粒度与消费者可提取的独立前缀汇总于表~\ref{tab:edges}。
 
@@ -243,7 +243,7 @@ n(g)\le\min\Bigl(\Bigl\lfloor\frac{R_{\mathrm{SM}}}{\tau\, r(g)}\Bigr\rfloor,\ \
 \end{figure}
 
 \begin{figure}[!htb]\centering
-\includegraphics[width=\textwidth]{Img/midterm/v3_loop}
+\includegraphics[width=0.94\textwidth]{Img/midterm/v3_loop}
 \caption{片外流式读取下每个 K 步耗时向 HBM 带宽界的过渡规律。(a)--(c) 三种分块形状下每步耗时随并发读取相异权重块数的变化（虚线为 2.96\,TB/s 带宽界）；(d) 128$\times$64 分块下有效读取带宽随参与线程块数的变化。}\label{fig:cmloop}
 \end{figure}
 

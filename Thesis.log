@@ -1558,47 +1558,9 @@ LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
 ) [2
 
 ] (Tex/Mainmatter
-(Tex/main_text/situation
-Underfull \hbox (badness 2818) in paragraph at lines 26--26
-[]|\TU/FandolSong-Regular(0)/m/n/10.53937 计 算 图 依 赖 关 系 建
- []
+(Tex/main_text/situation [1
 
-
-Underfull \hbox (badness 2818) in paragraph at lines 26--26
-[]|\TU/FandolSong-Regular(0)/m/n/10.53937 全 图 边 处 理 方 案 搜
- []
-
-
-Underfull \hbox (badness 2818) in paragraph at lines 26--26
-[]|\TU/FandolSong-Regular(0)/m/n/10.53937 框 架 实 现 与 端 到 端
- []
-
-[1
-
-] [2] [3]) (Tex/main_text/progress [4]
-File: Img/midterm/hw_micro.pdf Graphic file (type pdf)
-<use Img/midterm/hw_micro.pdf>
- [5]
-File: Img/midterm/stage_ctas.pdf Graphic file (type pdf)
-<use Img/midterm/stage_ctas.pdf>
-LaTeX Font Info:    Font shape `TU/XITSMath-Regular(2)/m/n' will be
-(Font)              scaled to size 6.00064pt on input line 28.
-LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
-(Font)              scaled to size 5.99936pt on input line 28.
- [6] [7]
-File: Img/midterm/pdl_edges.pdf Graphic file (type pdf)
-<use Img/midterm/pdl_edges.pdf>
- [8]
-File: Img/midterm/motiv_edges.pdf Graphic file (type pdf)
-<use Img/midterm/motiv_edges.pdf>
- [9] [10] [11]
-File: Img/midterm/scheme.pdf Graphic file (type pdf)
-<use Img/midterm/scheme.pdf>
- [12]
-File: Img/midterm/v5_arch.pdf Graphic file (type pdf)
-<use Img/midterm/v5_arch.pdf>
-
-[13] [14]
+] [2] [3] [4]
 
 Package fontspec Warning: Font "FandolFang-Regular" does not contain requested
 (fontspec)                Script "CJK".
@@ -1615,56 +1577,80 @@ Package fontspec Info: Font family 'FandolFang-Regular(0)' created for font
 (fontspec)             <->"[FandolFang-Regular.otf]/OT:language=dflt;"
 (fontspec)             - 'small caps'  (m/sc) with NFSS spec.: 
 
-[15]
+[5]) (Tex/main_text/progress [6]
+File: Img/midterm/hw_micro.pdf Graphic file (type pdf)
+<use Img/midterm/hw_micro.pdf>
+ [7]
+File: Img/midterm/stage_ctas.pdf Graphic file (type pdf)
+<use Img/midterm/stage_ctas.pdf>
+LaTeX Font Info:    Font shape `TU/XITSMath-Regular(2)/m/n' will be
+(Font)              scaled to size 6.00064pt on input line 28.
+LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
+(Font)              scaled to size 5.99936pt on input line 28.
+ [8] [9]
+File: Img/midterm/pdl_edges.pdf Graphic file (type pdf)
+<use Img/midterm/pdl_edges.pdf>
+ [10]
+File: Img/midterm/motiv_edges.pdf Graphic file (type pdf)
+<use Img/midterm/motiv_edges.pdf>
+ [11] [12] [13]
+File: Img/midterm/scheme.pdf Graphic file (type pdf)
+<use Img/midterm/scheme.pdf>
+ [14]
+File: Img/midterm/v5_arch.pdf Graphic file (type pdf)
+<use Img/midterm/v5_arch.pdf>
+ [15]
+[16] [17]
 File: Img/midterm/v4_carve.pdf Graphic file (type pdf)
 <use Img/midterm/v4_carve.pdf>
- [16]
+ [18]
 File: Img/midterm/v4_timeline.pdf Graphic file (type pdf)
 <use Img/midterm/v4_timeline.pdf>
- [17]
+ [19]
 File: Img/midterm/v4_pack.pdf Graphic file (type pdf)
 <use Img/midterm/v4_pack.pdf>
- [18]
+ [20]
 File: Img/midterm/v4_l1.pdf Graphic file (type pdf)
 <use Img/midterm/v4_l1.pdf>
- [19]
+ [21]
 File: Img/midterm/v3_pdl.pdf Graphic file (type pdf)
 <use Img/midterm/v3_pdl.pdf>
- [20]
+ [22]
 File: Img/midterm/v4_ablate.pdf Graphic file (type pdf)
 <use Img/midterm/v4_ablate.pdf>
 File: Img/midterm/v3_loop.pdf Graphic file (type pdf)
 <use Img/midterm/v3_loop.pdf>
- [21]
+ [23]
 File: Img/midterm/v3_ladder.pdf Graphic file (type pdf)
 <use Img/midterm/v3_ladder.pdf>
- [22]
+ [24]
 File: Img/midterm/v4_order.pdf Graphic file (type pdf)
 <use Img/midterm/v4_order.pdf>
- [23] [24]
+ [25] [26]
 File: Img/midterm/v3_group.pdf Graphic file (type pdf)
 <use Img/midterm/v3_group.pdf>
- [25] [26]
+ [27] [28]
 File: Img/midterm/v5_colour.pdf Graphic file (type pdf)
 <use Img/midterm/v5_colour.pdf>
 File: Img/midterm/v5_tile.pdf Graphic file (type pdf)
 <use Img/midterm/v5_tile.pdf>
- [27] [28] [29]
+ [29] [30]
+[31]
 
-LaTeX Warning: Text page 30 contains only floats.
+LaTeX Warning: Text page 32 contains only floats.
 
-[30]
+[32]
 File: Img/midterm/gain.pdf Graphic file (type pdf)
 <use Img/midterm/gain.pdf>
 File: Img/midterm/rule.pdf Graphic file (type pdf)
 <use Img/midterm/rule.pdf>
- [31]
+ [33]
 File: Img/midterm/v4_rulereal.pdf Graphic file (type pdf)
 <use Img/midterm/v4_rulereal.pdf>
- [32]
+ [34]
 File: Img/midterm/v4_guided.pdf Graphic file (type pdf)
 <use Img/midterm/v4_guided.pdf>
-) [33] [34] [35] [36] (Tex/main_text/schedule [37
+) [35] [36] [37] [38] (Tex/main_text/schedule [39
 
 ]
 Underfull \hbox (badness 10000) in paragraph at lines 31--31
@@ -1689,13 +1675,13 @@ Underfull \hbox (badness 6032) in paragraph at lines 31--31
 []|\TU/FandolSong-Regular(0)/m/n/10.53937 总 结 与 论 文
  []
 
-) [38] [39] (Tex/main_text/results) (Tex/main_text/refs
+) [40] [41] (Tex/main_text/results) (Tex/main_text/refs
 Underfull \hbox (badness 1028) in paragraph at lines 5--6
 []\TU/entextrm/m/n/10.53937 Abdolrashidi A, Esfeden H A, Jahanshahi A, et al. B
 lockMaestro: Enabling programmer-
  []
 
-[40] [41]
+[42] [43]
 Underfull \hbox (badness 2368) in paragraph at lines 33--34
 []\TU/entexttt/m/n/10.53937 Hazy Research. Megakernels: Low-latency LLM inferen
 ce with device-side task graphs
@@ -1720,7 +1706,7 @@ Underfull \hbox (badness 1189) in paragraph at lines 35--36
 ys Conference. 2019. DOI:
  []
 
-[42] [43]
+[44] [45]
 Underfull \hbox (badness 10000) in paragraph at lines 69--70
 []\TU/entexttt/m/n/10.53937 NVIDIA. Communication overlap (NeMo framework user 
 guide); Transformer En-
@@ -1739,7 +1725,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 69--70
 [][][][][][][][][][] []
  []
 
-[44]
+[46]
 Underfull \hbox (badness 4132) in paragraph at lines 74--75
 []\TU/entexttt/m/n/10.53937 NVIDIA. CUDA programming guide: Configuring L1/shar
 ed memory balance [EB/OL].
@@ -1759,7 +1745,7 @@ Underfull \hbox (badness 3471) in paragraph at lines 78--79
 [] []
  []
 
-[45]
+[47]
 Underfull \hbox (badness 1796) in paragraph at lines 92--93
 []\TU/entexttt/m/n/10.53937 Steinberger M, Kenzel M, Boechat P, et al. Whipplet
 ree: Task-based scheduling of dy-
@@ -1777,22 +1763,14 @@ Underfull \hbox (badness 10000) in paragraph at lines 100--101
 ][][] [] [] [] [][][][][][][] [] [][][][][][][] [] [][][] [] [] []
  []
 
-[46] [47]
+[48] [49]
 Underfull \hbox (badness 1577) in paragraph at lines 128--129
 []\TU/entexttt/m/n/10.53937 Zheng Z, Yang X, Zhao P, et al. AStitch: Enabling a
  new multi-dimensional optimiza-
  []
 
-[48] [49]) (Tex/main_text/appendix
-
-Package hyperref Warning: Token not allowed in a PDF string (Unicode):
-(hyperref)                \hskip 12.045pt
-(hyperref)                replaced by space on input line 2.
-
-[50
-
-] [51] [52] [53] [54] [55] [56] [57] [58])) [59] (Thesis.aux)
+[50] [51])) (Thesis.aux)
 Package rerunfilecheck Info: File `Thesis.out' has not changed.
-(rerunfilecheck)             Checksum: C2C63B5A8E679C4475D1CEEA62DE7082;2302.
+(rerunfilecheck)             Checksum: F40FEC62C2FEDA151D20351BC4AC48FC;2352.
  )
-Output written on Thesis.xdv (61 pages, 1033956 bytes).
+Output written on Thesis.xdv (53 pages, 902464 bytes).
