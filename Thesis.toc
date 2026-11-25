@@ -2,28 +2,28 @@
 \contentsline {subsection}{\numberline {1.1}课题目标与开题研究内容}{1}{subsection.1.1}%
 \contentsline {subsection}{\numberline {1.2}计划执行情况}{2}{subsection.1.2}%
 \contentsline {section}{\numberline {二}现有研究进展}{4}{section.2}%
-\contentsline {subsection}{\numberline {2.1}算子间依赖分析与资源约束建模}{4}{subsection.2.1}%
-\contentsline {subsubsection}{\numberline {2.1.1}计算图阶段链与边级依赖抽象}{4}{subsubsection.2.1.1}%
-\contentsline {subsubsection}{\numberline {2.1.2}片上资源约束与执行计划表示}{5}{subsubsection.2.1.2}%
-\contentsline {subsection}{\numberline {2.2}执行范式优缺点剖析与边界选择因素}{6}{subsection.2.2}%
-\contentsline {subsubsection}{\numberline {2.2.1}Persistent Kernel 的优势与资源耦合瓶颈}{7}{subsubsection.2.2.1}%
-\contentsline {subsubsection}{\numberline {2.2.2}独立 Kernel 切分的收益与算子间等待及重叠限制}{9}{subsubsection.2.2.2}%
-\contentsline {subsubsection}{\numberline {2.2.3}边界执行机制的决定因素与相关工作对比}{11}{subsubsection.2.2.3}%
-\contentsline {subsection}{\numberline {2.3}自适应执行机制设计与实现}{12}{subsection.2.3}%
-\contentsline {subsubsection}{\numberline {2.3.1}统一 CUDA 算子实现与核内分阶段并发控制}{12}{subsubsection.2.3.1}%
-\contentsline {subsubsection}{\numberline {2.3.2}基于 DACOS 的 PDL 跨边界重叠与 SM 调度规律}{13}{subsubsection.2.3.2}%
-\contentsline {subsubsection}{\numberline {2.3.3}L1 缓存敏感度与静态 PDL 启用规则}{16}{subsubsection.2.3.3}%
-\contentsline {subsection}{\numberline {2.4}划分方案搜索与动态 Shape 自适应框架}{19}{subsection.2.4}%
-\contentsline {subsubsection}{\numberline {2.4.1}基于线程块波次的分组耗时解析模型}{19}{subsubsection.2.4.1}%
-\contentsline {subsubsection}{\numberline {2.4.2}模型与静态规则引导的离线规划方法}{21}{subsubsection.2.4.2}%
-\contentsline {subsubsection}{\numberline {2.4.3}动态 Shape 决策分类与离线—在线协同架构}{24}{subsubsection.2.4.3}%
-\contentsline {subsection}{\numberline {2.5}阶段性实验评估与分析}{25}{subsection.2.5}%
-\contentsline {subsubsection}{\numberline {2.5.1}实验环境与评测设置}{25}{subsubsection.2.5.1}%
-\contentsline {subsubsection}{\numberline {2.5.2}端到端性能收益与对比分析}{26}{subsubsection.2.5.2}%
-\contentsline {subsubsection}{\numberline {2.5.3}PDL 静态规则与引导式规划器验证}{28}{subsubsection.2.5.3}%
-\contentsline {section}{\numberline {三}下一步工作计划和内容}{31}{section.3}%
-\contentsline {subsection}{\numberline {3.1}现存问题与下一步工作内容}{31}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}进度安排}{33}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}预计答辩时间}{33}{subsection.3.3}%
-\contentsline {section}{\numberline {四}已取得科研成果列表}{34}{section.4}%
-\contentsline {section}{参考文献}{34}{section*.38}%
+\contentsline {subsection}{\numberline {2.1}算子间依赖分析与片上资源约束建模}{4}{subsection.2.1}%
+\contentsline {subsubsection}{\numberline {2.1.1}从通用算子计算图到阶段级依赖抽象}{4}{subsubsection.2.1.1}%
+\contentsline {subsubsection}{\numberline {2.1.2}单次 Kernel 启动的资源约束与全图执行计划表示}{7}{subsubsection.2.1.2}%
+\contentsline {subsection}{\numberline {2.2}Persistent Kernel 与独立 Kernel 的优缺点剖析及边界选择因素}{8}{subsection.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.1}Persistent Kernel 的优势与资源耦合瓶颈}{8}{subsubsection.2.2.1}%
+\contentsline {subsubsection}{\numberline {2.2.2}独立 Kernel 切分的收益与算子间等待及重叠限制}{10}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.3}边界执行机制的决定因素、相关工作局限与本文思路}{11}{subsubsection.2.2.3}%
+\contentsline {subsection}{\numberline {2.3}自适应执行机制设计与实现}{14}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}统一 CUDA 算子实现与核内分阶段并发控制}{14}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}基于 DACOS 的 PDL 跨边界重叠与 SM 调度规律}{14}{subsubsection.2.3.2}%
+\contentsline {subsubsection}{\numberline {2.3.3}L1 缓存容量缩水分析与静态 PDL 启用规则}{18}{subsubsection.2.3.3}%
+\contentsline {subsection}{\numberline {2.4}划分方案搜索与动态 Shape 自适应框架}{21}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}基于线程块波次的分组耗时解析模型}{21}{subsubsection.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}模型与静态规则引导的离线规划方法}{23}{subsubsection.2.4.2}%
+\contentsline {subsubsection}{\numberline {2.4.3}动态 Shape 决策分类与离线—在线协同架构}{27}{subsubsection.2.4.3}%
+\contentsline {subsection}{\numberline {2.5}阶段性实验评估与分析}{28}{subsection.2.5}%
+\contentsline {subsubsection}{\numberline {2.5.1}实验环境与评测设置}{28}{subsubsection.2.5.1}%
+\contentsline {subsubsection}{\numberline {2.5.2}端到端性能收益与对比分析}{30}{subsubsection.2.5.2}%
+\contentsline {subsubsection}{\numberline {2.5.3}PDL 静态规则与引导式规划器验证}{32}{subsubsection.2.5.3}%
+\contentsline {section}{\numberline {三}下一步工作计划和内容}{34}{section.3}%
+\contentsline {subsection}{\numberline {3.1}现存问题与下一步工作内容}{34}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}进度安排}{35}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}预计答辩时间}{35}{subsection.3.3}%
+\contentsline {section}{\numberline {四}已取得科研成果列表}{36}{section.4}%
+\contentsline {section}{参考文献}{37}{section*.38}%
