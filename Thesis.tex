@@ -12,34 +12,10 @@
 %->> Document class declaration
 %---------------------------------------------------------------------------%
 \documentclass{Style/ucasproposal}%
-%- Multiple optional arguments:
-%- [<oneside|twoside|print>]% oneside eprint, twoside eprint, or paper print
-%- [fontset=<adobe|none|...>]% specify font set instead of automatic detection
-%- [scheme=plain]% thesis writing of international students
-%- [draftversion]% show draft version information
-%- [standard options for ctex article class: draft|paper size|font size|...]%
 %---------------------------------------------------------------------------%
 %->> Document settings
 %---------------------------------------------------------------------------%
 \usepackage[authoryear,xhf,tikz,table]{Style/artratex}% document settings
-%- usage: \usepackage[option1,option2,...,optionN]{artratex}
-%- Multiple optional arguments:
-%- [bibtex|biber]% set bibliography processor and package
-%- [<numbers|super|authoryear|alpha>]% set citation and reference style
-%- <numbers>: textual: Jones [1]; parenthetical: [1]
-%- <super>: textual: Jones superscript [1]; parenthetical: superscript [1]
-%- <authoryear>: textual: Jones (1995); parenthetical: (Jones, 1995)
-%- <alpha>: textual: not available; parenthetical: [Jon95]
-%- [geometry]% reconfigure page layout via geometry package
-%- [lscape]% provide landscape layout environment
-%- [xhf]% disable header and footer via fancyhdr package
-%- [color]% provide color support via xcolor package
-%- [background]% enable page background
-%- [tikz]% provide complex diagrams via tikz package
-%- [table]% provide complex tables via ctable package
-%- [list]% provide enhanced list environments for algorithm and coding
-%- [math]% enable some extra math packages
-%- [xlink]% disable link colors
 \usepackage{Style/artracom}% user defined commands
 %---------------------------------------------------------------------------%
 %->> Project-wide notation
@@ -52,12 +28,15 @@
 \newcommand{\TE}{\ensuremath{T_{\mathrm{E}}}}
 \newcommand{\TG}{\ensuremath{T_{\mathrm{G}}}}
 \newcommand{\TS}{\ensuremath{T_{\mathrm{S}}}}
+\usepackage{array}
 \usepackage{enumitem}
 \usepackage{makecell}
 \usepackage{multirow}
 \usepackage{float}
+\renewcommand{\arraystretch}{1.15}
 \newcommand{\us}{\,\textmu s}
 \newcommand{\rcite}[2]{#2}
+\newcommand{\pcite}[2]{（\rcite{#1}{#2}）}
 \newcommand{\refitem}[1]{\item}
 \newcommand{\cQiang}{\rcite{qiang2026}{Qiang 等 (2026b)}}
 \newcommand{\cChat}{\rcite{chatterjee2026}{Chatterjee 等 (2026a)}}
@@ -68,10 +47,15 @@
 \newcommand{\cGraph}{\rcite{nvidia2026a}{NVIDIA (2026a)}}
 \newcommand{\cPDL}{\rcite{nvidia2026b}{NVIDIA (2026b)}}
 \newcommand{\cDacos}{\rcite{hao2026}{Hao 等 (2026)}}
-%---------------------------------------------------------------------------%
-%->> Document inclusion
-%---------------------------------------------------------------------------%
-%\includeonly{Tex/Chap_1,...,Tex/Chap_N}% selected files compilation
+\newcommand{\pQiang}{（\rcite{qiang2026}{Qiang 等，2026b}）}
+\newcommand{\pChat}{（\rcite{chatterjee2026}{Chatterjee 等，2026a}）}
+\newcommand{\pHazy}{（\rcite{spector2025}{Spector 等，2025b}；\rcite{hazy2025b}{Hazy Research，2025}）}
+\newcommand{\pMPK}{（\rcite{cheng2026}{Cheng 等，2026}）}
+\newcommand{\pVllm}{（\rcite{kwon2023}{Kwon 等，2023}）}
+\newcommand{\pFA}{（\rcite{dao2024}{Dao，2024}）}
+\newcommand{\pGraph}{（\rcite{nvidia2026a}{NVIDIA，2026a}）}
+\newcommand{\pPDL}{（\rcite{nvidia2026b}{NVIDIA，2026b}）}
+\newcommand{\pDacos}{（\rcite{hao2026}{Hao 等，2026}）}
 %---------------------------------------------------------------------------%
 %->> Document content
 %---------------------------------------------------------------------------%
