@@ -1560,10 +1560,10 @@ LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
 ] (Tex/Mainmatter
 (Tex/main_text/situation [1
 
-] [2] [3]) (Tex/main_text/progress [4] [5]
+] [2]) (Tex/main_text/progress [3] [4]
 File: Img/midterm/scheme.pdf Graphic file (type pdf)
 <use Img/midterm/scheme.pdf>
- [6]
+ [5] [6]
 File: Img/midterm/hw_micro.pdf Graphic file (type pdf)
 <use Img/midterm/hw_micro.pdf>
 
@@ -1580,7 +1580,7 @@ File: Img/midterm/pdl_edges.pdf Graphic file (type pdf)
  [10]
 File: Img/midterm/motiv_edges.pdf Graphic file (type pdf)
 <use Img/midterm/motiv_edges.pdf>
- [11] [12]
+ [11]
 
 Package fontspec Warning: Font "FandolFang-Regular" does not contain requested
 (fontspec)                Script "CJK".
@@ -1597,62 +1597,61 @@ Package fontspec Info: Font family 'FandolFang-Regular(0)' created for font
 (fontspec)             <->"[FandolFang-Regular.otf]/OT:language=dflt;"
 (fontspec)             - 'small caps'  (m/sc) with NFSS spec.: 
 
+[12]
+File: Img/midterm/dacos_overview.pdf Graphic file (type pdf)
+<use Img/midterm/dacos_overview.pdf>
+ [13]
 File: Img/midterm/v4_carve.pdf Graphic file (type pdf)
 <use Img/midterm/v4_carve.pdf>
-[13]
+ [14]
 File: Img/midterm/v4_timeline.pdf Graphic file (type pdf)
 <use Img/midterm/v4_timeline.pdf>
- [14]
+ [15]
 File: Img/midterm/v4_pack.pdf Graphic file (type pdf)
 <use Img/midterm/v4_pack.pdf>
- [15]
+ [16]
 File: Img/midterm/v4_l1.pdf Graphic file (type pdf)
 <use Img/midterm/v4_l1.pdf>
- [16]
+ [17]
 File: Img/midterm/v3_pdl.pdf Graphic file (type pdf)
 <use Img/midterm/v3_pdl.pdf>
- [17] [18]
+ [18]
 File: Img/midterm/v4_ablate.pdf Graphic file (type pdf)
 <use Img/midterm/v4_ablate.pdf>
 File: Img/midterm/v3_loop.pdf Graphic file (type pdf)
 <use Img/midterm/v3_loop.pdf>
+ [19]
+
+LaTeX Warning: Text page 20 contains only floats.
+
+[20]
 File: Img/midterm/v3_ladder.pdf Graphic file (type pdf)
 <use Img/midterm/v3_ladder.pdf>
- [19]
+ [21]
 File: Img/midterm/v4_order.pdf Graphic file (type pdf)
 <use Img/midterm/v4_order.pdf>
 File: Img/midterm/v3_group.pdf Graphic file (type pdf)
 <use Img/midterm/v3_group.pdf>
- [20]
-
-LaTeX Warning: Text page 21 contains only floats.
-
-[21] [22] [23]
+ [22] [23] [24]
 File: Img/midterm/v5_colour.pdf Graphic file (type pdf)
 <use Img/midterm/v5_colour.pdf>
 File: Img/midterm/v5_tile.pdf Graphic file (type pdf)
 <use Img/midterm/v5_tile.pdf>
+ [25]
 File: Img/midterm/v5_arch.pdf Graphic file (type pdf)
 <use Img/midterm/v5_arch.pdf>
- [24] [25]
-
-LaTeX Warning: Text page 26 contains only floats.
-
-[26] [27]
+ [26] [27]
 File: Img/midterm/gain.pdf Graphic file (type pdf)
 <use Img/midterm/gain.pdf>
- [28]
 File: Img/midterm/rule.pdf Graphic file (type pdf)
 <use Img/midterm/rule.pdf>
- [29]
 File: Img/midterm/v4_rulereal.pdf Graphic file (type pdf)
 <use Img/midterm/v4_rulereal.pdf>
+ [28]
 File: Img/midterm/v4_guided.pdf Graphic file (type pdf)
 <use Img/midterm/v4_guided.pdf>
-) [30] [31] [32] (Tex/main_text/schedule [33
-
-]) [34]
-(Tex/main_text/results) (Tex/main_text/refs [35]
+ [29]) [30] (Tex/main_text/schedule [31] [32]) (Tex/main_text/results [33]) (Te
+x/main_text/refs
 Underfull \hbox (badness 2368) in paragraph at lines 12--13
 []\TU/entexttt/m/n/10.53937 Hazy Research. Megakernels: Low-latency LLM inferen
 ce with device-side task graphs
@@ -1665,7 +1664,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 12--13
 [][][][] []
  []
 
-
+[34]
 Underfull \hbox (badness 10000) in paragraph at lines 14--15
 []\TU/entexttt/m/n/10.53937 NVIDIA. Communication overlap (NeMo framework user 
 guide); Transformer En-
@@ -1691,14 +1690,14 @@ Underfull \hbox (badness 3471) in paragraph at lines 17--18
 [] []
  []
 
-[36]
+
 Underfull \hbox (badness 1577) in paragraph at lines 24--25
 []\TU/entexttt/m/n/10.53937 Zheng Z, Yang X, Zhao P, et al. AStitch: Enabling a
  new multi-dimensional optimiza-
  []
 
-[37])) (Thesis.aux)
+[35])) (Thesis.aux)
 Package rerunfilecheck Info: File `Thesis.out' has not changed.
-(rerunfilecheck)             Checksum: EDBBE14D9B2EDC79AD54119731FDD4BC;2433.
+(rerunfilecheck)             Checksum: 83DB8FDF9E5D645A2A0838812175EB7B;2304.
  )
-Output written on Thesis.xdv (39 pages, 543928 bytes).
+Output written on Thesis.xdv (37 pages, 527524 bytes).
