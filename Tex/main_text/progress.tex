@@ -127,7 +127,7 @@ prefill 16$\times$16（逐 warp） & 23.4 & 19.2 & 16.4 & 52.7 & 34.6 & 146.3 & 
 \caption{15 个典型负载上最优逐边执行方案的分化特征及其相对最优单一 grid 的时延降幅。}\label{fig:motiv}
 \end{figure}
 
-对照上述因素审视现有相关工作，可见三点不足：第一，全图单一 kernel 方案（Hazy Megakernels\pHazy、MPK\pMPK）默认将所有算子融为单一 persistent kernel，难以解决不同算子间的寄存器与共享内存冲突，近期实证研究~\pQiang 与编译器实践~\pcite{together2026}{Together AI，2026}也指出核内屏障（约 646\,ns）与 CUDA Graph 配合 PDL 的边界开销（约 645\,ns）几乎相当，盲目融合反而变慢；第二，现有算子融合与动态 shape 编译工作多限于单 kernel 内部优化~\pcite{zhengz2022}{Zheng 等，2022a}、静态配置（\rcite{nvidiate}{NVIDIA，2026g}；\rcite{andoorveedu2026}{Andoorveedu 等，2026}）或粗粒度区段切换（\rcite{chatterjee2026}{Chatterjee 等，2026a}；\rcite{chatterjee2026b}{Chatterjee 等，2026b}），而面向动态 shape 的微内核编译如 MikPoly~\pcite{yu2024}{Yu 等，2024} 与 MoonPoly~\pcite{zhangy2026}{Zhang 等，2026a} 仅调整算子内分块参数，算子间仍固定串行启动；第三，在跨 kernel 重叠限制方面，既有文献仅在多流并发场景零星观察到共享内存配置干扰（\rcite{nvidiaforum}{NVIDIA，2025}；\rcite{strati2026}{Strati 等，2026}；\rcite{flashinfer7548}{FlashInfer，2026}）或寄存器限制~\pQiang，前期工作 DACOS~\pDacos 也仍假定算子边界预先固定。为此，本课题将算子边执行方式与分组资源配置、硬件准入规则联合建模并协同优化。
+对照上述因素审视现有相关工作，可见三点不足：第一，全图单一 kernel 方案（Hazy Megakernels\pHazy、MPK\pMPK）默认将所有算子融为单一 persistent kernel，难以解决不同算子间的寄存器与共享内存冲突，近期实证研究~\pQiang 与编译器实践~\pcite{together2026}{Together AI，2026}也指出核内屏障（约 646\,ns）与 CUDA Graph 配合 PDL 的边界开销（约 645\,ns）几乎相当，盲目融合反而变慢；第二，现有算子融合与动态 shape 编译工作多限于单 kernel 内部优化~\pcite{zhengz2022}{Zheng 等，2022a}、静态配置（\rcite{nvidiate}{NVIDIA，2026g}；\rcite{andoorveedu2026}{Andoorveedu 等，2026}）或粗粒度区段切换（\rcite{chatterjee2026}{Chatterjee 等，2026a}；\rcite{chatterjee2026b}{Chatterjee 等，2026b}），而面向动态 shape 的微内核编译如 MikPoly~\pcite{yu2024}{Yu 等，2024} 与 MoonPoly~\pcite{zhangy2026}{Zhang 等，2026a} 仅调整算子内分块参数，算子间仍固定串行启动；第三，在跨 kernel 重叠限制方面，既有文献仅在多流并发场景零星观察到共享内存配置干扰（\rcite{nvidiaforum}{NVIDIA，2025}；\rcite{strati2026}{Strati 等，2026}；\rcite{flashinfer7548}{FlashInfer，2026}）或寄存器限制~\pQiang，前期工作 DACOS~\pDacos 也仍假定算子边界预先固定。为此，本课题将算子边执行方式与分组资源配置、硬件共享内存调度规则联合建模并协同优化。
 
 \subsection{自适应执行机制设计与实现}\label{sec:mech}
 
@@ -181,7 +181,7 @@ prefill 16$\times$16（逐 warp） & 23.4 & 19.2 & 16.4 & 52.7 & 34.6 & 146.3 & 
 
 \begin{table}[!htb]\centering
 \caption{分批派发模型对 PDL 后继线程块 SM 分配结果的预测精度。命中定义为最拥挤 SM 上的预测后继块数与实测完全一致；SM 数误差给出占用 SM 数绝对偏差的中位数与 90 分位数}\label{tab:place}
-\footnotesize\setlength{\tabcolsep}{4.5pt}
+\footnotesize\setlength{\tabcolsep}{3.8pt}
 \begin{tabular}{@{}lcccccc@{}}
 \toprule
  & \multicolumn{3}{c}{基于同次运行退出时刻复现} & \multicolumn{3}{c}{基于串行运行退出时刻样本外预测}\\
@@ -189,8 +189,8 @@ prefill 16$\times$16（逐 warp） & 23.4 & 19.2 & 16.4 & 52.7 & 34.6 & 146.3 & 
 物理边界类别 & 发射次数 & 精确命中 & SM 数误差 & 发射次数 & 精确命中 & SM 数误差\\
 \midrule
 可提前共驻 SM & 368 & 222（60\%） & 0 / 16 & 172 & 134（78\%） & 0 / 4 \\
-不可提前共驻、后继占满全卡 & 286 & 286（100\%） & 0 / 0 & 146 & 146（100\%） & 0 / 0 \\
-不可提前共驻、后继未占满全卡 & 236 & 225（95\%） & 3 / 44 & 124 & 120（97\%） & 2 / 10 \\
+不可共驻、后继占满全卡 & 286 & 286（100\%） & 0 / 0 & 146 & 146（100\%） & 0 / 0 \\
+不可共驻、后继未占满全卡 & 236 & 225（95\%） & 3 / 44 & 124 & 120（97\%） & 2 / 10 \\
 \bottomrule
 \end{tabular}
 \end{table}
