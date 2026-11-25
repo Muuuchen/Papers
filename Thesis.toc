@@ -7,7 +7,7 @@
 \contentsline {subsubsection}{\numberline {2.1.2}单次 Kernel 启动的资源约束与全图执行计划表示}{6}{subsubsection.2.1.2}%
 \contentsline {subsection}{\numberline {2.2}Persistent Kernel 与独立 Kernel 的优缺点剖析及边界选择因素}{7}{subsection.2.2}%
 \contentsline {subsubsection}{\numberline {2.2.1}Persistent Kernel 的优势与资源耦合瓶颈}{7}{subsubsection.2.2.1}%
-\contentsline {subsubsection}{\numberline {2.2.2}独立 Kernel 切分的收益与算子间等待及重叠限制}{8}{subsubsection.2.2.2}%
+\contentsline {subsubsection}{\numberline {2.2.2}独立 Kernel 切分的收益与算子间等待及重叠限制}{10}{subsubsection.2.2.2}%
 \contentsline {subsubsection}{\numberline {2.2.3}边界执行机制的决定因素、相关工作局限与本文思路}{11}{subsubsection.2.2.3}%
 \contentsline {subsection}{\numberline {2.3}自适应执行机制设计与实现}{12}{subsection.2.3}%
 \contentsline {subsubsection}{\numberline {2.3.1}统一 CUDA 算子实现与核内分阶段并发控制}{12}{subsubsection.2.3.1}%

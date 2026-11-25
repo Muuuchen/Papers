@@ -38,21 +38,21 @@
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.1.2}单次 Kernel 启动的资源约束与全图执行计划表示}{6}{subsubsection.2.1.2}\protected@file@percent }
 \newlabel{sec:env}{{2.1.2}{6}{单次 Kernel 启动的资源约束与全图执行计划表示}{subsubsection.2.1.2}{}}
 \newlabel{eq:env}{{2}{6}{单次 Kernel 启动的资源约束与全图执行计划表示}{equation.2.2}{}}
-\newlabel{eq:occ}{{3}{7}{单次 Kernel 启动的资源约束与全图执行计划表示}{equation.2.3}{}}
+\newlabel{eq:occ}{{3}{6}{单次 Kernel 启动的资源约束与全图执行计划表示}{equation.2.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Persistent Kernel 与独立 Kernel 的优缺点剖析及边界选择因素}{7}{subsection.2.2}\protected@file@percent }
 \newlabel{sec:pos}{{2.2}{7}{Persistent Kernel 与独立 Kernel 的优缺点剖析及边界选择因素}{subsection.2.2}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Persistent Kernel 的优势与资源耦合瓶颈}{7}{subsubsection.2.2.1}\protected@file@percent }
 \newlabel{sec:hw}{{2.2.1}{7}{Persistent Kernel 的优势与资源耦合瓶颈}{subsubsection.2.2.1}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces 跨阶段同步开销与流式权重读取带宽微基准。(a) 相邻空阶段间三种衔接方式随线程块数的单次耗时；(b) 流式读取 64\,MiB gate/up 权重的有效带宽随线程块数与访存连续性的变化，在 264 个线程块处即达到平台带宽上限。\relax }}{8}{figure.caption.5}\protected@file@percent }
 \newlabel{fig:hw}{{2}{8}{跨阶段同步开销与流式权重读取带宽微基准。(a) 相邻空阶段间三种衔接方式随线程块数的单次耗时；(b) 流式读取 64\,MiB gate/up 权重的有效带宽随线程块数与访存连续性的变化，在 264 个线程块处即达到平台带宽上限。\relax }{figure.caption.5}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}独立 Kernel 切分的收益与算子间等待及重叠限制}{8}{subsubsection.2.2.2}\protected@file@percent }
-\newlabel{sec:split}{{2.2.2}{8}{独立 Kernel 切分的收益与算子间等待及重叠限制}{subsubsection.2.2.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces 各阶段独立编译与五阶段融合时的静态片上资源需求对比。寄存器按每线程计，共享内存（KiB）按每线程块计，“块/SM”为协作启动单 SM 最大并发线程块数\relax }}{8}{table.caption.7}\protected@file@percent }
+\newlabel{tab:foot}{{3}{8}{各阶段独立编译与五阶段融合时的静态片上资源需求对比。寄存器按每线程计，共享内存（KiB）按每线程块计，“块/SM”为协作启动单 SM 最大并发线程块数\relax }{table.caption.7}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces 矩阵阶段与 attention 阶段独立运行时的最优线程块并行度差异。纵轴为归一化至各阶段最优配置的相对时延；矩阵阶段偏好 132--264 个线程块，而高负载 decode attention 随线程块数扩展至 528 持续提速。\relax }}{9}{figure.caption.6}\protected@file@percent }
 \newlabel{fig:stage}{{3}{9}{矩阵阶段与 attention 阶段独立运行时的最优线程块并行度差异。纵轴为归一化至各阶段最优配置的相对时延；矩阵阶段偏好 132--264 个线程块，而高负载 decode attention 随线程块数扩展至 528 持续提速。\relax }{figure.caption.6}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces 各阶段独立编译与五阶段融合时的静态片上资源需求对比。寄存器按每线程计，共享内存（KiB）按每线程块计，“块/SM”为协作启动单 SM 最大并发线程块数\relax }}{9}{table.caption.7}\protected@file@percent }
-\newlabel{tab:foot}{{3}{9}{各阶段独立编译与五阶段融合时的静态片上资源需求对比。寄存器按每线程计，共享内存（KiB）按每线程块计，“块/SM”为协作启动单 SM 最大并发线程块数\relax }{table.caption.7}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces 单层耗时分解与融合共驻代价实测对比（\textmu s）。共驻代价为正表示多阶段共享片上资源上限带来的损失超过独立切分的启动开销\relax }}{10}{table.caption.8}\protected@file@percent }
-\newlabel{tab:cores}{{4}{10}{单层耗时分解与融合共驻代价实测对比（\textmu s）。共驻代价为正表示多阶段共享片上资源上限带来的损失超过独立切分的启动开销\relax }{table.caption.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces 单层耗时分解与融合共驻代价实测对比（\textmu s）。共驻代价为正表示多阶段共享片上资源上限带来的损失超过独立切分的启动开销\relax }}{9}{table.caption.8}\protected@file@percent }
+\newlabel{tab:cores}{{4}{9}{单层耗时分解与融合共驻代价实测对比（\textmu s）。共驻代价为正表示多阶段共享片上资源上限带来的损失超过独立切分的启动开销\relax }{table.caption.8}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.2}独立 Kernel 切分的收益与算子间等待及重叠限制}{10}{subsubsection.2.2.2}\protected@file@percent }
+\newlabel{sec:split}{{2.2.2}{10}{独立 Kernel 切分的收益与算子间等待及重叠限制}{subsubsection.2.2.2}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces 五阶段全切分下各类物理边界单独启用 PDL 或带预取 PDL* 相对串行 completion 的端到端时延降幅（正值表示加速）。Q$\to $A 后继为无静态权重的 attention 阶段；色标截断于 $\pm 3\%$，格内标注实测百分比。\relax }}{10}{figure.caption.9}\protected@file@percent }
 \newlabel{fig:pdl}{{4}{10}{五阶段全切分下各类物理边界单独启用 PDL 或带预取 PDL* 相对串行 completion 的端到端时延降幅（正值表示加速）。Q$\to $A 后继为无静态权重的 attention 阶段；色标截断于 $\pm 3\%$，格内标注实测百分比。\relax }{figure.caption.9}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.3}边界执行机制的决定因素、相关工作局限与本文思路}{11}{subsubsection.2.2.3}\protected@file@percent }

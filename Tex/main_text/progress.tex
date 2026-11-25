@@ -32,7 +32,7 @@ D$\to$Q & 全量就绪：下一层 QKV 投影依赖完整的层间归一化激�
 
 对应第 1 章的候选空间 $\mathcal{M}(e)$，阶段图每条边 $e\in E_S$ 具有三类物理执行候选（图~\ref{fig:scheme}）：（1）\textbf{同 grid 融合}，前后阶段合并于同一 persistent grid，通过设备端全局屏障保证数据可见；（2）\textbf{跨 grid completion}，切分为两个独立 kernel，待前驱全部线程块退出后再启动后继；（3）\textbf{跨 grid PDL}，保留物理切分边界，前驱在尾部发出 programmatic completion 信号提前启动后继，使其先执行独立前缀再等待前驱数据就绪。
 
-针对开题列出的“同 grid 细粒度事件”形态，课题前期已在 Hazy Megakernels 原型\pHazy 上完成验证：在 1024 上下文单请求 decode 中，为 QKV 保留按头局部就绪、为 gate/up 采用全量就绪的混合配置较逐边贪心缩短 11.4--12.7\us（1136.3\us）；但同一原型对照显示，若保持各阶段资源配置不变而直接拆分为多 kernel，时延反增至 1185.6\us，仅当同步调整各分组资源配置时，PDL 才将粗粒度切分由串行的 1419.1\us 降至 1291.9\us。这表明边界切分决策必须与 GPU 片上资源约束联合建模。
+若各阶段线程块数与片上资源配置保持不变而单纯将融合 kernel 拆分为多个独立 kernel，反而会额外引入跨边界同步与启动开销；唯有在切分的同时按各分组特点重新配置分块与并行度，物理切分与跨边界重叠才能释放正收益。因此，算子边切分决策必须与 GPU 单次 kernel 启动的片上资源约束联合建模。
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=\textwidth]{Img/midterm/scheme}
