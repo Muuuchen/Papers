@@ -52,7 +52,21 @@
 \newcommand{\TE}{\ensuremath{T_{\mathrm{E}}}}
 \newcommand{\TG}{\ensuremath{T_{\mathrm{G}}}}
 \newcommand{\TS}{\ensuremath{T_{\mathrm{S}}}}
-\newcommand{\TP}{\ensuremath{T_{\mathrm{P}}}}
+\usepackage{enumitem}
+\usepackage{makecell}
+\usepackage{float}
+\newcommand{\us}{\,\textmu s}
+\newcommand{\rcite}[2]{#2}
+\newcommand{\refitem}[1]{\item}
+\newcommand{\cQiang}{\rcite{qiang2026}{Qiang 等 (2026b)}}
+\newcommand{\cChat}{\rcite{chatterjee2026}{Chatterjee 等 (2026a)}}
+\newcommand{\cHazy}{\rcite{spector2025}{Spector 等 (2025b)}；\rcite{hazy2025b}{Hazy Research (2025)}}
+\newcommand{\cMPK}{\rcite{cheng2026}{Cheng 等 (2026)}}
+\newcommand{\cVllm}{\rcite{kwon2023}{Kwon 等 (2023)}}
+\newcommand{\cFA}{\rcite{dao2024}{Dao (2024)}}
+\newcommand{\cGraph}{\rcite{nvidia2026a}{NVIDIA (2026a)}}
+\newcommand{\cPDL}{\rcite{nvidia2026b}{NVIDIA (2026b)}}
+\newcommand{\cDacos}{\rcite{hao2026}{Hao 等 (2026)}}
 %---------------------------------------------------------------------------%
 %->> Document inclusion
 %---------------------------------------------------------------------------%
@@ -79,13 +93,6 @@
 %-
 %-> Backmatter: bibliography, glossary, index
 %-
-\artxifstreq{\artxbib}{bibtex}{% enable bibtex
-    % Standard BibTeX flow: the bst (Biblio/gbt7714-author-year) is already
-    % selected by artratex.sty via \bibliographystyle. This writes \bibdata
-    % into Thesis.aux so BibTeX can build the .bbl from Biblio/ref.bib.
-    \bibliography{Biblio/ref}% bibliography
-}{%
-    \printbibliography% bibliography
-}
+% 参考文献已写在正文 Tex/main_text/refs.tex 中。
 \end{document}
 %---------------------------------------------------------------------------%

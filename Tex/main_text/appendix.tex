@@ -1,0 +1,139 @@
+\section*{附录\quad 相关研究进展}
+\addcontentsline{toc}{section}{附录\quad 相关研究进展}
+
+本课题研究动态负载下计算图的执行机制选择：对图上每一条边，决定相邻两个计算阶段是在同一个 grid 内衔接、分成两次 launch 并等待前驱完成，还是分成两次 launch 并以 programmatic dependent launch（PDL）让后继提前进入；同时决定与之耦合的每组资源配置（thread block 数、tile 形状、共享内存与寄存器占用）。输入规模改变时，上述选择随之改变。围绕这一问题，现有文献可沿十三条线索展开：驻留式执行的由来与早期教训、大模型推理中的全图驻留执行、边界与后端的决策、融合编译器中的边界判据、动态 shape 与负载自适应、跨核函数重叠机制、核内分工与核间空间划分、GPU 片上资源共享的体系结构研究、分块与 wave 量化、性能代价模型、作为另一类边的通信--计算重叠、智能体驱动的核函数生成，以及作为外部基线的服务系统与算子库。前八条决定执行形态，其后各条决定在给定形态下的参数与判据。
+
+\subsubsection*{一、驻留式执行的由来与"巨核"的既有教训}
+
+把多个阶段放进一个长期驻留的核函数并非新做法。\rcite{gupta2012}{Gupta 等 (2012)} 系统归纳了 persistent threads 编程风格：启动恰好填满设备的线程块，由它们在核函数内部反复取任务，以规避逐次 launch 的开销与硬件调度器的不可控。\rcite{steinberger2014}{Steinberger 等 (2014)} 的 Whippletree 在此基础上提供设备端的任务调度框架，支持动态产生的异构任务。在深度学习方向，\rcite{diamos2016}{Diamos 等 (2016)} 的 Persistent RNN 把循环权重常驻片上存储，以消除时间步之间的重复加载；\rcite{holmes2019}{Holmes 等 (2019)} 的 GRNN 将同一思路用于低延迟 RNN 推理。细粒度任务运行时沿同一思路发展：\rcite{yeh2017}{Yeh 等 (2017)} 的 Pagoda 以常驻的 MasterKernel 虚拟化 GPU 资源，按 warp 粒度即时调度并行度不足以填满设备的窄任务，相对 CUDA-HyperQ 几何平均快 1.51$\times$；\rcite{belviranli2018}{Belviranli 等 (2018)} 的 Juggler 在设备端完成依赖解析与任务放置，免去核函数级的全局同步，在 7 个科学计算核函数上相对全局屏障实现最高提升 31\%。
+
+"把整个程序融进一个核函数"在图形学界很早就被证明有固有代价。\rcite{laine2013}{Laine 等 (2013)} 在波前路径追踪中明确提出 megakernels considered harmful：单个巨核的寄存器分配由其中最苛刻的阶段决定，所有阶段都要按该上限付出占用率代价，把巨核拆成若干阶段核函数并在阶段之间重排工作反而更快。这一结论与本课题在 H100 上观察到的现象同构——单个驻留核函数的共享内存 carve-out 与寄存器用量由最重的阶段（如 255 寄存器的 FlashAttention）决定，其余阶段被迫在更低占用率下执行；本课题的实测是，把 decode 注意力从 255 寄存器的实现换成 91 寄存器的实现后，切分方案的收益从 14\%--17\% 降到 $-2\%$ 到 $+8\%$，即原先大部分"收益"来自重阶段拖累同驻代码，而非边界选择本身。区别在于，路径追踪中各阶段之间是数据驱动的队列关系，而大模型推理的阶段之间是确定的依赖边，因此可以逐边、而非全局地做这一取舍。
+
+编译器方向上，\rcite{ma2020}{Ma 等 (2020)} 的 Rammer 提出 rTask 与 vEU 抽象，把算子间并行与算子内并行统一到同一调度空间，由编译期生成静态调度并在持久化核函数中执行，消除运行期调度开销；\rcite{zhuang2024}{Zhuang 等 (2024)} 的 MonoNN 进一步把整个推理网络编译为一个单体核函数，并指出该形态打开了逐算子优化无法表达的优化空间。两者都把单核函数当作目标形态：调度自由度在核函数内部，核函数边界本身不是优化变量。\cGraph 从另一侧削减同一开销——把一串 launch 固化为可重放的图，消除逐次提交的 CPU 代价，但图内相邻核函数之间仍按完成--启动的顺序执行。
+
+\subsubsection*{二、大模型推理中的全图驻留执行}
+
+近两年，上述形态在大模型推理中被系统化。\rcite{spector2025}{Spector 等 (2025b)}（Hazy Research）为 Llama-1B 手写设备端任务图解释器，用计数器而非 grid barrier 表达依赖，是目前公开的单请求 decode 最快实现之一；本课题在 H100 上实测其 $B{=}1$、$S{=}512$ 为 1.08\,ms。\rcite{he2026}{He 等 (2026)} 的 VDCores 把资源与执行解耦，为异步 GPU 提供资源解耦的编程与执行模型。\cMPK 将这一形态编译器化：从张量程序自动生成任务图与事件计数器，支持多卡执行，报告相对逐算子服务系统最高 1.7$\times$ 的端到端延迟收益。\rcite{jin2026}{Jin 等 (2026)} 的 Event Tensor 把分块任务之间的依赖提升为一等抽象，原生支持动态 shape 与数据相关的动态性，其编译器 ETC 同时施加静态与动态调度变换；该工作尤其指出固定形态巨核在真实服务中的预热代价，并以显著降低该代价作为主要结果之一。
+
+实现路线之外有三类扩展。其一是面向受限硬件的资源管理：\rcite{dong2026}{Dong 等 (2026)} 的 Ada-MK 针对 Ada 架构的共享内存与寄存器约束，用 MLIR 细粒度分解构造逻辑依赖、生成调度与资源候选集，再以静态 trace 搜索固化执行路径，并引入共享内存分页复用，以 TensorRT-LLM 为基线在商业广告在线推理中取得稳定收益。其二是生成式合成：\rcite{li2026f}{Li 等 (2026a)} 的 ForgeMegakernel 以十级里程碑知识库配合独立的中间状态测试预言机，由编码智能体为每个模型生成 decode 巨核，在 0.6B--13B 的 14 个任务上报告 50.5\%--85.9\% 的模型带宽利用率，相对调优后的 SGLang 几何平均 1.21$\times$、相对 MPK 1.54$\times$；\rcite{jaber2026}{Jaber 和 Jaber (2026)} 的 AutoMegaKernel 把重点放在生成结果的可验证性上，用冻结的调度 IR 验证器在启动前静态排除死锁与数据竞争，在 7\,160 个对抗性调度上无误接受，并报告在 A100/H100 上仍落后于 CUDA Graph 化的 cuBLAS，归因于跨 SM 同步瓶颈。其三是把巨核用作调度域以容纳异构工作：\rcite{huang2026}{Huang 等 (2026a)} 的 Weave 在持久化核函数内把 SM 划分为通信与计算两组，依运行时路由结果逐层、逐卡调整划分比例，在 4 卡 H100 上报告 MoE 层几何平均 2.89$\times$、端到端 1.33$\times$；\rcite{mao2026}{Mao 等 (2026)} 的 mKernel 把该划分推广到多机，由设备端控制器依据已完成与剩余工作量在运行中调整 SM 分工，在两个 16 卡 H200 集群上报告 GEMM+AllReduce 最高 1.72$\times$、Ring Attention 最高 1.88$\times$。
+
+驻留形态自身也在演变。\rcite{yangy2026}{Yang 等 (2026)} 的 GPUOS 以常驻核函数从主机管理的工作队列取任务，并在运行时即时编译算子、注入正在运行的核函数，使驻留由编译期决定变为运行期可注入；\rcite{chowdhary2026}{Chowdhary 等 (2026)} 的 Fleet 面向多 die GPU 引入绑定到单个 chiplet 及其 L2 的任务层级；\rcite{guo2026}{Guo 和 Miao (2026)} 的 PipeLink 用契约描述加载、主循环、epilogue 等组件对 SM 内共享内存、barrier、warp 与寄存器的占用，使分别编译的组件可以链接进同一核函数，即把组件能否同驻变成可检查的资源契约。
+
+这一线索的共同前提是：单核函数是目标形态，资源分配问题被转化为核函数内部如何划分 SM 与 warp。于是其资源配置始终受最苛刻阶段的约束，即 \rcite{laine2013}{Laine 等 (2013)} 早已指出、而 \cQiang 在 H100 上重新量化的代价。
+
+\subsubsection*{三、边界与后端的决策：与本课题最近的工作}
+
+\cChat 把"在哪里切"显式形式化。其设计点为三元组：模型各阶段的连续区段划分、每个区段的后端（常规核函数图或巨核）、以及区段间的共享策略；服务表形式为 $S[g,\text{backend},W;\kappa]$，其中 $\kappa$ 包含线程数、tile 几何、调用与存储策略、编译入口归属和同步要求，只有当键与证据的迁移条件匹配时才复用测量结果。该框架从常规图 profile 与独立核函数基准预测，不端到端运行任何候选，评分使用排序代理而非直接延迟预测。其结论是：最优配置是若干互不重叠的巨核与常规图分量的组合，或完全的常规图；在 NH-TTS、Qwen3-TTS 与 Llama-1B 上，最优组合随 batch 从零个到四个巨核不等；作者据此提出四类模型（megakernel-stable/receding/advancing/averse），刻画最优巨核组合随 batch 的变化方式；在 H100 NVL 上，NH-TTS 保留三个专用巨核虽引入额外的核函数边界，却同时改善了延迟与吞吐，batch 32 时首段音频比单巨核方案早 4.05$\times$ 发出。
+
+\rcite{chatterjee2026b}{Chatterjee 等 (2026b)} 把同一思想的粒度放到每一次前向：连续批处理使每次迭代的工作量与构成都在变化，引擎因此在持久化巨核与融合核函数链之间逐次选择，切换点离线测定。其结果显示逐次选择在 128 并发下比恒用巨核高 23\% 吞吐、在 8 并发下比恒用融合链高 9\%，并报告 tile 级调度在 B128 的所有形状上都比 grid barrier 版本慢 4\%--10\%。
+
+\cQiang 提供了这条线必须接受的否定性证据，也最接近本课题的机制层面。该工作用原始算子代码把 ThunderKittens 与 VDCores 两个巨核重构为分离核函数，结论是 CTA 驻留在两个方向上都可能误报重叠机会：用 PDL 重叠启动与操作数加载后，TK 的重构版本把 decode 单步延迟降低 5.7\%，VDCores 的重构版本在双方都强制所需内存序时与原版相当；但在整算子依赖下，持久化执行从预取中获益更多，运行期与完成信号的排序代价又抵消这一优势。具体测量包括：合法的发布顺序在无预取时使每步增加 19.0\,µs、有预取时增加 73.5\,µs，加入 ordering 后持久化与 PDL 的胜负关系翻转；全设备后台在途读取从每 SM 64\,KiB 增至 192\,KiB 时，release 延迟中位数由 2.8\,µs 增至 17.2\,µs，而背景带宽仍约 3.2\,TB/s，若只让发信号的 SM 发出批量读取，192\,KiB 下约 0.6\,µs；某阶段在插桩轨迹中变快而完整步变慢，原因是它持有资源、阻碍后继准入；32/132 个 SM 的 TMA 读已达全设备带宽的 95.4\%，细粒度就绪在 TK 中不如整体就绪加批量发布，在 compute-bound 的 MLP 中却可快约 13\%。该文最重要的论断是关于准入的：持久化 CTA 可以在退出前复用自身存储，而分离的后继必须先取得完整的 CTA 占用足迹才能开始初始化或加载操作数；作者把这一准入约束视为"需要更细粒度的跨核函数资源共享"的动机，并把它留作对未来 GPU 支持的诉求。
+
+\cDacos 处在同一问题的另一侧：联合选择预启动阶段、预取量与放置，阶段签名包含剩余时间、带宽与容量，其代价式已计入未被隐藏的重叠、驻留收益与缓存干扰。
+
+与边界决策相邻的还有四类工作。其一，空间流水：\rcite{andoorveedu2026}{Andoorveedu 等 (2026)} 的 SubGPU Pipelining 把算子图切成有序的连续段，将各段绑定到由互不相交的 SM 池支撑的空间 stage 上并以 microbatch 流式推进，把图的切点、段到 stage 的绑定、各 stage 的 SM 数与 microbatch 大小表述为一个耦合优化问题，用解析的共享资源模拟器搜索；\rcite{davies2025}{Davies 等 (2025)} 的 Kitsune 放弃整体同步模型，把每个算子映射到各自的一组 thread block，中间 tile 经 L2 中的环形缓冲流动，由静态 ILP 决定哪些生产者--消费者对进入空间流水。两者的机制轴是时间复用与空间流水之分，资源轴是 SM 池的划分。其二，融合边界与 launch 配置的联合搜索：\rcite{dai2025}{Dai 等 (2025)} 的 STOF 在稀疏 Transformer 上以搜索确定融合边界，并把流水级数等 launch 设置与子块尺寸一并调优；\rcite{huangz2026f}{Huang 等 (2026b)} 的 FlashFuser 借助 Hopper 的分布式共享内存扩大可融合范围，以 dataflow 分析与搜索决定融合方案，判据是片上存储容量。其三，融合粒度作为离散选项：\rcite{lix2026}{Li 等 (2026c)} 的 AgentCompile 在单核函数、全融合、部分融合与不融合四档之间按实测时延选择。其四，分离核函数之间的细粒度依赖：\rcite{linj2026}{Lin 等 (2026b)} 的 MegaOps 保持核函数分离，把依赖粒度由整个核函数降到中间张量的单个 tile，在 decode 上与手写的 ThunderKittens 巨核持平。
+
+逐算子配置执行方式在分布式训练与推理中已有先例，但均为离线的静态选择。NVIDIA Transformer Engine 的 Userbuffers 后端为每个 GEMM 各自指定重叠方式（bulk、pipeline 或 ring exchange）、为通信核函数预留的 SM 数、分块数以及是否使用 copy engine，配置在初始化时读入 \rcite{nvidiate}{(NVIDIA, 2026g)}；\rcite{jangda2022}{Jangda 等 (2022)} 的 CoCoNet 由自动调优器为每条算子链在拆分、重排、融合与重叠的调度空间中选择，并指出没有一种调度在所有规模上最优；PyTorch 的 async-TP 并存分解式与基于 CUTLASS 的单核函数式两种实现，按问题规模取用 \rcite{wangy2024}{(Wang 等, 2024)}。因此，逐边可配置本身不构成区别；区别在于候选机制是否同时包含同 grid、跨 grid 与 PDL，是否与每组资源配置联合，是否随输入规模变化，以及是否有可预测的判据。
+
+工业界的近期报告与此一致。\rcite{together2026}{Together AI (2026)} 在弃用 megakernel 的说明中给出 H100 上的测量：megakernel 内的 grid 同步约 646\,ns，CUDA Graph 加 PDL 的核函数边界约 645\,ns；编译器默认核函数配合 CUDA Graph 与细粒度 PDL 可达手写 megakernel 吞吐的约 98\%；持久化核函数则迫使全图统一 warp 数与 cluster 大小，分别带来 1.2$\times$--1.5$\times$ 与 5\%--19\% 的减速。该文对 Llama-1B 的五条生产者--消费者边逐条手工标注同步方式，并说明早期基于动态规划的规则编译器已被放弃。由此，边界的同步代价已不是决定因素，决定因素是同驻带来的资源配置约束；逐边的机制选择目前由人工给出。
+
+上述工作共同留下的空位是：决策单位是区段、整次前向、融合与否或单一预取策略；边的执行方式没有被当作独立变量与每组资源配置联合求解；准入约束被陈述为定性事实与硬件诉求，而非在现有硬件上可预测、可验证的判据。本课题在 H100 上定位的共享内存 carve-out 兼容性与容量条件，以及后继被拒绝准入时出现的零散准入惩罚，正落在这一空位上。
+
+\subsubsection*{四、融合编译器中的边界判据}
+
+图级融合编译器是最早系统地决定核函数边界的工作，按判据可分四类。规则式：\rcite{chen2018}{Chen 等 (2018)} 的 TVM 把算子分为四类并按通用规则融合，\rcite{zhengl2020}{Zheng 等 (2020)} 的 Ansor 在图级沿用同一规则，学习式代价模型只用于子图内的调度选择；\rcite{niu2021}{Niu 等 (2021)} 的 DNNFusion 按输入到输出的映射关系把算子分为五类并以组合规则判定；\rcite{ding2023}{Ding 等 (2023)} 的 Hidet 先调度子图中的主算子，再按规则把周围算子并入。解析式：\rcite{shi2023}{Shi 等 (2023)} 的 Welder 以 tile-graph 为抽象，依据各级存储上的访存流量优化相互独立这一观察，逐层以 tile 流量模型决策；\rcite{zhengs2023}{Zheng 等 (2023)} 的 Chimera 以最小化数据搬运量为目标选择块间执行顺序；\rcite{zhangzh2024}{Zhang 等 (2024)} 的 MCFuser 针对张量变小后退化为访存受限的计算密集算子链，以访存与计算开销之和乘以并行度衰减因子的解析模型排序候选；\rcite{zhao2022}{Zhao 等 (2022)} 的 Apollo 分三层融合，并由下层循环优化器向上反馈以重新分区。搜索式：\rcite{hu2024}{Hu 等 (2024)} 的 Korch 先把算子裂变为基本张量代数原语，再把候选核函数的取舍形式化为以实测时间为代价的 0-1 线性规划；\rcite{wu2025}{Wu 等 (2025)} 的 Mirage 以 $\mu$Graph 统一表示 kernel、thread block、thread 三级并枚举。程序显式指定：\rcite{tillet2019}{Tillet 等 (2019)} 的 Triton 与 \rcite{wangl2025}{Wang 等 (2025)} 的 TileLang 中核函数边界由程序给出，编译器只负责核函数内部。
+
+其中有两点与本课题直接相关。其一，驻留资源已被用作边界判据。\rcite{xia2024}{Xia 等 (2024)} 的 Souffle 以全局张量表达式分析划分子程序，每个子程序映射为一个核函数并在内部使用全局同步；共享内存与寄存器用量过大会压低每个 wave 可驻留的 thread block 数、使全局同步不可行，因此它以最大 grid 与最大占用之积不超过设备总量为约束，违反即另起一个子程序。\rcite{zhengz2022}{Zheng 等 (2022a)} 的 AStitch 在共享内存超限时把缝合方式逐个由区域级降为全局级，并以先假设、再放宽、后施加的三步确定寄存器上限。Chimera、Welder 与 MCFuser 以各级存储容量为合法性约束，Mirage 只检查共享内存。这些约束判断的是一个融合组自身能否驻留，不涉及两个核函数能否在同一 SM 上交叠。其二，逐边选择机制已有先例，但选项都在单个核函数之内。AStitch 为每条边在四种缝合方式中选择：无依赖、中间结果留在寄存器、经共享内存、经全局内存；其全局方式把核函数之间隐含的全局屏障内联为核函数内的屏障，代价是 thread block 总数不得超过单个 wave 可驻留的数量。Welder 为每条边指定在哪一级存储上复用数据 tile。保留核函数边界并以重叠执行抵消其代价，在上述系统中不是候选项；Korch 的核函数之间严格串行，且明确不考虑多流。
+
+\subsubsection*{五、动态 shape 与负载自适应}
+
+LLM 推理的输入规模在请求之间、以及同一请求的 prefill 与 decode 之间持续变化，面向动态 shape 的张量程序优化因而是本课题最直接的方法来源。这一方向的共同结构是离线准备、在线选择。\rcite{shen2021}{Shen 等 (2021)} 的 Nimble 以虚拟机解释动态 shape 下的运行期控制流；\rcite{zhu2021}{Zhu 等 (2021)} 的 DISC 基于 MLIR 原生表达动态 shape，\rcite{zhengz2024}{Zheng 等 (2024a)} 的 BladeDISC 依据相邻算子之间的 shape 关系而非具体取值做融合；\rcite{zhengb2022}{Zheng 等 (2022b)} 的 DietCode 为动态张量程序做自动调度，但需预先给定 shape 范围或样本。\rcite{yu2024}{Yu 等 (2024)} 的 MikPoly 离线生成一组固定规模的微内核，运行时在 shape 已知后以轻量代价模型即时拼合；\rcite{zhangy2026}{Zhang 等 (2026a)} 的 MoonPoly 把问题分解为微内核生成与微内核拼合两个阶段，在 A100 上相对 cuBLAS 报告平均 1.27$\times$ 的算子级加速。算子库一侧，\rcite{hong2024}{Hong 等 (2024)} 的 FlashDecoding++ 指出单一静态 dataflow 在不同形状的 GEMM 上可损失 50.25\%，并按输入动态在不同硬件资源之间启发式选择 dataflow；\rcite{zhang2026}{Zhang 等 (2026b)} 的 WaveTune 在运行时按 wave 结构检索 tile 配置；DeepGEMM 公布的收益同样随形状变化，相对其内部基于 CUTLASS 3.6 的实现，$M{=}64$ 的扁矩阵上为 2.7$\times$，$M{=}4096$ 时为 1.1$\times$--1.3$\times$ \rcite{deepgemm2025}{(DeepSeek, 2025a)}。
+
+这些工作在运行时改变的是算子内部的参数，即微内核的拼合方式、tile 形状与 dataflow；执行机制是固定的，每个算子仍是一个独立核函数，算子之间按完成--启动衔接。megakernel 一侧已有按负载切换执行形态的工作，但粒度是整段或整次前向：\cChat 的最优巨核组合随 batch 在零到四个之间变化，\rcite{chatterjee2026b}{Chatterjee 等 (2026b)} 在每次前向之前于巨核与融合链之间二选一，\rcite{wu2026}{Wu 等 (2026)} 的 ExpertPlex 以自适应的持久化核函数在 prefill 与 decode 之间调整资源比例，\rcite{yadav2026}{Yadav 和 Zhao (2026)} 按 shape 是否静态把推理划分为 CUDA Graph 重放与即时编译两条路径。把执行机制作为逐边的、随输入规模变化的量，并与 tile 形状和 thread block 数一并选择，在已检索的文献中未见。
+
+本课题的规划结果给出了这一缺口的直接证据（正文图~\ref{fig:motiv}）。15 个负载上规划器选出 11 种不同的逐边方案：2 个负载保留单一 grid；其余 13 个负载上，Q$\to$A、A$\to$O、O$\to$U 与 D$\to$Q 四条边均被切开，U$\to$D 在 7 个负载上切开、在 6 个负载上保留于同一 grid；被切开的边采用 PDL 还是 completion 也随负载变化，A$\to$O 在 10 个负载上为 completion、在 3 个负载上为 PDL。各组的 thread block 数同样不固定，attention 组在 132 至 528 之间变化。输入规模改变的不只是 tile 形状，执行机制也随之改变；同时，切点位置在多数边上稳定，可在离线阶段确定，需要随负载决定的集中在少数边与 PDL 的取舍上。
+
+\subsubsection*{六、跨核函数重叠机制}
+
+{\sloppy
+\cPDL 是 Hopper 引入的硬件级部分重叠机制：后继核函数可在前驱尚未结束时被准入，先执行与依赖无关的前导工作，再由 \texttt{cuda\allowbreak GridDependency\allowbreak Synchronize}（PTX 层为 \texttt{griddepcontrol.\allowbreak wait}）等待数据可见，前驱用 \texttt{griddepcontrol.\allowbreak launch\_dependents} 提前触发后继。工业系统已大面积采用该机制，SGLang 在 ERNIE 5.5 Flash 的低延迟方案中对前向过程中几乎所有核函数启用 PDL，使相邻核函数的启动与收尾重叠；\rcite{spector2025}{Spector 等 (2025b)} 则认为其同步原语粒度过粗，转而在单核函数内自行实现细粒度依赖。\par}
+
+围绕启动与调度开销另有若干工作。\rcite{li2026s}{Li 等 (2026b)} 的 SET 把 CUDA 图流水线的调度开销分解为批内与批间两部分，报告其在消费级 GPU 上可占总执行时间的 45\%--51\%，并用流--事件触发与可重用图可执行体压缩核函数间空隙。\rcite{siavashi2026}{Siavashi 等 (2026a)} 的 Blink 把服务栈下放到 GPU 与智能网卡，由设备端直接投放预捕获的推理图并轮询输出缓冲判断完成。\rcite{mustard2025}{Turimbetov 等 (2025)} 的设备端多 GPU 任务图执行模型用依赖更新顶点递减计数器，把调度搬到设备上，CPU 只负责初始化。更早的体系结构工作直接在硬件中解析依赖：\rcite{wireframe2017}{Abdolrashidi 等 (2017)} 的 Wireframe 用依赖图执行支持数据相关的并行，\rcite{blockmaestro2021}{Abdolrashidi 等 (2021)} 的 BlockMaestro 让线程块级依赖对程序员透明地由硬件执行。
+
+这些工作的共同处理方式是把 PDL（或流、事件、SM 分区）当作全局开关：要么整体启用，要么整体不用。对"为什么同一条边上 PDL 有时为正、有时为负"，公开文献给出的是经验结果与排序提示，而非可检验的准入条件。
+
+\subsubsection*{七、核内分工与核间空间划分}
+
+在单个核函数内部，Hopper 上的标准做法是 warp 专用化：一组 warp 用 TMA 作为生产者填充共享内存，其余 warp group 作为消费者执行 WGMMA，并用 \texttt{setmaxnreg} 在 warp group 之间重新分配寄存器预算，CUTLASS 的 ping-pong GEMM 是其代表实现；Hopper 还引入 thread block cluster 与分布式共享内存（DSMEM），把协作范围从单个 SM 扩展到 SM 集群。公开资料对共享内存流水级数与占用率的权衡讨论充分——更多流水级能掩盖传输延迟但压低占用率，Hopper GEMM 常被建议让单个 CTA 独占一个 SM——但对 L1/共享内存 carve-out 的讨论基本停留在单核函数的占用率层面。
+
+在核函数之间，空间划分有两条路径。一是运行时或驱动层的划分，三种官方机制给出的保证差别很大。MPS 的活跃线程百分比只是上限而非分区，\rcite{nvidiamps}{NVIDIA (2026c)} 明确说明设置该上限不为任何客户端预留专用资源，不同客户端的核函数可能在同一个 SM 上执行。MIG 提供硬件级隔离，但 SM 的最小切片为整卡的 1/7、显存为 1/8 \rcite{nvidiamig}{(NVIDIA, 2026d)}，粒度与重配置代价都不适合逐次前向或逐边的切换。Green Context 可把流绑定到一个 SM 子集，但 \rcite{nvidiagreen}{NVIDIA (2026e)} 同样声明不保证其中的核函数并发执行或取得前向进展，且在 compute capability 9.0 及以上 SM 数须按 8 对齐。近期的 LLM 服务工作据此做 prefill 与 decode 的空间复用：\rcite{lin2026}{Lin 等 (2026a)} 的 Bullet 提出随 SM 数伸缩的 roofline 模型，估计给定 SM 数下单核函数的延迟并建模并发核函数间的访存争用，在 A100 上，摘要报告相对现有系统平均 1.26$\times$、最高 1.55$\times$ 的吞吐，正文中相对 1024 token 分块的 SGLang 为平均 1.09$\times$，TPOT 略有变差（0.94$\times$）；该文弃用 Green Context 的理由是 4 个上下文的显存开销即超过 700\,MB。\rcite{xu2025n}{Xu 等 (2025)} 的 Nova 面向智能体视觉语言模型，把视觉编码、prefill 与 decode 拆成三个 worker，以 2 个 SM 为粒度在每次前向之前调整连续 SM 区间，其对照均为作者自实现的调度策略。\rcite{gao2025}{Gao 等 (2025)} 的 DuetServe 在单批模式与空间复用模式之间切换，\rcite{andoorveedu2026}{Andoorveedu 等 (2026)} 的 SubGPU 做 GPU 内细粒度空间流水。这一组工作划分的是 SM 的归属，且多数明确指出 intra-SM 共享因调度不透明而性能不稳定，因而退回 SM 间共享；它们回答的是"哪些 SM 给谁"，不涉及两个核函数的 CTA 能否在同一个 SM 上先后交叠。二是在一个持久化核函数内部自行划分 SM 角色，即前述 Weave 与 mKernel 的做法，以及 \rcite{jangda2026}{Jangda 等 (2026)} 在算子内部把 SwiGLU 融入 GEMM 的 epilogue 与 ping-pong 调度以避免中间张量物化。\rcite{kamath2025}{Kamath 等 (2025)} 的 POD-Attention 走相反方向，把 prefill 与 decode 的注意力融合进同一核函数并在核函数内部分配资源，使二者在同一 SM 上并发。该文对分成两个核函数的代价有系统的刻画：prefill 核函数的访存带宽利用率常低于 5\%，decode 核函数的算力利用率低于 10\%，串行执行使同一资源的高需求与低利用交替出现；多流与朴素的 CTA 并行融合都不能保证两类工作落在同一 SM；wave 量化下多加一个 decode 请求可使注意力总时间增加 17\%。其注意力计算相对串行执行两个 FlashAttention 核函数最高快 59\%、平均快 28\%。
+
+\subsubsection*{八、GPU 片上资源共享的体系结构研究}
+
+上述准入问题在体系结构界有长期研究历史，结论高度一致：SM 内的寄存器文件、共享内存与线程槽无法在核函数之间细粒度共享，是并发执行收益受限的根本原因。\rcite{yang2012}{Yang 等 (2012)} 提出共享内存多路复用，\rcite{jatala2017}{Jatala 等 (2017)} 研究 scratchpad 共享，\rcite{jeon2015}{Jeon 等 (2015)} 提出寄存器文件虚拟化，\rcite{khorasani2018a}{Khorasani 等 (2018a)} 的 RegMutex 做 warp 间寄存器分时，\rcite{khorasani2018b}{Khorasani 等 (2018b)} 用虚拟持久化处理器特化做寄存器内参数缓存；\rcite{vijaykumar2016}{Vijaykumar 等 (2016)} 的 Zorua 提出对寄存器、共享内存与线程槽的统一虚拟化。并发核函数方向，\rcite{wangz2016}{Wang 等 (2016)} 的 SMK 与 \rcite{xu2016}{Xu 等 (2016)} 的 Warped-Slicer 通过细粒度划分实现同时多核函数执行，\rcite{kernelet2013}{Zhong 和 He (2013)} 的 Kernelet 用动态切片与调度提升并发吞吐。SMK 在资源占用互补的负载上相对不共享执行把吞吐提高 52\%。更早的并发执行研究给出了同一问题的软件侧版本：\rcite{adriaens2012}{Adriaens 等 (2012)} 提出把 SM 按空间划分给并发应用，两个应用共享时相对协作式时间分片最高加速 1.19$\times$；\rcite{pai2013}{Pai 等 (2013)} 指出 Fermi 上并发核函数常不优于串行，原因是程序无法控制核函数的资源占用，遂以源到源变换得到可调节 grid 规模的弹性核函数，系统吞吐提升 1.21$\times$。\rcite{liuz2026}{Liu 等 (2026b)} 近期提出线程--寄存器解耦的 GPU 执行模型，继续沿该方向推进。
+
+这些工作绝大多数需要硬件改动或模拟器验证。软件侧的例外是 \rcite{wuh2020}{Wu 等 (2020)}：以核函数切片与拉伸在真实的 AMD GPU 上实现同一计算单元内的多核函数同驻，用基于独立事件概率的轻量解析模型与共生因子挑选资源占用互补的核函数对，相对优化启动顺序后的硬件并发执行平均加速 11\%--18\%。它面向多程序吞吐，同驻的是相互无依赖的核函数。NVIDIA 官方的占用率模型则只描述单个核函数每个 SM 可驻留的 thread block 数 \rcite{nvidiabp}{(NVIDIA, 2026h)}，不涉及不同核函数同驻。
+
+与本课题的准入判据直接相关的先行记录有四个层次。
+
+官方文档。Fermi 与 Kepler 上 L1 与共享内存共用片上存储，Maxwell 与 Pascal 改为专用存储，Volta 起又恢复为可配置的 carve-out。\rcite{nvidiacarve}{NVIDIA (2026i)} 在说明新接口的动机时写道：旧接口把共享内存容量当作核函数启动的硬性要求，交替启动共享内存配置不同的核函数会使启动串行化于共享内存的重新配置之后；新接口把 carve-out 作为提示，驱动在必要时可另选档位。较早版本的指南还写明，驱动自动配置共享内存容量时会在可能的情况下允许与已启动的核函数并发执行，几乎不用共享内存的核函数可以请求较大的 carve-out，以便与其后需要更多共享内存的核函数并发。后一句已包含方向性，但没有给出条件；PDL 的章节只说明提前执行是机会性的、不作保证，未提及任何资源条件。
+
+NVIDIA 工程师在开发者论坛的答复。\rcite{nvidiaforum}{NVIDIA (2025)} 针对 H100 上两条流的核函数落在不相交的 SM 上这一现象说明：驱动按核函数的需要改变 L1 与共享内存的配置，而改变配置要求 SM 空闲；若共享内存需求小的核函数先占据某个 SM，需求大的核函数就不能与之同驻，反之则可以。同一来源的其他答复指出 Hopper 之前重新配置的粒度是两个 SM，Hopper 起为单个 SM。这些说明针对多流并发，不涉及 PDL，也没有给出以档位表述的判据。
+
+转述与复现。\rcite{strati2026}{Strati 等 (2026)} 的 Mosaic 在核函数级干扰预测中把 carve-out 需求不相容列为两个核函数的 thread block 不能共用 SM 的原因之一，依据即上述论坛答复，未作测量。FlashInfer 的一份问题报告在 Blackwell 上复现了同一现象：驻留着小 carve-out 核函数的 SM 在排空之前不能为共享内存需求大的核函数重新配置，把先驻留的核函数设为最大 carve-out 即可同驻 \rcite{flashinfer7548}{(FlashInfer, 2026)}。
+
+PDL 的准入。\cQiang 在 H100 上测量了 PDL 后继的准入，把失败归因于容量：后继必须取得完整的 thread block 资源足迹，某 SGLang 配置中 822 对相邻核函数有 188 对不能在同一 SM 上各放一个 thread block，主要受寄存器限制；该文未涉及 carve-out。CUTLASS 维护者对同一问题的答复同样只到容量 \rcite{cutlass2778}{(CUTLASS, 2025)}。
+
+因此，carve-out 配置会阻止不同核函数同驻这一现象已有记录，PDL 后继的准入受资源容量限制也已有测量。未见于上述来源的是二者的交叉与可用于规划的判据：PDL 后继能否进入仍被前驱占据的 SM，取决于后继所需的 carve-out 档位不超过该 SM 的当前档位（双方均显式指定时须相等），且余量可容纳一个后继 thread block；自动档位可由占用数与单个 thread block 的共享内存用量推出；后继未被准入时出现零散准入惩罚。本课题在 H100 上给出并验证了这些条件。\cQiang 的准入约束论断正是这一假设在 Hopper 上的再现。本课题关心的是有依赖的前驱与后继在 PDL 下的交叠：不要求硬件改动，在现有 Hopper 硬件上定位决定准入与否的软件可见量——共享内存 carve-out 的选择与容量余量——使"后继能否提前进入"从不可控现象变成规划器可以预测与控制的变量。
+
+\subsubsection*{九、分块、wave 量化与工作划分}
+
+逐边决策一旦允许每组独立配置 thread block 数与 tile 形状，就必须面对 wave 量化。其标准陈述是：核函数的 tile 数若不是设备可同时驻留 CTA 数的整数倍，最后一个 wave 只有少量 tile 在执行，其余 SM 空转，而该 wave 的时间与满 wave 相当；SM 数越多，量化损失越严重。\rcite{osama2023}{Osama 等 (2023)} 的 Stream-K 用以工作为中心的并行分解替代以输出 tile 为中心的分解，让每个 CTA 承担连续的一段 MAC 工作而非整数个 tile，从而消除尾部 wave，在不规则形状上取得稳定收益；split-K 是更早的局部缓解手段，在 SM 更多的 H100 上需要更大的 split 因子才能恢复性能。\rcite{nvidiamm}{NVIDIA (2026f)} 的官方示例是：A100 有 108 个 SM，tile 为 256$\times$128 且每个 SM 驻留一个 thread block；$M{=}2304$、$N{=}1536$ 时恰为 108 个 tile，$N$ 略增后变为 117 个，尾 wave 只占用 8.33\% 的 SM 而耗时接近整 wave，吞吐近乎减半。Hopper 上该问题更难回避：\rcite{siavashi2026b}{Siavashi 等 (2026b)} 观察到 cuBLASLt 为某个 decode GEMM 选用 96 个 CTA 的 grid，而 132 个 SM 含因子 11，以 2 的幂为边长的 tile 无法凑成整 wave。应对方式除 Stream-K 外，还有按 wave 选择切分点（\rcite{gond2026}{Gond 等 (2026)} 的 TokenWeave 离线测定切分偏移，使两段的 wave 数之和不超过未切分时）、以两条对称的流轮换角色使不满的 wave 与下一段重叠（async-TP），以及由 wave 量化解析地算出通信核函数的 CTA 数而不逐候选计时 \rcite{liuh2026}{(Liu 等, 2026a)}。注意力上，\rcite{sanovar2024}{Sanovar 等 (2024)} 的 LeanAttention 证明在线 softmax 的重缩放算子满足结合律，按 Stream-K 的方式给每个 CTA 分配等量的 KV 分块，相对固定等分的 FlashDecoding 平均快 1.73$\times$。这与本课题的测量一致：U 阶段在 $M{=}64$、tile 64 时，264 个 CTA（恰一个 wave）为 28.6\,µs，132 个（两个 wave）为 33.7\,µs，396 个（0.65 个 wave）为 33.8\,µs——同一段代码，仅 CTA 数不同即相差 18\%。因此，单核函数基线若只按最大 CTA 数启动，其劣势有相当部分来自 wave 量化而非边界本身。
+
+\subsubsection*{十、面向配置选择的性能代价模型}
+
+要把逐边决策从枚举变成预测，需要能从组件测量推断未测组合的代价模型。GPU 解析性能模型的经典路线面向单个核函数：\rcite{hong2009}{Hong 和 Kim (2009)} 以访存 warp 并行度与计算 warp 并行度的相对关系判定核函数受访存还是计算限制，在应用上的几何平均误差为 13.3\%；\rcite{huang2014}{Huang 等 (2014)} 的 GPUMech 把区间分析引入 GPU，相对周期级模拟的误差为 13.2\%--14.0\%，速度快 97$\times$；\rcite{khairy2020}{Khairy 等 (2020)} 的 Accel-Sim 以 trace 驱动模拟原生指令集，相对真机的平均绝对误差为 15\%；\rcite{lee2022}{Lee 等 (2022)} 的 GCoM 补入现代 GPU 的核内结构，相对 Accel-Sim 误差 10.0\%，相对真机 24.4\%，速度快 345$\times$。这些模型的对象是独占设备的单个核函数，不涉及核函数之间的交接。
+
+面向 tile 化核函数的近期模型中，\rcite{mo2026}{Mo 等 (2026)} 的 TileSight 以 tile 为统一单位：tile 内把工作表示为网络、访存、计算流水线上的资源向量，tile 间调度有序依赖并由复用距离推断多级缓存命中率，跨设备用 alpha-beta 模型计价；在 A100/H200/B200 上单核函数延迟汇总 MAPE 为 12.35\%，L2 命中率误差约 1 个百分点，32 卡融合核函数 wMAPE 16.18\%，vLLM 端到端 13.52\%。\rcite{zhang2026}{Zhang 等 (2026b)} 的 WaveTune 针对 tile 大小与流水级数提出 wave 感知的双线性延迟模型与基于 wave 结构的稀疏采样，报告核函数级最高 1.83$\times$、端到端 TTFT 最高 1.33$\times$，并指出基于 FLOPs 的线性模型在小 wave 区误差超过 40\%。\rcite{wang2026}{Wang 等 (2026)} 的 ForeSight 对本课题的实验环境尤其相关：它不依赖厂商 profiler 聚合后的计数器，而是先把被合并的数据按硬件单元还原，再用固定延迟停顿加按单元压力重算的排队停顿建模，核函数级 MAPE 8.3\%、vLLM 端到端 2.0\%，比周期级模拟快约 49$\times$。面向推理系统的模型开始引入资源份额：Bullet 的 SM 伸缩 roofline 模型令算力随分得的 SM 数线性变化、带宽在某一 SM 数之后饱和，再以实测系数校准；\rcite{yao2026}{Yao 等 (2026)} 的 KernelSight-LM 把每个服务步分解为核函数级的 roofline 时延。
+
+融合编译器中的解析模型（Welder、Chimera、MCFuser）与 \rcite{zhao2025n}{Zhao 等 (2026)} 的 Neptune 等融合方法，建模对象同样是一个融合组的代价。
+
+本课题需要的量多出一项：边的代价。它既不是常数启动开销，也不能由两侧组的孤立代价相加得到，而取决于后继能否被提前准入、准入后能占据多少 SM，以及发布时刻的在途请求状态——\cQiang 的 release 延迟测量说明后者可能主导。现有模型均未把这一项显式化，这也是本课题先用 \texttt{\%globaltimer} 时间戳与微基准把准入、发布与预取的代价分别测出来、再讨论建模的原因。
+
+\subsubsection*{十一、作为另一类边的通信--计算重叠}
+
+分布式推理与训练中的通信--计算重叠，在结构上与本课题的边决策同构：同样是相邻两个阶段是否共处一个核函数、以何种粒度交接、各占多少 SM。按交接方式可分三类。
+
+粗粒度的分解加双流。\rcite{wangs2023}{Wang 等 (2023)} 把集合通信连同依赖它的计算一并分解为更细的操作序列并行执行；\rcite{jiang2024}{Jiang 等 (2024)} 的 MegaScale 把 FFN 路径上的 GEMM 拆成小块，与 all-gather、reduce-scatter 在两条 CUDA 流上流水执行，在 12\,288 卡上相对 Megatron-LM 把 MFU 提高 1.34$\times$；\rcite{chen2024}{Chen 等 (2024)} 的 Centauri 回避核函数融合，在原语替换、拓扑感知的分组与负载分块三个维度上划分通信，再按算子、层、模型三级调度，最高加速 1.49$\times$；\rcite{gond2026}{Gond 等 (2026)} 的 TokenWeave 只把一个 batch 切成两段，并把 AllReduce 与 RMSNorm 融合为一个仅占 2--8 个 SM 的核函数，在 8 卡 H100 上时延最高改善 1.28$\times$，稠密模型低于 1K token 时关闭切分。PyTorch 的 async-TP 同属此类，其要点是由 copy engine 承担对端拷贝而不占用 SM \rcite{wangy2024}{(Wang 等, 2024)}，Llama3 70B 的前向最高加速约 20\%。
+
+tile 粒度的融合。\rcite{jangda2022}{Jangda 等 (2022)} 的 CoCoNet 让 MatMul 按 AllReduce 消费的顺序产出分块，两个核函数各启动一次、置于不同的流上，以内存缓冲上的自旋锁同步，相对 Megatron-LM 快 1.42$\times$--1.70$\times$。\rcite{chang2024}{Chang 等 (2024)} 的 FLUX 把通信分解到远细于设备数的 tile，每个 tile 映射到一个 thread block，ReduceScatter 融入 GEMM 的 epilogue，AllGather 融入 prologue，相对 Transformer Engine 的中粒度重叠在预填充与解码上最高快 2.06$\times$ 与 2.10$\times$，但在 H800 NVLink 上 ReduceScatter 出现 0.95$\times$ 的回退。\rcite{zhengs2025b}{Zheng 等 (2025b)} 的 TileLink 与 \rcite{zhengs2025a}{Zheng 等 (2025a)} 的 Triton-distributed 把这一能力编译器化，\rcite{pati2024}{Pati 等 (2024)} 的 T3 以硬件透明地跟踪与触发，\rcite{qiang2026a}{Qiang 等 (2026a)} 的 Syncopate 自动把本地核函数变换为单个融合核函数内的细粒度重叠，并把流级重叠的代价归纳为额外的核函数启动、边界处的全设备同步与最慢 tile 拖长的通信尾部，\rcite{mao2026}{Mao 等 (2026)} 的 mKernel 推广到跨节点。
+
+SM 的归属。\rcite{mak2026}{Ma 等 (2026)} 的 Entwine 让计算与通信两个核函数并发运行在同一个 SM 池中，以通信预算限定并发的通信 thread block 数，并重排 GEMM 的 tile 产出顺序使数据匀速到达，在 8 卡 A800 上相对 cuBLAS 加 NCCL 几何平均快 1.232$\times$，在 4K 序列的层级测试中则比 FLUX 慢 5.8\%；Transformer Engine 为通信核函数显式预留 SM；DeepEP 的早期版本提供不占用 SM 的 hook 式接收，RDMA 流量在后台完成 \rcite{deepep2025}{(DeepSeek, 2025b)}。
+
+这些工作有三点与本课题相关。第一，收益随规模变号是常态：FLUX、Entwine 与 TokenWeave 都报告了小规模下的回退，CoCoNet 指出融合后的核函数寄存器用量更高而限制了并行度，\cQiang 测得为通信保留 SM 会增加 GEMM 的 wave 数，在访存带宽饱和时填满空闲 SM 几乎没有收益。第二，在所核对的来源中，上述系统均未使用 PDL，交接依赖流、自旋等待或 copy engine。第三，选择都是离线的、逐算子的。本课题不研究通信算法本身；在后续工作中，通信作为计算图上的一类节点进入同一候选空间。
+
+\subsubsection*{十二、智能体与搜索驱动的核函数生成}
+
+以大模型或搜索自动生成核函数是 2025 年以来增长很快的方向，其优化对象多为单个核函数：KernelBench 一系的基准与基于强化学习的生成方法把目标定义在单核函数的正确性与加速比上，框架给定的核函数边界不在建模范围内；\rcite{liao2025}{Liao 等 (2025)} 的 KernelEvolve 在工业环境中大规模部署智能体式核函数编写，仍把跨层融合与端到端计算图列为后续工作。触及边界的是少数：前述 AgentCompile 把融合粒度作为离散选项，ForgeMegakernel 与 AutoMegaKernel 生成整图巨核。逐边的执行机制选择不在这一方向现有工作的搜索空间之内。
+
+\subsubsection*{十三、服务系统与算子库基线}
+
+\cVllm 的 PagedAttention 与 vLLM、\rcite{zhengl2024}{Zheng 等 (2024b)} 的 SGLang 以及 TensorRT-LLM 是逐算子执行加连续批处理的代表，均已叠加 CUDA Graph、PDL 与编译优化。\rcite{zhuk2025}{Zhu 等 (2025)} 的 NanoFlow 把请求拆成算子级的 nano-batch，在单个 GPU 内并发执行受计算、访存与网络限制的操作，批数、批大小与次序由基于离线核函数 profile 的自动搜索确定，报告 1.91$\times$ 的吞吐提升。
+
+算子层面，注意力实现沿 FlashAttention 一系演进：\cFA 的 FlashAttention-2 在 A100 上达到理论峰值的 50\%--73\%，在 H100 上的利用率只有 35\%；\rcite{shah2024}{Shah 等 (2024)} 的 FlashAttention-3 以 warp 专用化与 TMA 的异步性重叠计算与数据搬运，把 BF16 下的利用率提高到 85\%。decode 的 query 长度为 1，\rcite{dao2023}{Dao 等 (2023)} 的 Flash-Decoding 沿 KV 序列维度切分并以 log-sum-exp 归并，前述 LeanAttention 与 FlashDecoding++ 在此基础上改进；\rcite{ye2025}{Ye 等 (2025)} 的 FlashInfer 提供可定制的注意力引擎与统一分页 KV 管理。GEMM 与通用核函数方面，\rcite{spector2025a}{Spector 等 (2025a)} 的 ThunderKittens 以 tile 为中心提供三级原语，在 grid 级采用与 H100 的 132 个 SM 对应的持久化 grid 以消除 thread block 的启动与退出开销；DeepGEMM 在运行时即时编译全部核函数。
+
+这些系统构成本课题的外部基线：方法的增量必须同时对纯持久化核函数（Hazy、MPK）与该类服务系统成立，且必须在算子代码相同的前提下给出归因。
+
+\subsubsection*{十四、小结：现有工作留下的空位}
+
+第一，决策粒度与机制集合。现有工作在整图（Rammer、MonoNN、MPK、Event Tensor）、区段（Chatterjee 等 2026a；SubGPU Pipelining）或整次前向（Chatterjee 等 2026b）上选择执行形态，或在融合与不融合之间逐边选择（Kitsune、STOF、AgentCompile），或逐边选择中间结果所在的存储层级（AStitch、Welder），后者的选项都在单个核函数之内。把同 grid、跨 grid 完成依赖与跨 grid PDL 三种机制作为逐边变量，并与每组的 CTA 数、tile 形状和共享内存配置联合求解，在已检索的文献中未见；工业界目前由人工逐边标注。
+
+第二，对输入规模的自适应。动态 shape 方向在运行时调整的是算子内部参数，执行机制固定；megakernel 方向按负载切换的是整段或整次前向的后端；分布式重叠中的逐算子配置是初始化时的静态选择。本课题的规划结果表明三者需要合并：15 个负载对应 11 种逐边方案。
+
+第三，边收益的机制解释。PDL 在边上的收益符号在文献中是经验结果；\cQiang 已指出分离后继必须先取得完整 CTA 足迹这一准入约束，但把它作为对未来硬件的诉求，而非当前硬件上可预测的判据。本课题给出的 carve-out 兼容性与容量条件，以及后继被拒绝准入时的零散准入惩罚，是把已有记录的两个现象（carve-out 配置阻止同驻；PDL 准入受容量限制）合并为 PDL 下以档位表述的准入条件，并在 H100 上验证。
+
+第四，片上资源共享的研究范式。体系结构界的既有方案（Zorua、SMK、Warped-Slicer、寄存器虚拟化、scratchpad 共享）均需硬件改动；软件侧的方案或划分 SM 的归属（Green Context、Bullet、Nova、Entwine），或面向无依赖核函数的多程序同驻（Wu 等 2020）。对有依赖的前驱与后继，在 PDL 下由配置选择决定后继能否进入仍被前驱占据的 SM，在已检索的文献中未见讨论。
+
+第五，代价模型的覆盖面。经典模型（Hong 和 Kim、GPUMech、GCoM）与近期模型（TileSight、WaveTune、ForeSight、Bullet 的 roofline）刻画的是单个核函数或单个融合组的代价；边代价，即准入与否、准入后的 SM 占有与发布时刻的在途状态，尚未进入任何模型。
+
+第六，公平对照的方法学。\rcite{laine2013}{Laine 等 (2013)}、\cQiang、\rcite{together2026}{Together AI (2026)} 与本课题的实验都表明，单核函数的劣势主要来自统一资源配置而非边界同步；基线若未在 CTA 数、分块与编译选项上同等调优，切分方案的收益会被系统性高估。本课题据此要求：任何给予切分组的编译期或启动期选项，必须同样给予单核函数基线，且单核函数基线取其所有变体中的最好者。
