@@ -43,8 +43,8 @@
 \newlabel{sec:pos}{{2.2}{7}{Persistent Kernel 与独立 Kernel 的优缺点分析及边界选择因素}{subsection.2.2}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}Persistent Kernel 的优势与资源耦合瓶颈}{7}{subsubsection.2.2.1}\protected@file@percent }
 \newlabel{sec:hw}{{2.2.1}{7}{Persistent Kernel 的优势与资源耦合瓶颈}{subsubsection.2.2.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces 跨阶段同步开销与流式权重读取带宽微基准。(a) 相邻空阶段间三种衔接方式随线程块数的单次耗时；(b) 流式读取 64\,MiB gate/up 权重的有效带宽随线程块数与访存连续性的变化，在 264 个线程块处即达到平台带宽上限。\relax }}{8}{figure.caption.5}\protected@file@percent }
-\newlabel{fig:hw}{{2}{8}{跨阶段同步开销与流式权重读取带宽微基准。(a) 相邻空阶段间三种衔接方式随线程块数的单次耗时；(b) 流式读取 64\,MiB gate/up 权重的有效带宽随线程块数与访存连续性的变化，在 264 个线程块处即达到平台带宽上限。\relax }{figure.caption.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces 跨阶段同步开销与权重读取带宽Microbench。(a) 相邻阶段间三种衔接方式随线程块数的单次耗时；(b) 流式读取 64\,MiB gate/up 权重的有效带宽随线程块数与访存连续性的变化，在 264 个线程块处即达到平台带宽上限。\relax }}{8}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:hw}{{2}{8}{跨阶段同步开销与权重读取带宽Microbench。(a) 相邻阶段间三种衔接方式随线程块数的单次耗时；(b) 流式读取 64\,MiB gate/up 权重的有效带宽随线程块数与访存连续性的变化，在 264 个线程块处即达到平台带宽上限。\relax }{figure.caption.5}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces 矩阵阶段与 attention 阶段独立运行时的最优线程块并行度差异。纵轴为归一化至各阶段最优配置的相对时延；矩阵阶段偏好 132--264 个线程块，而高负载 decode attention 随线程块数扩展至 528 持续提速。\relax }}{8}{figure.caption.6}\protected@file@percent }
 \newlabel{fig:stage}{{3}{8}{矩阵阶段与 attention 阶段独立运行时的最优线程块并行度差异。纵轴为归一化至各阶段最优配置的相对时延；矩阵阶段偏好 132--264 个线程块，而高负载 decode attention 随线程块数扩展至 528 持续提速。\relax }{figure.caption.6}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces 各阶段独立编译与五阶段融合时的静态片上资源需求对比。寄存器按每线程计，共享内存（KiB）按每线程块计，“块/SM”为协作启动单 SM 最大并发线程块数\relax }}{9}{table.caption.7}\protected@file@percent }

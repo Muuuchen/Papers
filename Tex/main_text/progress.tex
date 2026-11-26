@@ -55,7 +55,7 @@ Persistent Kernel 的执行机制将多个连续计算阶段融合于单一物�
 
 \begin{figure}[!htb]\centering
 \includegraphics[width=\textwidth]{Img/midterm/hw_micro}
-\caption{跨阶段同步开销与流式权重读取带宽微基准。(a) 相邻空阶段间三种衔接方式随线程块数的单次耗时；(b) 流式读取 64\,MiB gate/up 权重的有效带宽随线程块数与访存连续性的变化，在 264 个线程块处即达到平台带宽上限。}\label{fig:hw}
+\caption{跨阶段同步开销与权重读取带宽Microbench。(a) 相邻阶段间三种衔接方式随线程块数的单次耗时；(b) 流式读取 64\,MiB gate/up 权重的有效带宽随线程块数与访存连续性的变化，在 264 个线程块处即达到平台带宽上限。}\label{fig:hw}
 \end{figure}
 
 线性矩阵阶段（Q、O、U、D）与 attention 阶段（A）在并行度与片上资源占用上存在双重冲突（图~\ref{fig:stage}、表~\ref{tab:foot}）：（1）\textbf{并行度需求相反}，四个矩阵阶段独立运行时多在 132 或 264 个线程块处最优，继续增块反而加剧缓存竞争与归约成本；高负载 decode attention 则随线程块数增加持续提速（$16\times 2048$ 下 528 块较 132 块快 2.5 倍）；（2）\textbf{片上资源上限互相制约}，decode 矩阵阶段每块需 72\,KiB 共享内存，将五阶段融合 kernel 限制在每 SM 3 块（396 块），使原本可并发 4 块/SM（528 块）的 attention 损失四分之一并发度；prefill 中基于 Tensor Core 的 FlashAttention-2~\pFA 每线程占满 255 个寄存器，融合后将全图并发度降至每 SM 2 块（264 块）。
