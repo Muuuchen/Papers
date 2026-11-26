@@ -8,21 +8,20 @@
 \contentsline {subsection}{\numberline {2.2}Persistent Kernel 与独立 Kernel 的优缺点分析及边界选择因素}{7}{subsection.2.2}%
 \contentsline {subsubsection}{\numberline {2.2.1}Persistent Kernel 的优势与资源耦合瓶颈}{7}{subsubsection.2.2.1}%
 \contentsline {subsubsection}{\numberline {2.2.2}独立 Kernel 切分的收益与算子间等待及重叠限制}{10}{subsubsection.2.2.2}%
-\contentsline {subsubsection}{\numberline {2.2.3}边界执行机制的决定因素与本文思路}{11}{subsubsection.2.2.3}%
-\contentsline {subsection}{\numberline {2.3}自适应执行机制设计与实现}{12}{subsection.2.3}%
-\contentsline {subsubsection}{\numberline {2.3.1}统一 CUDA 算子实现与融合核内活跃块调节}{12}{subsubsection.2.3.1}%
-\contentsline {subsubsection}{\numberline {2.3.2}基于 DACOS 的 PDL 跨边界重叠与硬件约束}{13}{subsubsection.2.3.2}%
+\contentsline {subsection}{\numberline {2.3}自适应执行机制设计与实现}{11}{subsection.2.3}%
+\contentsline {subsubsection}{\numberline {2.3.1}统一 CUDA 算子实现与融合核内活跃块调节}{11}{subsubsection.2.3.1}%
+\contentsline {subsubsection}{\numberline {2.3.2}基于 DACOS 的 PDL 跨边界重叠与硬件约束}{11}{subsubsection.2.3.2}%
 \contentsline {subsubsection}{\numberline {2.3.3}L1 缓存容量缩水分析与静态 PDL 启用规则}{15}{subsubsection.2.3.3}%
-\contentsline {subsection}{\numberline {2.4}基于代价模型的划分方案搜索}{19}{subsection.2.4}%
-\contentsline {subsubsection}{\numberline {2.4.1}基于线程块波次的分组耗时解析模型}{19}{subsubsection.2.4.1}%
-\contentsline {subsubsection}{\numberline {2.4.2}模型与静态规则引导的离线规划方法}{21}{subsubsection.2.4.2}%
-\contentsline {subsection}{\numberline {2.5}阶段性实验评估与分析}{22}{subsection.2.5}%
-\contentsline {subsubsection}{\numberline {2.5.1}实验环境与评测设置}{22}{subsubsection.2.5.1}%
-\contentsline {subsubsection}{\numberline {2.5.2}端到端性能收益与对比分析}{23}{subsubsection.2.5.2}%
-\contentsline {subsubsection}{\numberline {2.5.3}PDL 静态规则与引导式规划器验证}{24}{subsubsection.2.5.3}%
-\contentsline {section}{\numberline {三}下一步工作计划和内容}{27}{section.3}%
-\contentsline {subsection}{\numberline {3.1}现存问题与下一步工作内容}{27}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}进度安排}{28}{subsection.3.2}%
-\contentsline {subsection}{\numberline {3.3}预计答辩时间}{28}{subsection.3.3}%
-\contentsline {section}{\numberline {四}已取得科研成果列表}{29}{section.4}%
-\contentsline {section}{参考文献}{30}{section*.31}%
+\contentsline {subsection}{\numberline {2.4}基于代价模型的划分方案搜索}{17}{subsection.2.4}%
+\contentsline {subsubsection}{\numberline {2.4.1}基于线程块波次的分组耗时解析模型}{17}{subsubsection.2.4.1}%
+\contentsline {subsubsection}{\numberline {2.4.2}模型与静态规则引导的离线规划方法}{20}{subsubsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.5}阶段性实验评估与分析}{21}{subsection.2.5}%
+\contentsline {subsubsection}{\numberline {2.5.1}实验环境与评测设置}{21}{subsubsection.2.5.1}%
+\contentsline {subsubsection}{\numberline {2.5.2}端到端性能收益与对比分析}{22}{subsubsection.2.5.2}%
+\contentsline {subsubsection}{\numberline {2.5.3}PDL 静态规则与引导式规划器验证}{23}{subsubsection.2.5.3}%
+\contentsline {section}{\numberline {三}下一步工作计划和内容}{26}{section.3}%
+\contentsline {subsection}{\numberline {3.1}现存问题与下一步工作内容}{26}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}进度安排}{27}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}预计答辩时间}{27}{subsection.3.3}%
+\contentsline {section}{\numberline {四}已取得科研成果列表}{28}{section.4}%
+\contentsline {section}{参考文献}{29}{section*.31}%

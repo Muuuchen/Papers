@@ -1577,10 +1577,17 @@ LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
  [8] [9]
 File: Img/midterm/pdl_edges.pdf Graphic file (type pdf)
 <use Img/midterm/pdl_edges.pdf>
- [10]
-File: Img/midterm/motiv_edges.pdf Graphic file (type pdf)
-<use Img/midterm/motiv_edges.pdf>
- [11]
+
+Overfull \hbox (15.93748pt too wide) in paragraph at lines 119--120
+[]|\TU/FandolSong-Regular(0)/b/n/12.045 （\TU/entextrm/b/n/12.045 2\TU/FandolSon
+g-Regular(0)/b/n/12.045 ）|  硬 件 \TU/entextrm/b/n/12.045 PDL \TU/FandolSong-Regu
+lar(0)/b/n/12.045 无 法 完 全 消 除 跨 核 开 销。| \TU/entextsf/m/n/12.045 Hopper \TU/Fand
+olSong-Regular(0)/m/n/12.045 架 构 提 供 的 硬 件 级 \TU/entextsf/m/n/12.045 PDL  |\TU/
+FandolSong-Regular(0)/m/n/12.045 （\TU/entextsf/m/n/12.045 NVIDIA\TU/FandolSong-
+Regular(0)/m/n/12.045 ，|
+ []
+
+[10]
 
 Package fontspec Warning: Font "FandolFang-Regular" does not contain requested
 (fontspec)                Script "CJK".
@@ -1597,48 +1604,45 @@ Package fontspec Info: Font family 'FandolFang-Regular(0)' created for font
 (fontspec)             <->"[FandolFang-Regular.otf]/OT:language=dflt;"
 (fontspec)             - 'small caps'  (m/sc) with NFSS spec.: 
 
-[12]
+[11]
 File: Img/midterm/dacos_overview.pdf Graphic file (type pdf)
 <use Img/midterm/dacos_overview.pdf>
- [13]
 File: Img/midterm/v4_carve.pdf Graphic file (type pdf)
 <use Img/midterm/v4_carve.pdf>
- [14]
+ [12] [13]
 File: Img/midterm/v4_timeline.pdf Graphic file (type pdf)
 <use Img/midterm/v4_timeline.pdf>
+ [14]
 File: Img/midterm/v4_pack.pdf Graphic file (type pdf)
 <use Img/midterm/v4_pack.pdf>
- [15]
 File: Img/midterm/v4_l1.pdf Graphic file (type pdf)
 <use Img/midterm/v4_l1.pdf>
- [16]
 File: Img/midterm/v3_pdl.pdf Graphic file (type pdf)
 <use Img/midterm/v3_pdl.pdf>
- [17]
-
-LaTeX Warning: Text page 18 contains only floats.
-
-[18]
+ [15] [16] [17]
 File: Img/midterm/v3_loop.pdf Graphic file (type pdf)
 <use Img/midterm/v3_loop.pdf>
- [19]
 File: Img/midterm/v3_ladder.pdf Graphic file (type pdf)
 <use Img/midterm/v3_ladder.pdf>
- [20]
+ [18]
 File: Img/midterm/v4_order.pdf Graphic file (type pdf)
 <use Img/midterm/v4_order.pdf>
- [21] [22] [23]
+ [19] [20] [21]
+File: Img/midterm/motiv_edges.pdf Graphic file (type pdf)
+<use Img/midterm/motiv_edges.pdf>
 File: Img/midterm/gain.pdf Graphic file (type pdf)
 <use Img/midterm/gain.pdf>
 File: Img/midterm/rule.pdf Graphic file (type pdf)
 <use Img/midterm/rule.pdf>
- [24]
+ [22] [23]
 File: Img/midterm/v4_rulereal.pdf Graphic file (type pdf)
 <use Img/midterm/v4_rulereal.pdf>
+ [24]
 File: Img/midterm/v4_guided.pdf Graphic file (type pdf)
 <use Img/midterm/v4_guided.pdf>
- [25]) (Tex/main_text/schedule [26] [27])
-[28] (Tex/main_text/results [29]) (Tex/main_text/refs
+) [25]
+(Tex/main_text/schedule [26]) [27] (Tex/main_text/results [28])
+(Tex/main_text/refs
 Underfull \hbox (badness 2368) in paragraph at lines 8--9
 []\TU/entexttt/m/n/10.53937 Hazy Research. Megakernels: Low-latency LLM inferen
 ce with device-side task graphs
@@ -1651,8 +1655,8 @@ Underfull \hbox (badness 10000) in paragraph at lines 8--9
 [][][][] []
  []
 
-[30])) (Thesis.aux)
+[29])) (Thesis.aux)
 Package rerunfilecheck Info: File `Thesis.out' has not changed.
 (rerunfilecheck)             Checksum: 7459D780DEBC9B9A65953CE5692008D7;2413.
  )
-Output written on Thesis.xdv (32 pages, 439556 bytes).
+Output written on Thesis.xdv (31 pages, 428284 bytes).
