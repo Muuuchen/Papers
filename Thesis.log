@@ -1612,9 +1612,9 @@ File: Img/midterm/v4_carve.pdf Graphic file (type pdf)
  [12] [13]
 File: Img/midterm/v4_timeline.pdf Graphic file (type pdf)
 <use Img/midterm/v4_timeline.pdf>
- [14]
 File: Img/midterm/v4_pack.pdf Graphic file (type pdf)
 <use Img/midterm/v4_pack.pdf>
+ [14]
 File: Img/midterm/v4_l1.pdf Graphic file (type pdf)
 <use Img/midterm/v4_l1.pdf>
 File: Img/midterm/v3_pdl.pdf Graphic file (type pdf)
@@ -1659,4 +1659,4 @@ Underfull \hbox (badness 10000) in paragraph at lines 8--9
 Package rerunfilecheck Info: File `Thesis.out' has not changed.
 (rerunfilecheck)             Checksum: 7459D780DEBC9B9A65953CE5692008D7;2413.
  )
-Output written on Thesis.xdv (31 pages, 428284 bytes).
+Output written on Thesis.xdv (31 pages, 428104 bytes).
