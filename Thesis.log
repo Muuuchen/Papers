@@ -1568,13 +1568,12 @@ File: Img/midterm/hw_micro.pdf Graphic file (type pdf)
 <use Img/midterm/hw_micro.pdf>
 File: Img/midterm/stage_ctas.pdf Graphic file (type pdf)
 <use Img/midterm/stage_ctas.pdf>
-
-[7]
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(2)/m/n' will be
 (Font)              scaled to size 6.00064pt on input line 71.
 LaTeX Font Info:    Font shape `TU/XITSMath-Regular(3)/m/n' will be
 (Font)              scaled to size 5.99936pt on input line 71.
- [8] [9]
+
+[7] [8] [9]
 File: Img/midterm/pdl_edges.pdf Graphic file (type pdf)
 <use Img/midterm/pdl_edges.pdf>
  [10]
@@ -1652,4 +1651,4 @@ Underfull \hbox (badness 10000) in paragraph at lines 8--9
 Package rerunfilecheck Info: File `Thesis.out' has not changed.
 (rerunfilecheck)             Checksum: 7459D780DEBC9B9A65953CE5692008D7;2413.
  )
-Output written on Thesis.xdv (32 pages, 435412 bytes).
+Output written on Thesis.xdv (32 pages, 435940 bytes).
